@@ -4,10 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${IDF_PATH}/**"
+                "~/esp/esp-idf/**"
             ],
             "defines": [],
-            "compilerPath": "/home/mfg/esp32/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc",
+            "compilerPath": "~/.espressif/tools/xtensa-esp32-elf/esp-2021r1-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"
