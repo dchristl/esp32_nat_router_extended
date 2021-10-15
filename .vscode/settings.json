@@ -3,5 +3,5 @@
         "bleprph.h": "c",
         "*.ipp": "c",
         "*.contiki": "c"
-    }
+    },
 }
