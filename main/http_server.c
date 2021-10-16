@@ -149,34 +149,34 @@ static httpd_uri_t indexp = {
     .handler = index_get_handler,
 };
 
-/* Handler to download "upload_script.html" file kept on the server */
-static esp_err_t html_download_get_handler(httpd_req_t *req)
+static esp_err_t scan_download_get_handler(httpd_req_t *req)
 {
     int fd = httpd_req_to_sockfd(req);
-    printf("\nSocket html = %d", fd);
 
-    // Get handle to embedded file "upload_script.html"
-    extern const unsigned char upload_script_start[] asm("_binary_scan_html_start");
-    extern const unsigned char upload_script_end[] asm("_binary_scan_html_end");
-    const size_t upload_script_size = (upload_script_end - upload_script_start);
+    extern const char scan_start[] asm("_binary_scan_html_start");
+    extern const char scan_end[] asm("_binary_scan_html_end");
+    const size_t scan_html_size = (scan_end - scan_start);
+    
+
+    char hello[] = "Hello World";
+
+    char *scan_page = malloc(scan_html_size + sizeof(hello));
+    sprintf(scan_page, scan_start, hello);
 
     const char *field = "Connection";
     const char *value = "close";
 
-    esp_err_t ret = httpd_resp_set_hdr(req, field, value);
-    printf("\nhtml ret = %d", ret);
+    httpd_resp_set_hdr(req, field, value);
 
-    ret = httpd_resp_send(req, (const char *)upload_script_start, upload_script_size);
-    printf("\nhtml ret1 = %d\n", ret);
+    esp_err_t ret = httpd_resp_send(req, scan_page, scan_html_size);
 
     return ESP_OK; // return ret;
 }
-
 // URI handler for getting "html page" file
 httpd_uri_t html_page_file_download_index = {
     .uri = "/scan",
     .method = HTTP_GET,
-    .handler = html_download_get_handler,
+    .handler = scan_download_get_handler,
     .user_ctx = NULL};
 
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
