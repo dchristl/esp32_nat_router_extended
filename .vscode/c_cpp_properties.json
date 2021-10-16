@@ -8,7 +8,7 @@
             ],
             "defines": [],
             "compilerPath": "~/.espressif/tools/xtensa-esp32-elf/esp-2021r1-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc",
-            "cStandard": "c11",
+            "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"
         }

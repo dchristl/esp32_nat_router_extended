@@ -2,6 +2,11 @@
     "files.associations": {
         "bleprph.h": "c",
         "*.ipp": "c",
-        "*.contiki": "c"
+        "*.contiki": "c",
+        "router_globals.h": "c",
+        "pages.h": "c",
+        "chrono": "c",
+        "random": "c",
+        "limits": "c"
     },
 }

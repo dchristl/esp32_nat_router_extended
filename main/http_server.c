@@ -13,10 +13,7 @@
 #include <esp_system.h>
 #include <esp_timer.h>
 #include <sys/param.h>
-//#include "nvs_flash.h"
 #include "esp_netif.h"
-//#include "esp_eth.h"
-//#include "protocol_examples_common.h"
 
 #include <esp_http_server.h>
 
@@ -27,32 +24,34 @@ static const char *TAG = "HTTPServer";
 
 esp_timer_handle_t restart_timer;
 
-static void restart_timer_callback(void* arg)
+static void restart_timer_callback(void *arg)
 {
     ESP_LOGI(TAG, "Restarting now...");
     esp_restart();
 }
 
 esp_timer_create_args_t restart_timer_args = {
-        .callback = &restart_timer_callback,
-        /* argument specified here will be passed to timer callback function */
-        .arg = (void*) 0,
-        .name = "restart_timer"
-};
+    .callback = &restart_timer_callback,
+    /* argument specified here will be passed to timer callback function */
+    .arg = (void *)0,
+    .name = "restart_timer"};
 
 /* An HTTP GET handler */
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
-    char*  buf;
+    char *buf;
     size_t buf_len;
 
     /* Get header value string length and allocate memory for length + 1,
      * extra byte for null termination */
     buf_len = httpd_req_get_hdr_value_len(req, "Host") + 1;
-    if (buf_len > 1) {
+
+    if (buf_len > 1)
+    {
         buf = malloc(buf_len);
         /* Copy null terminated value string into buffer */
-        if (httpd_req_get_hdr_value_str(req, "Host", buf, buf_len) == ESP_OK) {
+        if (httpd_req_get_hdr_value_str(req, "Host", buf, buf_len) == ESP_OK)
+        {
             ESP_LOGI(TAG, "Found header => Host: %s", buf);
         }
         free(buf);
@@ -61,21 +60,26 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     /* Read URL query string length and allocate memory for length + 1,
      * extra byte for null termination */
     buf_len = httpd_req_get_url_query_len(req) + 1;
-    if (buf_len > 1) {
+    if (buf_len > 1)
+    {
         buf = malloc(buf_len);
-        if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
+        if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK)
+        {
             ESP_LOGI(TAG, "Found URL query => %s", buf);
-            if (strcmp(buf, "reset=Restart") == 0) {
+            if (strcmp(buf, "reset=Restart") == 0)
+            {
                 esp_timer_start_once(restart_timer, 500000);
             }
             char param1[64];
             char param2[64];
             char param3[64];
             /* Get value of expected key from query string */
-            if (httpd_query_key_value(buf, "ap_ssid", param1, sizeof(param1)) == ESP_OK) {
+            if (httpd_query_key_value(buf, "ap_ssid", param1, sizeof(param1)) == ESP_OK)
+            {
                 ESP_LOGI(TAG, "Found URL query parameter => ap_ssid=%s", param1);
                 preprocess_string(param1);
-                if (httpd_query_key_value(buf, "ap_password", param2, sizeof(param2)) == ESP_OK) {
+                if (httpd_query_key_value(buf, "ap_password", param2, sizeof(param2)) == ESP_OK)
+                {
                     ESP_LOGI(TAG, "Found URL query parameter => ap_password=%s", param2);
                     preprocess_string(param2);
                     int argc = 3;
@@ -87,10 +91,12 @@ static esp_err_t index_get_handler(httpd_req_t *req)
                     esp_timer_start_once(restart_timer, 500000);
                 }
             }
-            if (httpd_query_key_value(buf, "ssid", param1, sizeof(param1)) == ESP_OK) {
+            if (httpd_query_key_value(buf, "ssid", param1, sizeof(param1)) == ESP_OK)
+            {
                 ESP_LOGI(TAG, "Found URL query parameter => ssid=%s", param1);
                 preprocess_string(param1);
-                if (httpd_query_key_value(buf, "password", param2, sizeof(param2)) == ESP_OK) {
+                if (httpd_query_key_value(buf, "password", param2, sizeof(param2)) == ESP_OK)
+                {
                     ESP_LOGI(TAG, "Found URL query parameter => password=%s", param2);
                     preprocess_string(param2);
                     int argc = 3;
@@ -102,13 +108,16 @@ static esp_err_t index_get_handler(httpd_req_t *req)
                     esp_timer_start_once(restart_timer, 500000);
                 }
             }
-            if (httpd_query_key_value(buf, "staticip", param1, sizeof(param1)) == ESP_OK) {
+            if (httpd_query_key_value(buf, "staticip", param1, sizeof(param1)) == ESP_OK)
+            {
                 ESP_LOGI(TAG, "Found URL query parameter => staticip=%s", param1);
                 preprocess_string(param1);
-                if (httpd_query_key_value(buf, "subnetmask", param2, sizeof(param2)) == ESP_OK) {
+                if (httpd_query_key_value(buf, "subnetmask", param2, sizeof(param2)) == ESP_OK)
+                {
                     ESP_LOGI(TAG, "Found URL query parameter => subnetmask=%s", param2);
                     preprocess_string(param2);
-                    if (httpd_query_key_value(buf, "gateway", param3, sizeof(param3)) == ESP_OK) {
+                    if (httpd_query_key_value(buf, "gateway", param3, sizeof(param3)) == ESP_OK)
+                    {
                         ESP_LOGI(TAG, "Found URL query parameter => gateway=%s", param3);
                         preprocess_string(param3);
                         int argc = 4;
@@ -128,17 +137,47 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     /* Send response with custom headers and body set as the
      * string passed in user context*/
-    const char* resp_str = (const char*) req->user_ctx;
+    const char *resp_str = (const char *)req->user_ctx;
     httpd_resp_send(req, resp_str, strlen(resp_str));
 
     return ESP_OK;
 }
 
 static httpd_uri_t indexp = {
-    .uri       = "/",
-    .method    = HTTP_GET,
-    .handler   = index_get_handler,
+    .uri = "/",
+    .method = HTTP_GET,
+    .handler = index_get_handler,
 };
+
+/* Handler to download "upload_script.html" file kept on the server */
+static esp_err_t html_download_get_handler(httpd_req_t *req)
+{
+    int fd = httpd_req_to_sockfd(req);
+    printf("\nSocket html = %d", fd);
+
+    // Get handle to embedded file "upload_script.html"
+    extern const unsigned char upload_script_start[] asm("_binary_scan_html_start");
+    extern const unsigned char upload_script_end[] asm("_binary_scan_html_end");
+    const size_t upload_script_size = (upload_script_end - upload_script_start);
+
+    const char *field = "Connection";
+    const char *value = "close";
+
+    esp_err_t ret = httpd_resp_set_hdr(req, field, value);
+    printf("\nhtml ret = %d", ret);
+
+    ret = httpd_resp_send(req, (const char *)upload_script_start, upload_script_size);
+    printf("\nhtml ret1 = %d\n", ret);
+
+    return ESP_OK; // return ret;
+}
+
+// URI handler for getting "html page" file
+httpd_uri_t html_page_file_download_index = {
+    .uri = "/scan",
+    .method = HTTP_GET,
+    .handler = html_download_get_handler,
+    .user_ctx = NULL};
 
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 {
@@ -146,13 +185,61 @@ esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
     return ESP_FAIL;
 }
 
+// Handler to download a "favicon.ico" file kept on the server
+static esp_err_t favicon_get_handler(httpd_req_t *req)
+{
+    extern const unsigned char favicon_ico_start[] asm("_binary_favicon_ico_start");
+    extern const unsigned char favicon_ico_end[] asm("_binary_favicon_ico_end");
+    const size_t favicon_ico_size = (favicon_ico_end - favicon_ico_start);
+    httpd_resp_set_type(req, "image/x-icon");
+    httpd_resp_set_hdr(req, "Cache-Control", "max-age=31536000");
+
+    const char *field = "Connection";
+    const char *value = "close";
+
+    esp_err_t ret = httpd_resp_set_hdr(req, field, value);
+
+    ret = httpd_resp_send(req, (const char *)favicon_ico_start, favicon_ico_size);
+    return ESP_OK;
+}
+
+// URI handler for getting favicon
+httpd_uri_t favicon_handler = {
+    .uri = "/favicon.ico",
+    .method = HTTP_GET,
+    .handler = favicon_get_handler,
+    .user_ctx = NULL};
+
+static esp_err_t styles_download_get_handler(httpd_req_t *req)
+{
+    extern const unsigned char styles_start[] asm("_binary_styles_css_start");
+    extern const unsigned char styles_end[] asm("_binary_styles_css_end");
+    const size_t favicon_ico_size = (styles_end - styles_start);
+    httpd_resp_set_type(req, "text/css");
+    httpd_resp_set_hdr(req, "Cache-Control", "max-age=31536000");
+    const char *field = "Connection";
+    const char *value = "close";
+
+    esp_err_t ret = httpd_resp_set_hdr(req, field, value);
+
+    ret = httpd_resp_send(req, (const char *)styles_start, favicon_ico_size);
+
+    return ESP_OK;
+}
+
+httpd_uri_t styles_handler = {
+    .uri = "/styles.css",
+    .method = HTTP_GET,
+    .handler = styles_download_get_handler,
+    .user_ctx = NULL};
+
 httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
     const char *config_page_template = CONFIG_PAGE;
-    char *config_page = malloc(strlen(config_page_template)+512);
+    char *config_page = malloc(strlen(config_page_template) + 512);
     sprintf(config_page, config_page_template, ap_ssid, ap_passwd, ssid, passwd,
             static_ip, subnet_mask, gateway_addr);
     indexp.user_ctx = config_page;
@@ -161,10 +248,14 @@ httpd_handle_t start_webserver(void)
 
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
-    if (httpd_start(&server, &config) == ESP_OK) {
+    if (httpd_start(&server, &config) == ESP_OK)
+    {
         // Set URI handlers
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &indexp);
+        httpd_register_uri_handler(server, &html_page_file_download_index);
+        httpd_register_uri_handler(server, &favicon_handler);
+        httpd_register_uri_handler(server, &styles_handler);
         return server;
     }
 
