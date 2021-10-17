@@ -49,7 +49,7 @@ static EventGroupHandle_t wifi_event_group;
 const int WIFI_CONNECTED_BIT = BIT0;
 
 #define DEFAULT_AP_IP "192.168.4.1"
-#define DEFAULT_DNS "8.8.8.8"
+#define DEFAULT_DNS "1.1.1.1"
 
 /* Global vars */
 uint16_t connect_count = 0;
