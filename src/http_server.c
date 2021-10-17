@@ -19,7 +19,7 @@
 
 #include "pages.h"
 #include "router_globals.h"
-
+#include "helper.h"
 static const char *TAG = "HTTPServer";
 
 esp_timer_handle_t restart_timer;
@@ -156,7 +156,6 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
     extern const char scan_start[] asm("_binary_scan_html_start");
     extern const char scan_end[] asm("_binary_scan_html_end");
     const size_t scan_html_size = (scan_end - scan_start);
-    
 
     char hello[] = "Hello World";
 
@@ -170,7 +169,7 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
 
     esp_err_t ret = httpd_resp_send(req, scan_page, scan_html_size);
 
-    return ESP_OK; // return ret;
+    return ret; // return ret;
 }
 // URI handler for getting "html page" file
 httpd_uri_t html_page_file_download_index = {
@@ -192,15 +191,7 @@ static esp_err_t favicon_get_handler(httpd_req_t *req)
     extern const unsigned char favicon_ico_end[] asm("_binary_favicon_ico_end");
     const size_t favicon_ico_size = (favicon_ico_end - favicon_ico_start);
     httpd_resp_set_type(req, "image/x-icon");
-    httpd_resp_set_hdr(req, "Cache-Control", "max-age=31536000");
-
-    const char *field = "Connection";
-    const char *value = "close";
-
-    esp_err_t ret = httpd_resp_set_hdr(req, field, value);
-
-    ret = httpd_resp_send(req, (const char *)favicon_ico_start, favicon_ico_size);
-    return ESP_OK;
+    return downloadStatic(req, (const char *)favicon_ico_start, favicon_ico_size);
 }
 
 // URI handler for getting favicon
@@ -214,17 +205,9 @@ static esp_err_t styles_download_get_handler(httpd_req_t *req)
 {
     extern const unsigned char styles_start[] asm("_binary_styles_css_start");
     extern const unsigned char styles_end[] asm("_binary_styles_css_end");
-    const size_t favicon_ico_size = (styles_end - styles_start);
+    const size_t styles_size = (styles_end - styles_start);
     httpd_resp_set_type(req, "text/css");
-    httpd_resp_set_hdr(req, "Cache-Control", "max-age=31536000");
-    const char *field = "Connection";
-    const char *value = "close";
-
-    esp_err_t ret = httpd_resp_set_hdr(req, field, value);
-
-    ret = httpd_resp_send(req, (const char *)styles_start, favicon_ico_size);
-
-    return ESP_OK;
+    return downloadStatic(req, (const char *)styles_start, styles_size);
 }
 
 httpd_uri_t styles_handler = {
