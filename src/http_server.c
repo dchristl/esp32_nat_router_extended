@@ -36,8 +36,29 @@ esp_timer_create_args_t restart_timer_args = {
     .arg = (void *)0,
     .name = "restart_timer"};
 
-/* An HTTP GET handler */
 static esp_err_t index_get_handler(httpd_req_t *req)
+{
+
+    httpd_req_to_sockfd(req);
+    extern const char config_start[] asm("_binary_config_html_start");
+    extern const char config_end[] asm("_binary_config_html_end");
+    const size_t config_html_size = (config_end - config_start);
+
+    char *config_page = malloc(config_html_size + 512);
+    sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd,
+            static_ip, subnet_mask, gateway_addr);
+
+    const char *field = "Connection";
+    const char *value = "close";
+
+    httpd_resp_set_hdr(req, field, value);
+
+    esp_err_t ret = httpd_resp_send(req, config_page, config_html_size);
+
+    return ret;
+}
+/* An HTTP GET handler */
+static esp_err_t index_get_handler2(httpd_req_t *req)
 {
     char *buf;
     size_t buf_len;
@@ -151,7 +172,7 @@ static httpd_uri_t indexp = {
 
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
 {
-    int fd = httpd_req_to_sockfd(req);
+    httpd_req_to_sockfd(req);
 
     extern const char scan_start[] asm("_binary_scan_html_start");
     extern const char scan_end[] asm("_binary_scan_html_end");
@@ -169,10 +190,10 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
 
     esp_err_t ret = httpd_resp_send(req, scan_page, scan_html_size);
 
-    return ret; // return ret;
+    return ret;
 }
 // URI handler for getting "html page" file
-httpd_uri_t html_page_file_download_index = {
+httpd_uri_t scan_page_download = {
     .uri = "/scan",
     .method = HTTP_GET,
     .handler = scan_download_get_handler,
@@ -221,12 +242,6 @@ httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
-    const char *config_page_template = CONFIG_PAGE;
-    char *config_page = malloc(strlen(config_page_template) + 512);
-    sprintf(config_page, config_page_template, ap_ssid, ap_passwd, ssid, passwd,
-            static_ip, subnet_mask, gateway_addr);
-    indexp.user_ctx = config_page;
-
     esp_timer_create(&restart_timer_args, &restart_timer);
 
     // Start the httpd server
@@ -236,7 +251,7 @@ httpd_handle_t start_webserver(void)
         // Set URI handlers
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &indexp);
-        httpd_register_uri_handler(server, &html_page_file_download_index);
+        httpd_register_uri_handler(server, &scan_page_download);
         httpd_register_uri_handler(server, &favicon_handler);
         httpd_register_uri_handler(server, &styles_handler);
         return server;
