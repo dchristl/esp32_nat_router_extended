@@ -50,121 +50,140 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     const char *field = "Connection";
     const char *value = "close";
-
+    ESP_LOGI(TAG, "Requesting config");
     httpd_resp_set_hdr(req, field, value);
 
     esp_err_t ret = httpd_resp_send(req, config_page, config_html_size);
-
+    free(config_page);
     return ret;
 }
-/* An HTTP GET handler */
-static esp_err_t index_get_handler2(httpd_req_t *req)
+static esp_err_t apply_post_handler(httpd_req_t *req)
 {
-    char *buf;
-    size_t buf_len;
 
-    /* Get header value string length and allocate memory for length + 1,
-     * extra byte for null termination */
-    buf_len = httpd_req_get_hdr_value_len(req, "Host") + 1;
+    httpd_req_to_sockfd(req);
+    extern const char apply_start[] asm("_binary_apply_html_start");
+    extern const char apply_end[] asm("_binary_apply_html_end");
+    const size_t apply_html_size = (apply_end - apply_start);
 
-    if (buf_len > 1)
+    char buf[100];
+    int ret, remaining = req->content_len;
+
+    while (remaining > 0)
     {
-        buf = malloc(buf_len);
-        /* Copy null terminated value string into buffer */
-        if (httpd_req_get_hdr_value_str(req, "Host", buf, buf_len) == ESP_OK)
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
         {
-            ESP_LOGI(TAG, "Found header => Host: %s", buf);
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            {
+                /* Retry receiving if timeout occurred */
+                continue;
+            }
+            return ESP_FAIL;
         }
-        free(buf);
+
+        remaining -= ret;
+        ESP_LOGI(TAG, "Found parameter query => %s", buf);
     }
+    const char *field = "Connection";
+    const char *value = "close";
+    ESP_LOGI(TAG, "Requesting apply page");
+    httpd_resp_set_hdr(req, field, value);
+
+    return httpd_resp_send(req, apply_start, apply_html_size);
 
     /* Read URL query string length and allocate memory for length + 1,
      * extra byte for null termination */
-    buf_len = httpd_req_get_url_query_len(req) + 1;
-    if (buf_len > 1)
-    {
-        buf = malloc(buf_len);
-        if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK)
-        {
-            ESP_LOGI(TAG, "Found URL query => %s", buf);
-            if (strcmp(buf, "reset=Restart") == 0)
-            {
-                esp_timer_start_once(restart_timer, 500000);
-            }
-            char param1[64];
-            char param2[64];
-            char param3[64];
-            /* Get value of expected key from query string */
-            if (httpd_query_key_value(buf, "ap_ssid", param1, sizeof(param1)) == ESP_OK)
-            {
-                ESP_LOGI(TAG, "Found URL query parameter => ap_ssid=%s", param1);
-                preprocess_string(param1);
-                if (httpd_query_key_value(buf, "ap_password", param2, sizeof(param2)) == ESP_OK)
-                {
-                    ESP_LOGI(TAG, "Found URL query parameter => ap_password=%s", param2);
-                    preprocess_string(param2);
-                    int argc = 3;
-                    char *argv[3];
-                    argv[0] = "set_ap";
-                    argv[1] = param1;
-                    argv[2] = param2;
-                    set_ap(argc, argv);
-                    esp_timer_start_once(restart_timer, 500000);
-                }
-            }
-            if (httpd_query_key_value(buf, "ssid", param1, sizeof(param1)) == ESP_OK)
-            {
-                ESP_LOGI(TAG, "Found URL query parameter => ssid=%s", param1);
-                preprocess_string(param1);
-                if (httpd_query_key_value(buf, "password", param2, sizeof(param2)) == ESP_OK)
-                {
-                    ESP_LOGI(TAG, "Found URL query parameter => password=%s", param2);
-                    preprocess_string(param2);
-                    int argc = 3;
-                    char *argv[3];
-                    argv[0] = "set_sta";
-                    argv[1] = param1;
-                    argv[2] = param2;
-                    set_sta(argc, argv);
-                    esp_timer_start_once(restart_timer, 500000);
-                }
-            }
-            if (httpd_query_key_value(buf, "staticip", param1, sizeof(param1)) == ESP_OK)
-            {
-                ESP_LOGI(TAG, "Found URL query parameter => staticip=%s", param1);
-                preprocess_string(param1);
-                if (httpd_query_key_value(buf, "subnetmask", param2, sizeof(param2)) == ESP_OK)
-                {
-                    ESP_LOGI(TAG, "Found URL query parameter => subnetmask=%s", param2);
-                    preprocess_string(param2);
-                    if (httpd_query_key_value(buf, "gateway", param3, sizeof(param3)) == ESP_OK)
-                    {
-                        ESP_LOGI(TAG, "Found URL query parameter => gateway=%s", param3);
-                        preprocess_string(param3);
-                        int argc = 4;
-                        char *argv[4];
-                        argv[0] = "set_sta_static";
-                        argv[1] = param1;
-                        argv[2] = param2;
-                        argv[3] = param3;
-                        set_sta_static(argc, argv);
-                        esp_timer_start_once(restart_timer, 500000);
-                    }
-                }
-            }
-        }
-        free(buf);
-    }
+    // buf_len = httpd_req_get_url_query_len(req) + 1;
+    // if (buf_len > 1)
+    // {
+    //     buf = malloc(buf_len);
+    //     if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK)
+    //     {
+    //         ESP_LOGI(TAG, "Found URL query => %s", buf);
+    //         if (strcmp(buf, "reset=Restart") == 0)
+    //         {
+    //             esp_timer_start_once(restart_timer, 500000);
+    //         }
+    //         char param1[64];
+    //         char param2[64];
+    //         char param3[64];
+    //         /* Get value of expected key from query string */
+    //         if (httpd_query_key_value(buf, "ap_ssid", param1, sizeof(param1)) == ESP_OK)
+    //         {
+    //             ESP_LOGI(TAG, "Found URL query parameter => ap_ssid=%s", param1);
+    //             preprocess_string(param1);
+    //             if (httpd_query_key_value(buf, "ap_password", param2, sizeof(param2)) == ESP_OK)
+    //             {
+    //                 ESP_LOGI(TAG, "Found URL query parameter => ap_password=%s", param2);
+    //                 preprocess_string(param2);
+    //                 int argc = 3;
+    //                 char *argv[3];
+    //                 argv[0] = "set_ap";
+    //                 argv[1] = param1;
+    //                 argv[2] = param2;
+    //                 set_ap(argc, argv);
+    //                 esp_timer_start_once(restart_timer, 500000);
+    //             }
+    //         }
+    //         if (httpd_query_key_value(buf, "ssid", param1, sizeof(param1)) == ESP_OK)
+    //         {
+    //             ESP_LOGI(TAG, "Found URL query parameter => ssid=%s", param1);
+    //             preprocess_string(param1);
+    //             if (httpd_query_key_value(buf, "password", param2, sizeof(param2)) == ESP_OK)
+    //             {
+    //                 ESP_LOGI(TAG, "Found URL query parameter => password=%s", param2);
+    //                 preprocess_string(param2);
+    //                 int argc = 3;
+    //                 char *argv[3];
+    //                 argv[0] = "set_sta";
+    //                 argv[1] = param1;
+    //                 argv[2] = param2;
+    //                 set_sta(argc, argv);
+    //                 esp_timer_start_once(restart_timer, 500000);
+    //             }
+    //         }
+    //         if (httpd_query_key_value(buf, "staticip", param1, sizeof(param1)) == ESP_OK)
+    //         {
+    //             ESP_LOGI(TAG, "Found URL query parameter => staticip=%s", param1);
+    //             preprocess_string(param1);
+    //             if (httpd_query_key_value(buf, "subnetmask", param2, sizeof(param2)) == ESP_OK)
+    //             {
+    //                 ESP_LOGI(TAG, "Found URL query parameter => subnetmask=%s", param2);
+    //                 preprocess_string(param2);
+    //                 if (httpd_query_key_value(buf, "gateway", param3, sizeof(param3)) == ESP_OK)
+    //                 {
+    //                     ESP_LOGI(TAG, "Found URL query parameter => gateway=%s", param3);
+    //                     preprocess_string(param3);
+    //                     int argc = 4;
+    //                     char *argv[4];
+    //                     argv[0] = "set_sta_static";
+    //                     argv[1] = param1;
+    //                     argv[2] = param2;
+    //                     argv[3] = param3;
+    //                     set_sta_static(argc, argv);
+    //                     esp_timer_start_once(restart_timer, 500000);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     free(buf);
+    // }
 
-    /* Send response with custom headers and body set as the
-     * string passed in user context*/
-    const char *resp_str = (const char *)req->user_ctx;
-    httpd_resp_send(req, resp_str, strlen(resp_str));
+    // /* Send response with custom headers and body set as the
+    //  * string passed in user context*/
+    // const char *resp_str = (const char *)req->user_ctx;
+    // httpd_resp_send(req, resp_str, strlen(resp_str));
 
-    return ESP_OK;
+    // return ESP_OK;
 }
 
 static httpd_uri_t indexp = {
+    .uri = "/apply",
+    .method = HTTP_POST,
+    .handler = apply_post_handler,
+};
+
+static httpd_uri_t applyp = {
     .uri = "/",
     .method = HTTP_GET,
     .handler = index_get_handler,
@@ -189,7 +208,7 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
     httpd_resp_set_hdr(req, field, value);
 
     esp_err_t ret = httpd_resp_send(req, scan_page, scan_html_size);
-
+    free(scan_page);
     return ret;
 }
 // URI handler for getting "html page" file
@@ -251,6 +270,7 @@ httpd_handle_t start_webserver(void)
         // Set URI handlers
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &indexp);
+        httpd_register_uri_handler(server, &applyp);
         httpd_register_uri_handler(server, &scan_page_download);
         httpd_register_uri_handler(server, &favicon_handler);
         httpd_register_uri_handler(server, &styles_handler);
@@ -261,8 +281,8 @@ httpd_handle_t start_webserver(void)
     return NULL;
 }
 
-static void stop_webserver(httpd_handle_t server)
-{
-    // Stop the httpd server
-    httpd_stop(server);
-}
+// static void stop_webserver(httpd_handle_t server)
+// {
+//     // Stop the httpd server
+//     httpd_stop(server);
+// }
