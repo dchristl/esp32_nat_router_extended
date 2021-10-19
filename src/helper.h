@@ -6,3 +6,4 @@
 #include "esp_netif.h"
 
 esp_err_t downloadStatic(httpd_req_t *req, const char *fileStart, const size_t fileSize);
+void setCloseHeader(httpd_req_t *req);

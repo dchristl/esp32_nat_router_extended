@@ -48,10 +48,9 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd,
             static_ip, subnet_mask, gateway_addr);
 
-    const char *field = "Connection";
-    const char *value = "close";
     ESP_LOGI(TAG, "Requesting config");
-    httpd_resp_set_hdr(req, field, value);
+
+    setCloseHeader(req);
 
     esp_err_t ret = httpd_resp_send(req, config_page, config_html_size);
     free(config_page);
@@ -84,10 +83,9 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
         remaining -= ret;
         ESP_LOGI(TAG, "Found parameter query => %s", buf);
     }
-    const char *field = "Connection";
-    const char *value = "close";
     ESP_LOGI(TAG, "Requesting apply page");
-    httpd_resp_set_hdr(req, field, value);
+
+    setCloseHeader(req);
 
     return httpd_resp_send(req, apply_start, apply_html_size);
 
@@ -202,10 +200,7 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
     char *scan_page = malloc(scan_html_size + sizeof(hello));
     sprintf(scan_page, scan_start, hello);
 
-    const char *field = "Connection";
-    const char *value = "close";
-
-    httpd_resp_set_hdr(req, field, value);
+    setCloseHeader(req);
 
     esp_err_t ret = httpd_resp_send(req, scan_page, scan_html_size);
     free(scan_page);
