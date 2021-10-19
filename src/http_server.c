@@ -48,7 +48,7 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd,
             static_ip, subnet_mask, gateway_addr);
 
-    ESP_LOGI(TAG, "Requesting config");
+    ESP_LOGI(TAG, "Requesting config page");
 
     setCloseHeader(req);
 
@@ -74,9 +74,9 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
         {
             if (ret == HTTPD_SOCK_ERR_TIMEOUT)
             {
-                /* Retry receiving if timeout occurred */
                 continue;
             }
+            ESP_LOGE(TAG, "Timeout occured");
             return ESP_FAIL;
         }
 
@@ -84,6 +84,7 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
         ESP_LOGI(TAG, "Found parameter query => %s", buf);
     }
     ESP_LOGI(TAG, "Requesting apply page");
+    
 
     setCloseHeader(req);
 
