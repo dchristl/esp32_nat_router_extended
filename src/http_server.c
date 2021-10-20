@@ -1,12 +1,3 @@
-/* Simple HTTP Server Example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
-
 #include <esp_wifi.h>
 #include <esp_event.h>
 #include <esp_log.h>
@@ -17,7 +8,6 @@
 
 #include <esp_http_server.h>
 
-#include "pages.h"
 #include "router_globals.h"
 #include "helper.h"
 static const char *TAG = "HTTPServer";
@@ -38,15 +28,15 @@ esp_timer_create_args_t restart_timer_args = {
 
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
-
     httpd_req_to_sockfd(req);
     extern const char config_start[] asm("_binary_config_html_start");
     extern const char config_end[] asm("_binary_config_html_end");
     const size_t config_html_size = (config_end - config_start);
+    int size = sizeof(&ap_ssid) + sizeof(&ap_passwd) + sizeof(&ssid) + sizeof(&passwd) + sizeof(&static_ip) + sizeof(&subnet_mask) + sizeof(&gateway_addr);
+    ESP_LOGD(TAG, "Allocating additional %d bytes for config page.", size);
+    char *config_page = malloc(config_html_size + size);
 
-    char *config_page = malloc(config_html_size + 512);
-    sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd,
-            static_ip, subnet_mask, gateway_addr);
+    sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd, static_ip, subnet_mask, gateway_addr);
 
     ESP_LOGI(TAG, "Requesting config page");
 
@@ -58,13 +48,12 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 }
 static esp_err_t apply_post_handler(httpd_req_t *req)
 {
-
     httpd_req_to_sockfd(req);
     extern const char apply_start[] asm("_binary_apply_html_start");
     extern const char apply_end[] asm("_binary_apply_html_end");
     const size_t apply_html_size = (apply_end - apply_start);
 
-    char buf[100];
+    char buf[32 + 32 + 64 + 64];
     int ret, remaining = req->content_len;
 
     while (remaining > 0)
@@ -83,8 +72,8 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
         remaining -= ret;
         ESP_LOGI(TAG, "Found parameter query => %s", buf);
     }
+
     ESP_LOGI(TAG, "Requesting apply page");
-    
 
     setCloseHeader(req);
 
@@ -203,6 +192,8 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
 
     setCloseHeader(req);
 
+    ESP_LOGI(TAG, "Requesting scan page");
+
     esp_err_t ret = httpd_resp_send(req, scan_page, scan_html_size);
     free(scan_page);
     return ret;
@@ -227,6 +218,7 @@ static esp_err_t favicon_get_handler(httpd_req_t *req)
     extern const unsigned char favicon_ico_end[] asm("_binary_favicon_ico_end");
     const size_t favicon_ico_size = (favicon_ico_end - favicon_ico_start);
     httpd_resp_set_type(req, "image/x-icon");
+    ESP_LOGI(TAG, "Requesting favicon");
     return downloadStatic(req, (const char *)favicon_ico_start, favicon_ico_size);
 }
 
@@ -243,6 +235,7 @@ static esp_err_t styles_download_get_handler(httpd_req_t *req)
     extern const unsigned char styles_end[] asm("_binary_styles_css_end");
     const size_t styles_size = (styles_end - styles_start);
     httpd_resp_set_type(req, "text/css");
+    ESP_LOGI(TAG, "Requesting style.css");
     return downloadStatic(req, (const char *)styles_start, styles_size);
 }
 

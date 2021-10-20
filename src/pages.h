@@ -1,1 +1,0 @@
-const char * ROW_TEMPLATE = R"EOF(<tr><td>%s</td><td>%s</td><td> <a href='/config.html?asas=%s' class='btn btn-success'>Use</a></td></tr>)EOF";
