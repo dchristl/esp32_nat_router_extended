@@ -1,4 +1,8 @@
 #include "helper.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+const char *ROW_TEMPLATE = "<tr><td>%s</td><td>%s</td><td> <a href='/config.html?asas=%s' class='btn btn-success'>Use</a></td></tr>";
 
 esp_err_t downloadStatic(httpd_req_t *req, const char *fileStart, const size_t fileSize)
 {
@@ -17,12 +21,6 @@ void setCloseHeader(httpd_req_t *req)
 
 }
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-const char *ROW_TEMPLATE = R"EOF(<tr><td>%s</td><td>%s</td><td> <a href='/config.html?asas=%s' class='btn btn-success'>Use</a></td></tr>)EOF";
 
 typedef struct node
 {
