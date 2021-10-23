@@ -10,6 +10,7 @@
 
 #include "router_globals.h"
 #include "helper.h"
+#include "cmd_nvs.h"
 
 esp_timer_handle_t restart_timer;
 
@@ -70,15 +71,21 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
 
         remaining -= ret;
         ESP_LOGI(TAG, "Found parameter query => %s", buf);
-        char funcParam[25];
+        char funcParam[req->content_len];
         if (httpd_query_key_value(buf, "func", funcParam, sizeof(funcParam)) == ESP_OK)
         {
             ESP_LOGI(TAG, "Found function parameter => %s", funcParam);
             preprocess_string(funcParam);
-            if (strcmp(funcParam, "reboot") == 0)
+            if (strcmp(funcParam, "erase") == 0)
             {
-                esp_timer_start_once(restart_timer, 500000);
+                ESP_LOGW(TAG, "Erasing %s", PARAM_NAMESPACE);
+                int argc = 2;
+                char *argv[argc];
+                argv[0] = "erase_namespace";
+                argv[1] = PARAM_NAMESPACE;
+                erase_ns(argc, argv);
             }
+            esp_timer_start_once(restart_timer, 500000);
         }
         else
         {
