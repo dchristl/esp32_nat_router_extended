@@ -11,6 +11,7 @@
 #include "router_globals.h"
 #include "helper.h"
 #include "cmd_nvs.h"
+#include "nvs.h"
 
 esp_timer_handle_t restart_timer;
 
@@ -92,8 +93,12 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
             char *postCopy;
             postCopy = malloc(sizeof(char) * (strlen(buf) + 1));
             strcpy(postCopy, buf);
-            setStaByQuery(postCopy);
-            setApByQuery(postCopy);
+            nvs_handle_t nvs;
+            nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
+            setApByQuery(postCopy, nvs);
+            setStaByQuery(postCopy, nvs);
+            nvs_commit(nvs);
+            nvs_close(nvs);
             free(postCopy);
             esp_timer_start_once(restart_timer, 500000);
         }

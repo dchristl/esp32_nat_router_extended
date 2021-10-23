@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "router_globals.h"
-#include "nvs.h"
 
 const char *ROW_TEMPLATE = "<tr><td>%s</td><td>%s</td><td> <a href='/config.html?asas=%s' class='btn btn-success'>Use</a></td></tr>";
 
@@ -40,34 +39,25 @@ void fillParamArray(char *buf, char *argv[], char *ssidKey, char *passKey)
     }
 }
 
-void setApByQuery(char *buf)
+void setApByQuery(char *buf, nvs_handle_t nvs)
 {
     int argc = 3;
     char *argv[argc];
     argv[0] = "set_ap";
     fillParamArray(buf, argv, "ap_ssid", "ap_password");
-    nvs_handle_t nvs;
-    nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-
     nvs_set_str(nvs, "ap_ssid", argv[1]);
     nvs_set_str(nvs, "ap_passwd", argv[2]);
-    nvs_commit(nvs);
-    nvs_close(nvs);
 }
 
-void setStaByQuery(char *buf)
+void setStaByQuery(char *buf, nvs_handle_t nvs)
 {
     int argc = 3;
     char *argv[argc];
     argv[0] = "set_sta";
     fillParamArray(buf, argv, "ssid", "password");
-
-    nvs_handle_t nvs;
-    nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
     nvs_set_str(nvs, "ssid", argv[1]);
     nvs_set_str(nvs, "passwd", argv[2]);
-    nvs_commit(nvs);
-    nvs_close(nvs);
+
 }
 
 typedef struct node
