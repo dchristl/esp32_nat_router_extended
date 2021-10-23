@@ -31,11 +31,11 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     extern const char config_start[] asm("_binary_config_html_start");
     extern const char config_end[] asm("_binary_config_html_end");
     const size_t config_html_size = (config_end - config_start);
-    int size = sizeof(&ap_ssid) + sizeof(&ap_passwd) + sizeof(&ssid) + sizeof(&passwd) + sizeof(&static_ip) + sizeof(&subnet_mask) + sizeof(&gateway_addr);
+    size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(ssid) + strlen(passwd);
     ESP_LOGD(TAG, "Allocating additional %d bytes for config page.", size);
     char *config_page = malloc(config_html_size + size);
 
-    sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd, static_ip, subnet_mask, gateway_addr);
+    sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd);
 
     ESP_LOGI(TAG, "Requesting config page");
 
