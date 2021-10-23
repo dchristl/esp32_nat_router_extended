@@ -54,12 +54,21 @@
       </div>
     </form>
     <h2 class="mt-2">Device Management</h2>
-    <form action='' method='GET'>
+    <form action='scan' method='GET'>
       <div class="form-group row col-5 offset-5 mt-2">
-        <input type='submit' name='reset' value='Reboot device' class='btn btn-warning' />
+        <input type='submit' name='reset' value='Wifi Scan' class='btn btn-warning' />
       </div>
+    </form>
+    <form action='apply' method='POST'>
       <div class="form-group row col-5 offset-5 mt-2">
-        <input type='submit' name='erase' value='Erase flash' class='btn btn-danger' />
+        <input type='hidden' name='func' value="reboot">
+        <input type='submit' value='reboot' class='btn btn-warning' />
+      </div>
+    </form>
+    <form action='apply' method='POST'>
+      <div class="form-group row col-5 offset-5 mt-2">
+        <input type='hidden' name='func' value="erase">
+        <input type='submit' value='Erase flash' class='btn btn-danger' />
         <small class="form-text text-muted">Set back to defaults</small>
       </div>
     </form>

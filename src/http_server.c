@@ -70,15 +70,26 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
 
         remaining -= ret;
         ESP_LOGI(TAG, "Found parameter query => %s", buf);
-
-        char *postCopy;
-        postCopy = malloc(sizeof(char) * (strlen(buf) + 1));
-        strcpy(postCopy, buf);
-        setStaByQuery(postCopy);
-        setApByQuery(postCopy);
-        free(postCopy);
-
-        esp_timer_start_once(restart_timer, 500000);
+        char funcParam[25];
+        if (httpd_query_key_value(buf, "func", funcParam, sizeof(funcParam)) == ESP_OK)
+        {
+            ESP_LOGI(TAG, "Found function parameter => %s", funcParam);
+            preprocess_string(funcParam);
+            if (strcmp(funcParam, "reboot") == 0)
+            {
+                esp_timer_start_once(restart_timer, 500000);
+            }
+        }
+        else
+        {
+            char *postCopy;
+            postCopy = malloc(sizeof(char) * (strlen(buf) + 1));
+            strcpy(postCopy, buf);
+            setStaByQuery(postCopy);
+            setApByQuery(postCopy);
+            free(postCopy);
+            esp_timer_start_once(restart_timer, 500000);
+        }
     }
     ESP_LOGI(TAG, "Requesting apply page");
     setCloseHeader(req);
