@@ -42,7 +42,6 @@ void fillParamArray(char *buf, char *argv[], char *ssidKey, char *passKey)
 
 void setApByQuery(char *buf)
 {
-    ESP_LOGI(TAG, "ap buf => %s", buf);
     int argc = 3;
     char *argv[argc];
     argv[0] = "set_ap";
@@ -59,16 +58,14 @@ void setApByQuery(char *buf)
 void setStaByQuery(char *buf)
 {
     int argc = 3;
-    ESP_LOGI(TAG, "sta buf => %s", buf);
     char *argv[argc];
     argv[0] = "set_sta";
     fillParamArray(buf, argv, "ssid", "password");
 
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-
-    err = nvs_set_str(nvs, "ssid", argv[1]);
-    err = nvs_set_str(nvs, "passwd", argv[2]);
+    nvs_set_str(nvs, "ssid", argv[1]);
+    nvs_set_str(nvs, "passwd", argv[2]);
     nvs_commit(nvs);
     nvs_close(nvs);
 }

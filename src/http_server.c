@@ -52,8 +52,8 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
     extern const char apply_end[] asm("_binary_apply_html_end");
     const size_t apply_html_size = (apply_end - apply_start);
 
-    char buf[1000];
     int ret, remaining = req->content_len;
+    char buf[req->content_len];
 
     while (remaining > 0)
     {
@@ -76,7 +76,6 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
         strcpy(postCopy, buf);
         setStaByQuery(postCopy);
         setApByQuery(postCopy);
-        // setStaticInfos(postCopy);
         free(postCopy);
 
         esp_timer_start_once(restart_timer, 500000);

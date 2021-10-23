@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,7 +27,7 @@
       <div class="form-group row">
         <label for="ap_password" class="col-3">Password</label>
         <div class="col-9">
-          <input type="password" class="form-control" name='ap_password' id='ap_ssid' value='%s'  maxlength="64"
+          <input type="password" class="form-control" name='ap_password' id='ap_ssid' value='%s' maxlength="64"
             placeholder="Password of the new network">
         </div>
       </div>
@@ -39,46 +38,21 @@
       <div class="form-group row">
         <label for="ssid" class="col-3">SSID</label>
         <div class="col-9">
-          <input type="text" class="form-control" name='ssid' id='ssid' value='%s'  maxlength="32"
+          <input type="text" class="form-control" name='ssid' id='ssid' value='%s' maxlength="32"
             placeholder="SSID of the existing network">
         </div>
       </div>
       <div class="form-group row">
         <label for="password" class="col-3">Password</label>
         <div class="col-9">
-          <input type="password" class="form-control" name='password' id='password' value='%s'  maxlength="64"
+          <input type="password" class="form-control" name='password' id='password' value='%s' maxlength="64"
             placeholder="Password of the existing network">
         </div>
-      </div>
-      <h2 class="mt-2">STA Static IP Settings</h2>
-      <div class="form-group row">
-        <label for="staticip" class="col-3">Static IP</label>
-        <div class="col-9">
-          <input type="text" class="form-control" name='staticip' id='staticip' value='%s' placeholder="192.168.X.X">
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="subnetmask" class="col-3">Subnet Mask</label>
-        <div class="col-9">
-          <input type="subnetmask" class="form-control" name='subnetmask' id='subnetmask' value='%s'
-            placeholder="255.255.255.0">
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="gateway" class="col-3">Gateway</label>
-        <div class="col-9">
-          <input type="gateway" class="form-control" name='gateway' id='gateway' value='%s' placeholder="1.1.1.1">
-        </div>
-      </div>
-      <div class="form-group row col-9 offset-3">
-        <small class="form-text text-muted">Leave it in blank if you want your ESP32 to get an IP using
-          DHCP</small>
       </div>
       <div class="form-group row col-5 offset-5 mt-2">
         <input type='submit' value='Apply changes' class='btn btn-primary' />
       </div>
     </form>
-
     <h2 class="mt-2">Device Management</h2>
     <form action='' method='GET'>
       <div class="form-group row col-5 offset-5 mt-2">
@@ -90,7 +64,6 @@
       </div>
     </form>
   </div>
-
 </body>
 
 </html>
