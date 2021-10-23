@@ -48,10 +48,10 @@
           <input type="password" class="form-control" name='password' id='password' value='%s' maxlength="64"
             placeholder="Password of the existing network">
         </div>
-      </div>
-      <div class="form-group row col-5 offset-5 mt-2">
-        <input type='submit' value='Apply changes' class='btn btn-primary' />
-      </div>
+        <input type="hidden" class="form-control" name='x' value='x'>
+        <div class="form-group row col-5 offset-5 mt-2">
+          <input type='submit' value='Apply changes' class='btn btn-primary' />
+        </div>
     </form>
     <h2 class="mt-2">Device Management</h2>
     <form action='scan' method='GET'>
