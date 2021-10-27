@@ -48,6 +48,28 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     return ret;
 }
+
+static esp_err_t index_post_handler(httpd_req_t *req)
+{
+    httpd_req_to_sockfd(req);
+    // extern const char config_start[] asm("_binary_config_html_start");
+    // extern const char config_end[] asm("_binary_config_html_end");
+    // const size_t config_html_size = (config_end - config_start);
+    // size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(ssid) + strlen(passwd);
+    // ESP_LOGD(TAG, "Allocating additional %d bytes for config page.", size);
+    // char *config_page = malloc(config_html_size + size);
+
+    // sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd);
+
+    // ESP_LOGI(TAG, "Requesting config page");
+
+    // setCloseHeader(req);
+
+    // esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page));
+    // free(config_page);
+
+    return index_get_handler(req);
+}
 static esp_err_t apply_post_handler(httpd_req_t *req)
 {
     httpd_req_to_sockfd(req);
@@ -109,16 +131,21 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, apply_start, apply_html_size);
 }
 
-static httpd_uri_t indexp = {
+static httpd_uri_t applyp = {
     .uri = "/apply",
     .method = HTTP_POST,
     .handler = apply_post_handler,
 };
 
-static httpd_uri_t applyp = {
+static httpd_uri_t indexg = {
     .uri = "/",
     .method = HTTP_GET,
     .handler = index_get_handler,
+};
+static httpd_uri_t indexp = {
+    .uri = "/",
+    .method = HTTP_POST,
+    .handler = index_post_handler,
 };
 
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
@@ -194,7 +221,7 @@ httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.stack_size = 20480;
+    config.stack_size = 12000;
 
     esp_timer_create(&restart_timer_args, &restart_timer);
 
@@ -205,6 +232,7 @@ httpd_handle_t start_webserver(void)
         // Set URI handlers
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &indexp);
+        httpd_register_uri_handler(server, &indexg);
         httpd_register_uri_handler(server, &applyp);
         httpd_register_uri_handler(server, &scan_page_download);
         httpd_register_uri_handler(server, &favicon_handler);
