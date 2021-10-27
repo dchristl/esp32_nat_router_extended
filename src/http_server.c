@@ -52,21 +52,37 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 static esp_err_t index_post_handler(httpd_req_t *req)
 {
     httpd_req_to_sockfd(req);
-    // extern const char config_start[] asm("_binary_config_html_start");
-    // extern const char config_end[] asm("_binary_config_html_end");
-    // const size_t config_html_size = (config_end - config_start);
-    // size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(ssid) + strlen(passwd);
-    // ESP_LOGD(TAG, "Allocating additional %d bytes for config page.", size);
-    // char *config_page = malloc(config_html_size + size);
 
-    // sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd);
+    int ret, remaining = req->content_len;
+    char buf[req->content_len];
 
-    // ESP_LOGI(TAG, "Requesting config page");
+    while (remaining > 0)
+    {
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+        {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            {
+                continue;
+            }
+            ESP_LOGE(TAG, "Timeout occured");
+            return ESP_FAIL;
+        }
 
-    // setCloseHeader(req);
-
-    // esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page));
-    // free(config_page);
+        remaining -= ret;
+        ESP_LOGI(TAG, "Found parameter query => %s", buf);
+        char ssidParam[req->content_len];
+        if (httpd_query_key_value(buf, "ssid", ssidParam, sizeof(ssidParam)) == ESP_OK)
+        {
+            preprocess_string(ssidParam);
+            ESP_LOGI(TAG, "Found SSID parameter => %s", ssidParam);
+            if (strlen(ssidParam) > 0)
+            {
+                ap_ssid = ssidParam;
+                ap_passwd = "";
+            }
+        }
+    }
 
     return index_get_handler(req);
 }

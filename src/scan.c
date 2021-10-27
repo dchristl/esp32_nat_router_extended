@@ -144,7 +144,7 @@ static char *wifi_scan(void)
             print_cipher_type(ap_info[i].pairwise_cipher, ap_info[i].group_cipher);
         }
         ESP_LOGI(TAG, "Channel \t\t%d\n", ap_info[i].primary);
-        sprintf(template, ROW_TEMPLATE, ap_info[i].ssid, ap_info[i].rssi, "current->sec");
+        sprintf(template, ROW_TEMPLATE, ap_info[i].ssid, ap_info[i].rssi, ap_info[i].ssid);
         strcat(str, template);
     }
     free(template);
