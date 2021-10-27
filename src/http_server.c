@@ -43,7 +43,7 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     setCloseHeader(req);
 
-    esp_err_t ret = httpd_resp_send(req, config_page, config_html_size);
+    esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page));
     free(config_page);
 
     return ret;
@@ -134,13 +134,12 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
     int size = scan_html_size + strlen(scan_result);
     char *scan_page = malloc(size);
     sprintf(scan_page, scan_start, scan_result);
-    ESP_LOGI(TAG, "After scanning:\n %d --> %d, %d", size, strlen(scan_result), strlen(scan_page));
 
     setCloseHeader(req);
 
     ESP_LOGI(TAG, "Requesting scan page");
 
-    esp_err_t ret = httpd_resp_send(req, scan_page, scan_html_size);
+    esp_err_t ret = httpd_resp_send(req, scan_page, strlen(scan_page));
     free(scan_page);
     return ret;
 }

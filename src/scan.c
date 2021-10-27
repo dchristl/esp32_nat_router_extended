@@ -148,7 +148,6 @@ static char *wifi_scan(void)
         strcat(str, template);
     }
     free(template);
-    // ESP_LOGI(TAG, "Returning from function scan with:\n%s", str);
     char *a_ptr = str;
     return a_ptr;
 }
