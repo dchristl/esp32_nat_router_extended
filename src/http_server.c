@@ -15,6 +15,8 @@
 
 esp_timer_handle_t restart_timer;
 
+char *appliedSSID = NULL;
+
 static void restart_timer_callback(void *arg)
 {
     ESP_LOGI(TAG, "Restarting now...");
@@ -33,19 +35,34 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     extern const char config_start[] asm("_binary_config_html_start");
     extern const char config_end[] asm("_binary_config_html_end");
     const size_t config_html_size = (config_end - config_start);
-    size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(ssid) + strlen(passwd);
-    ESP_LOGD(TAG, "Allocating additional %d bytes for config page.", size);
+    size_t size = strlen(ap_ssid) + strlen(ap_passwd) + 100; //TODO 
+    if (appliedSSID != NULL && strlen(appliedSSID) > 0)
+    {
+        size_t size = size + strlen(appliedSSID);
+    }
+    else
+    {
+        size_t size = size + strlen(ssid) + strlen(passwd);
+    }
+    ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
+    ESP_LOGI(TAG, "%d , %d, %d, %d = %d", strlen(ap_ssid), strlen(ap_passwd), strlen(ssid), strlen(passwd), config_html_size);
     char *config_page = malloc(config_html_size + size);
 
-    sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd);
-
-    ESP_LOGI(TAG, "Requesting config page");
+    if (appliedSSID != NULL && strlen(appliedSSID) > 0)
+    {
+        sprintf(config_page, config_start, ap_ssid, ap_passwd, appliedSSID, "");
+    }
+    else
+    {
+        sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd);
+    }
+    ESP_LOGI(TAG, "BLUBB %d", strlen(config_page));
 
     setCloseHeader(req);
 
     esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page));
     free(config_page);
-
+    free(appliedSSID);
     return ret;
 }
 
@@ -75,11 +92,11 @@ static esp_err_t index_post_handler(httpd_req_t *req)
         if (httpd_query_key_value(buf, "ssid", ssidParam, sizeof(ssidParam)) == ESP_OK)
         {
             preprocess_string(ssidParam);
-            ESP_LOGI(TAG, "Found SSID parameter => %s", ssidParam);
+            ESP_LOGI(TAG, "Found SSID parameter => %s (%d)", ssidParam, strlen(ssidParam));
             if (strlen(ssidParam) > 0)
             {
-                ap_ssid = ssidParam;
-                ap_passwd = "";
+                appliedSSID = malloc(strlen(ssidParam) + 1);
+                strcpy(appliedSSID, ssidParam);
             }
         }
     }
@@ -237,7 +254,7 @@ httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.stack_size = 12000;
+    config.stack_size = 20000;
 
     esp_timer_create(&restart_timer_args, &restart_timer);
 
