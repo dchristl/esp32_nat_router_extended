@@ -45,6 +45,7 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     esp_err_t ret = httpd_resp_send(req, config_page, config_html_size);
     free(config_page);
+
     return ret;
 }
 static esp_err_t apply_post_handler(httpd_req_t *req)
@@ -128,10 +129,12 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
     extern const char scan_end[] asm("_binary_scan_html_end");
     const size_t scan_html_size = (scan_end - scan_start);
 
-    char hello[] = "Hello World";
+    const char *scan_result = fillNodes();
 
-    char *scan_page = malloc(scan_html_size + sizeof(hello));
-    sprintf(scan_page, scan_start, hello);
+    int size = scan_html_size + strlen(scan_result);
+    char *scan_page = malloc(size);
+    sprintf(scan_page, scan_start, scan_result);
+    ESP_LOGI(TAG, "After scanning:\n %d --> %d, %d", size, strlen(scan_result), strlen(scan_page));
 
     setCloseHeader(req);
 
@@ -192,6 +195,7 @@ httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.stack_size = 20480;
 
     esp_timer_create(&restart_timer_args, &restart_timer);
 
