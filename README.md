@@ -18,11 +18,16 @@ After first boot the ESP32 NAT Router will offer a WiFi network with an open AP 
 ## Web Config Interface
 The web interface allows for the configuration of all parameters. Connect you PC or smartphone to the WiFi SSID "ESP32_NAT_Router" and point your browser to "http://192.168.4.1". This page should appear:
 
-<img src="https://raw.githubusercontent.com/martin-ger/esp32_nat_router/master/ESP32_NAT_UI2.JPG">
+![image](docs/index.png)
 
 First enter the appropriate values for the uplink WiFi network, the "STA Settings". Leave password blank for open networks. Click "Connect". The ESP32 reboots and will connect to your WiFi router.
 
 Now you can reconnect and reload the page and change the "Soft AP Settings". Click "Set" and again the ESP32 reboots. Now it is ready for forwarding traffic over the newly configured Soft AP. Be aware that these changes also affect the config interface, i.e. to do further configuration, connect to the ESP32 through one of the newly configured WiFi networks.
+
+## Screenshots
+
+![image](docs/scan.png)
+![image](docs/reset.png)
 
 ## Interpreting the on board LED
 
@@ -167,11 +172,7 @@ esptool.py --chip esp32 --port /dev/ttyUSB0 \
 
 As an alternative you might use [Espressif's Flash Download Tools](https://www.espressif.com/en/products/hardware/esp32/resources) with the parameters given in the figure below (thanks to mahesh2000):
 
-## Screenshot
-
-![image](docs/index.png)
-![image](docs/scan.png)
-![image](docs/reset.png)
+![image](https://raw.githubusercontent.com/martin-ger/esp32_nat_router/master/FlasherUI.jpg)
 
 ## Building the Binaries
 
