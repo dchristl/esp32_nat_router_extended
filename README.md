@@ -159,20 +159,19 @@ show
 
 If you want to enter non-ASCII or special characters (incl. ' ') you can use HTTP-style hex encoding (e.g. "My%20AccessPoint" results in a string "My AccessPoint").
 
-## Flashing the prebuild Binaries
-Install [esptool](https://github.com/espressif/esptool), go to the project directory, and enter:
+## Flashing the prebuild binaries
+- Download and extract latest release
+- Install [esptool](https://github.com/espressif/esptool)
+- execute in extracted folder
 ```
-esptool.py --chip esp32 --port /dev/ttyUSB0 \
---baud 115200 --before default_reset --after hard_reset write_flash \
--z --flash_mode dio --flash_freq 40m --flash_size detect \
-0x1000 build/bootloader/bootloader.bin \
-0x10000 build/esp32_nat_router.bin \
-0x8000 build/partitions_example.bin
+esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000 bootloader.bin 0x10000 firmware.bin 0x8000 partitions.bin
 ```
 
-As an alternative you might use [Espressif's Flash Download Tools](https://www.espressif.com/en/products/hardware/esp32/resources) with the parameters given in the figure below (thanks to mahesh2000):
+As an alternative you might use [Espressif's Flash Download Tools](https://www.espressif.com/en/support/download/other-tools).
 
-![image](https://raw.githubusercontent.com/martin-ger/esp32_nat_router/master/FlasherUI.jpg)
+Check the marked parameters and files like below:
+
+![image](docs/win_flash.png)
 
 ## Building the Binaries
 
