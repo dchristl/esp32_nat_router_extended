@@ -15,6 +15,8 @@
 
 esp_timer_handle_t restart_timer;
 
+bool isLocked = false;
+
 char *appliedSSID = NULL;
 
 static void restart_timer_callback(void *arg)
@@ -29,6 +31,23 @@ esp_timer_create_args_t restart_timer_args = {
     .arg = (void *)0,
     .name = "restart_timer"};
 
+static esp_err_t unlock_handler(httpd_req_t *req)
+{
+    httpd_req_to_sockfd(req);
+
+
+
+
+
+    
+    extern const char ul_start[] asm("_binary_unlock_html_start");
+    extern const char ul_end[] asm("_binary_unlock_html_end");
+    const size_t ul_html_size = (ul_end - ul_start);
+
+    setCloseHeader(req);
+    return httpd_resp_send(req, ul_start, ul_html_size);
+}
+
 static esp_err_t reset_get_handler(httpd_req_t *req)
 {
     httpd_req_to_sockfd(req);
@@ -40,17 +59,6 @@ static esp_err_t reset_get_handler(httpd_req_t *req)
 
     esp_err_t ret = httpd_resp_send(req, reset_start, reset_html_size);
     return ret;
-}
-
-static esp_err_t unlock_handler(httpd_req_t *req)
-{
-    httpd_req_to_sockfd(req);
-    extern const char ul_start[] asm("_binary_unlock_html_start");
-    extern const char ul_end[] asm("_binary_unlock_html_end");
-    const size_t ul_html_size = (ul_end - ul_start);
-
-    setCloseHeader(req);
-    return httpd_resp_send(req, ul_start, ul_html_size);
 }
 
 static esp_err_t index_get_handler(httpd_req_t *req)
@@ -303,6 +311,12 @@ static httpd_uri_t lockg = {
 };
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
 {
+
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
+
     httpd_req_to_sockfd(req);
 
     extern const char scan_start[] asm("_binary_scan_html_start");
@@ -378,6 +392,15 @@ httpd_handle_t start_webserver(void)
     config.max_uri_handlers = 15;
 
     esp_timer_create(&restart_timer_args, &restart_timer);
+
+    char *lock = NULL;
+
+    get_config_param_str("lock_pass", &lock);
+    if (strlen(lock) > 0)
+    {
+        isLocked = true;
+        ESP_LOGI(TAG, "UI is locked with password '%s'", lock);
+    }
 
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
