@@ -53,22 +53,6 @@ static esp_err_t unlock_handler(httpd_req_t *req)
     return httpd_resp_send(req, ul_start, ul_html_size);
 }
 
-static esp_err_t lock_handler(httpd_req_t *req)
-{
-    httpd_req_to_sockfd(req);
-
-
-
-
-
-    
-    extern const char l_start[] asm("_binary_lock_html_start");
-    extern const char l_end[] asm("_binary_lock_html_end");
-    const size_t l_html_size = (l_end - l_start);
-
-    setCloseHeader(req);
-    return httpd_resp_send(req, l_start, l_html_size);
-}
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
     httpd_req_to_sockfd(req);
@@ -202,6 +186,52 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, apply_start, apply_html_size);
 }
 
+static esp_err_t lock_handler(httpd_req_t *req)
+{
+    httpd_req_to_sockfd(req);
+
+    int ret, remaining = req->content_len;
+    char buf[req->content_len];
+
+    while (remaining > 0)
+    {
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+        {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            {
+                continue;
+            }
+            ESP_LOGE(TAG, "Timeout occured");
+            return ESP_FAIL;
+        }
+
+        remaining -= ret;
+        ESP_LOGI(TAG, "Found parameter query => %s", buf);
+        char passParam[req->content_len];
+        if (httpd_query_key_value(buf, "ssid", passParam, sizeof(passParam)) == ESP_OK)
+        {
+            preprocess_string(passParam);
+            ESP_LOGI(TAG, "Found pass parameter => %s (%d)", passParam, strlen(passParam));
+            if (strlen(passParam) > 0)
+            {
+                nvs_handle_t nvs;
+                nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
+                nvs_set_str(nvs, "lock_pass", passParam);
+                nvs_commit(nvs);
+                nvs_close(nvs);
+                return apply_post_handler(req);
+            }
+        }
+    }
+    extern const char l_start[] asm("_binary_lock_html_start");
+    extern const char l_end[] asm("_binary_lock_html_end");
+    const size_t l_html_size = (l_end - l_start);
+
+    setCloseHeader(req);
+    return httpd_resp_send(req, l_start, l_html_size);
+}
+
 static httpd_uri_t applyp = {
     .uri = "/apply",
     .method = HTTP_POST,
@@ -236,14 +266,14 @@ static httpd_uri_t unlockp = {
     .handler = unlock_handler,
 };
 
-static httpd_uri_t lockg = {
-    .uri = "/lock",
-    .method = HTTP_GET,
-    .handler = lock_handler,
-};
 static httpd_uri_t lockp = {
     .uri = "/lock",
     .method = HTTP_POST,
+    .handler = lock_handler,
+};
+static httpd_uri_t lockg = {
+    .uri = "/lock",
+    .method = HTTP_GET,
     .handler = lock_handler,
 };
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
@@ -320,6 +350,7 @@ httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.stack_size = 20000;
+    config.max_uri_handlers = 15;
 
     esp_timer_create(&restart_timer_args, &restart_timer);
 
