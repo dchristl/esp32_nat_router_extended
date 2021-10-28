@@ -167,7 +167,11 @@ esptool.py --chip esp32 --port /dev/ttyUSB0 \
 
 As an alternative you might use [Espressif's Flash Download Tools](https://www.espressif.com/en/products/hardware/esp32/resources) with the parameters given in the figure below (thanks to mahesh2000):
 
-![image](https://raw.githubusercontent.com/martin-ger/esp32_nat_router/master/FlasherUI.jpg)
+## Screenshot
+
+![image](docs/index.png)
+![image](docs/scan.png)
+![image](docs/reset.png)
 
 ## Building the Binaries
 

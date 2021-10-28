@@ -20,7 +20,7 @@
 #include "esp_heap_caps.h"
 #include "helper.h"
 
-const char *ROW_TEMPLATE = "<tr class='text-success'><td>%s</td><td>%d</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-secondary'/></form></td></tr>";
+const char *ROW_TEMPLATE = "<tr class='text-%s'><td>%s</td><td>%d</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-primary'/></form></td></tr>";
 
 #define DEFAULT_SCAN_LIST_SIZE 12
 
@@ -144,7 +144,21 @@ static char *wifi_scan(void)
             print_cipher_type(ap_info[i].pairwise_cipher, ap_info[i].group_cipher);
         }
         ESP_LOGI(TAG, "Channel \t\t%d\n", ap_info[i].primary);
-        sprintf(template, ROW_TEMPLATE, ap_info[i].ssid, ap_info[i].rssi, ap_info[i].ssid);
+        char *css;
+        if (ap_info[i].rssi >= -50)
+        {
+            css = "success";
+        }
+        else if (ap_info[i].rssi >= -70)
+        {
+            css = "info";
+        }
+        else
+        {
+            css = "warning";
+        }
+
+        sprintf(template, ROW_TEMPLATE, css, ap_info[i].ssid, ap_info[i].rssi, ap_info[i].ssid);
         strcat(str, template);
     }
     free(template);
