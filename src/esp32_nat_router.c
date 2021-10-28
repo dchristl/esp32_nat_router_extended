@@ -494,6 +494,7 @@ char *static_ip = NULL;
 char *subnet_mask = NULL;
 char *gateway_addr = NULL;
 char *ap_ssid = NULL;
+char *lock_pass = NULL;
 char *ap_passwd = NULL;
 char *ap_ip = NULL;
 
@@ -554,6 +555,12 @@ void app_main(void)
     if (ap_ip == NULL)
     {
         ap_ip = param_set_default(DEFAULT_AP_IP);
+    }
+
+    get_config_param_str("lock_pass", &lock_pass);
+    if (lock_pass == NULL)
+    {
+        lock_pass = param_set_default("");
     }
 
     get_portmap_tab();

@@ -42,13 +42,40 @@ static esp_err_t reset_get_handler(httpd_req_t *req)
     return ret;
 }
 
+static esp_err_t unlock_handler(httpd_req_t *req)
+{
+    httpd_req_to_sockfd(req);
+    extern const char ul_start[] asm("_binary_unlock_html_start");
+    extern const char ul_end[] asm("_binary_unlock_html_end");
+    const size_t ul_html_size = (ul_end - ul_start);
+
+    setCloseHeader(req);
+    return httpd_resp_send(req, ul_start, ul_html_size);
+}
+
+static esp_err_t lock_handler(httpd_req_t *req)
+{
+    httpd_req_to_sockfd(req);
+
+
+
+
+
+    
+    extern const char l_start[] asm("_binary_lock_html_start");
+    extern const char l_end[] asm("_binary_lock_html_end");
+    const size_t l_html_size = (l_end - l_start);
+
+    setCloseHeader(req);
+    return httpd_resp_send(req, l_start, l_html_size);
+}
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
     httpd_req_to_sockfd(req);
     extern const char config_start[] asm("_binary_config_html_start");
     extern const char config_end[] asm("_binary_config_html_end");
     const size_t config_html_size = (config_end - config_start);
-    size_t size = strlen(ap_ssid) + strlen(ap_passwd); 
+    size_t size = strlen(ap_ssid) + strlen(ap_passwd);
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
         size = size + strlen(appliedSSID);
@@ -197,6 +224,28 @@ static httpd_uri_t resetg = {
     .method = HTTP_GET,
     .handler = reset_get_handler,
 };
+
+static httpd_uri_t unlockg = {
+    .uri = "/unlock",
+    .method = HTTP_GET,
+    .handler = unlock_handler,
+};
+static httpd_uri_t unlockp = {
+    .uri = "/unlock",
+    .method = HTTP_POST,
+    .handler = unlock_handler,
+};
+
+static httpd_uri_t lockg = {
+    .uri = "/lock",
+    .method = HTTP_GET,
+    .handler = lock_handler,
+};
+static httpd_uri_t lockp = {
+    .uri = "/lock",
+    .method = HTTP_POST,
+    .handler = lock_handler,
+};
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
 {
     httpd_req_to_sockfd(req);
@@ -285,6 +334,10 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &applyp);
         httpd_register_uri_handler(server, &resetg);
         httpd_register_uri_handler(server, &scan_page_download);
+        httpd_register_uri_handler(server, &unlockg);
+        httpd_register_uri_handler(server, &unlockp);
+        httpd_register_uri_handler(server, &lockg);
+        httpd_register_uri_handler(server, &lockp);
         httpd_register_uri_handler(server, &favicon_handler);
         httpd_register_uri_handler(server, &styles_handler);
         return server;
