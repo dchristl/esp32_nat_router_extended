@@ -29,6 +29,19 @@ esp_timer_create_args_t restart_timer_args = {
     .arg = (void *)0,
     .name = "restart_timer"};
 
+static esp_err_t reset_get_handler(httpd_req_t *req)
+{
+    httpd_req_to_sockfd(req);
+    extern const char reset_start[] asm("_binary_reset_html_start");
+    extern const char reset_end[] asm("_binary_reset_html_end");
+    const size_t reset_html_size = (reset_end - reset_start);
+
+    setCloseHeader(req);
+
+    esp_err_t ret = httpd_resp_send(req, reset_start, reset_html_size);
+    return ret;
+}
+
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
     httpd_req_to_sockfd(req);
@@ -56,7 +69,6 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     {
         sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd);
     }
-    ESP_LOGI(TAG, "BLUBB %d", strlen(config_page));
 
     setCloseHeader(req);
 
@@ -181,6 +193,11 @@ static httpd_uri_t indexp = {
     .handler = index_post_handler,
 };
 
+static httpd_uri_t resetg = {
+    .uri = "/reset",
+    .method = HTTP_GET,
+    .handler = reset_get_handler,
+};
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
 {
     httpd_req_to_sockfd(req);
@@ -267,6 +284,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &indexp);
         httpd_register_uri_handler(server, &indexg);
         httpd_register_uri_handler(server, &applyp);
+        httpd_register_uri_handler(server, &resetg);
         httpd_register_uri_handler(server, &scan_page_download);
         httpd_register_uri_handler(server, &favicon_handler);
         httpd_register_uri_handler(server, &styles_handler);
