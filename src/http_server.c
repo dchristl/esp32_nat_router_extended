@@ -31,15 +31,49 @@ esp_timer_create_args_t restart_timer_args = {
     .arg = (void *)0,
     .name = "restart_timer"};
 
+static esp_err_t index_get_handler(httpd_req_t *req);
 static esp_err_t unlock_handler(httpd_req_t *req)
 {
     httpd_req_to_sockfd(req);
 
+    int ret, remaining = req->content_len;
+    char buf[req->content_len];
 
+    while (remaining > 0)
+    {
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+        {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            {
+                continue;
+            }
+            ESP_LOGE(TAG, "Timeout occured");
+            return ESP_FAIL;
+        }
 
+        remaining -= ret;
+        ESP_LOGI(TAG, "Found parameter query => %s", buf);
+        char unlockParam[req->content_len];
+        if (httpd_query_key_value(buf, "unlock", unlockParam, sizeof(unlockParam)) == ESP_OK)
+        {
 
+            preprocess_string(unlockParam);
+            ESP_LOGI(TAG, "Found unlock parameter => %s (%d)", unlockParam, strlen(unlockParam));
 
-    
+            if (strlen(unlockParam) > 0)
+            {
+                char *lock;
+                get_config_param_str("lock_pass", &lock);
+                if (strcmp(lock, unlockParam) == 0)
+                {
+                    isLocked = false;
+                    return index_get_handler(req);
+                }
+            }
+        }
+    }
+
     extern const char ul_start[] asm("_binary_unlock_html_start");
     extern const char ul_end[] asm("_binary_unlock_html_end");
     const size_t ul_html_size = (ul_end - ul_start);
@@ -63,6 +97,10 @@ static esp_err_t reset_get_handler(httpd_req_t *req)
 
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
     httpd_req_to_sockfd(req);
     extern const char config_start[] asm("_binary_config_html_start");
     extern const char config_end[] asm("_binary_config_html_end");
@@ -98,6 +136,11 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
 static esp_err_t index_post_handler(httpd_req_t *req)
 {
+
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
     httpd_req_to_sockfd(req);
 
     int ret, remaining = req->content_len;
@@ -137,6 +180,10 @@ static esp_err_t index_post_handler(httpd_req_t *req)
 static esp_err_t apply_get_handler(httpd_req_t *req)
 {
 
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
     extern const char apply_start[] asm("_binary_apply_html_start");
     extern const char apply_end[] asm("_binary_apply_html_end");
     const size_t apply_html_size = (apply_end - apply_start);
@@ -146,6 +193,10 @@ static esp_err_t apply_get_handler(httpd_req_t *req)
 }
 static esp_err_t apply_post_handler(httpd_req_t *req)
 {
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
     httpd_req_to_sockfd(req);
 
     int ret, remaining = req->content_len;
@@ -202,6 +253,10 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
 
 static esp_err_t lock_handler(httpd_req_t *req)
 {
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
     httpd_req_to_sockfd(req);
 
     int ret, remaining = req->content_len;

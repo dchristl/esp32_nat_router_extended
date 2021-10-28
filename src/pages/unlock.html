@@ -19,13 +19,14 @@
     <form action='/unlock' method='POST'>
 
       <div class="form-group row">
-        <label for="lockpass" class="col-3">Password</label>
+        <label for="unlock" class="col-3">Password</label>
         <div class="col-9">
-          <input type="password" class="form-control" name='lockpass' id='lockpass' value='' maxlength="64"
+          <input type="password" class="form-control" name='unlock' id='unlock' value='' maxlength="64"
             placeholder="Unlock password">
         </div>
       </div>
       <div class="form-group row col-4 offset-4 mt-4">
+        <input type="hidden" name='x' value='y'>
         <input type='submit' value='Unlock' class='btn btn-primary' />
       </div>
     </form>
