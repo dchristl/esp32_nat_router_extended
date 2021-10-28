@@ -39,7 +39,7 @@
         <label for="ssid" class="col-3">SSID</label>
         <div class="col-9">
           <input type="text" class="form-control" name='ssid' id='ssid' value='%s' maxlength="32"
-            placeholder="SSID of the existing network">
+            placeholder="SSID of the existing network" />
         </div>
       </div>
       <div class="form-group row">
@@ -48,31 +48,29 @@
           <input type="password" class="form-control" name='password' id='password' value='%s' maxlength="64"
             placeholder="Password of the existing network">
         </div>
-        <input type="hidden" class="form-control" name='x' value='x'>
-        <div class="form-group row col-5 offset-5 mt-2">
-          <input type='submit' value='Apply changes' class='btn btn-primary' />
-        </div>
+        <input type="hidden" class="form-control" name='x' value='x' />
+      </div>
+      <div class="form-group row col-4 offset-4 mt-4">
+        <input type='submit' value='Apply changes' class='btn btn-primary' />
+      </div>
     </form>
     <h2 class="mt-2">Device Management</h2>
     <form action='scan' method='GET'>
-      <div class="form-group row col-5 offset-5 mt-2">
-        <input type='submit' value='Wifi Scan' class='btn btn-warning' />
+      <div class="form-group row col-4 offset-4 mt-2">
+        <input type='submit' value='Wifi Scan' class='btn btn-light' />
       </div>
     </form>
     <form action='apply' method='POST'>
-      <div class="form-group row col-5 offset-5 mt-2">
+      <div class="form-group row col-4 offset-4 mt-2">
         <input type='hidden' name='func' value="reboot">
-        <input type='submit' value='reboot' class='btn btn-warning' />
+        <input type='submit' value='reboot' class='btn btn-light' />
       </div>
     </form>
-    <form action='apply' method='POST'>
-      <div class="form-group row col-5 offset-5 mt-2">
-        <input type='hidden' name='func' value="erase">
-        <input type='submit' value='Erase flash' class='btn btn-danger' />
-        <small class="form-text text-muted">Set back to defaults</small>
+    <form action='reset' method='GET'>
+      <div class="form-group row col-4 offset-4 mt-5">
+        <input type='submit' value='Erase flash' class='btn btn-warning' />
       </div>
     </form>
   </div>
 </body>
-
 </html>

@@ -20,7 +20,7 @@
 #include "esp_heap_caps.h"
 #include "helper.h"
 
-const char *ROW_TEMPLATE = "<tr><td>%s</td><td>%d</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-warning'/></form></td></tr>";
+const char *ROW_TEMPLATE = "<tr class='text-success'><td>%s</td><td>%d</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-secondary'/></form></td></tr>";
 
 #define DEFAULT_SCAN_LIST_SIZE 12
 
