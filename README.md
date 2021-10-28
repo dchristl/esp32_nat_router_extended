@@ -10,7 +10,7 @@ This is an extension of the great work of [martin-ger's ESP32 NAT Router-project
 - Scanning for APs
 - Resetting the device
 - Improved and stabilized UI
-<!-- - Possibility to secure the frontend-->
+- Securing the frontend
 
 ## First Boot
 After first boot the ESP32 NAT Router will offer a WiFi network with an open AP and the ssid "ESP32_NAT_Router". Configuration can either be done via a simple web interface or via the serial console. 
@@ -28,6 +28,8 @@ Now you can reconnect and reload the page and change the "Soft AP Settings". Cli
 
 ![image](docs/scan.png)
 ![image](docs/reset.png)
+![image](docs/lock.png)
+![image](docs/unlock.png)
 
 ## Interpreting the on board LED
 
