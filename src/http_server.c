@@ -48,17 +48,16 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     extern const char config_start[] asm("_binary_config_html_start");
     extern const char config_end[] asm("_binary_config_html_end");
     const size_t config_html_size = (config_end - config_start);
-    size_t size = strlen(ap_ssid) + strlen(ap_passwd) + 100; //TODO 
+    size_t size = strlen(ap_ssid) + strlen(ap_passwd); 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        size_t size = size + strlen(appliedSSID);
+        size = size + strlen(appliedSSID);
     }
     else
     {
-        size_t size = size + strlen(ssid) + strlen(passwd);
+        size = size + strlen(ssid) + strlen(passwd);
     }
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
-    ESP_LOGI(TAG, "%d , %d, %d, %d = %d", strlen(ap_ssid), strlen(ap_passwd), strlen(ssid), strlen(passwd), config_html_size);
     char *config_page = malloc(config_html_size + size);
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
