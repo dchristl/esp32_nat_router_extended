@@ -125,12 +125,20 @@ static esp_err_t index_post_handler(httpd_req_t *req)
 
     return index_get_handler(req);
 }
-static esp_err_t apply_post_handler(httpd_req_t *req)
+
+static esp_err_t apply_get_handler(httpd_req_t *req)
 {
-    httpd_req_to_sockfd(req);
+
     extern const char apply_start[] asm("_binary_apply_html_start");
     extern const char apply_end[] asm("_binary_apply_html_end");
     const size_t apply_html_size = (apply_end - apply_start);
+    ESP_LOGI(TAG, "Requesting apply page");
+    setCloseHeader(req);
+    return httpd_resp_send(req, apply_start, apply_html_size);
+}
+static esp_err_t apply_post_handler(httpd_req_t *req)
+{
+    httpd_req_to_sockfd(req);
 
     int ret, remaining = req->content_len;
     char buf[req->content_len];
@@ -181,9 +189,7 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
             esp_timer_start_once(restart_timer, 500000);
         }
     }
-    ESP_LOGI(TAG, "Requesting apply page");
-    setCloseHeader(req);
-    return httpd_resp_send(req, apply_start, apply_html_size);
+    return apply_get_handler(req);
 }
 
 static esp_err_t lock_handler(httpd_req_t *req)
@@ -208,19 +214,28 @@ static esp_err_t lock_handler(httpd_req_t *req)
 
         remaining -= ret;
         ESP_LOGI(TAG, "Found parameter query => %s", buf);
-        char passParam[req->content_len];
-        if (httpd_query_key_value(buf, "ssid", passParam, sizeof(passParam)) == ESP_OK)
+        char passParam[req->content_len], pass2Param[req->content_len];
+        if (httpd_query_key_value(buf, "lockpass", passParam, sizeof(passParam)) == ESP_OK)
         {
             preprocess_string(passParam);
             ESP_LOGI(TAG, "Found pass parameter => %s (%d)", passParam, strlen(passParam));
-            if (strlen(passParam) > 0)
+            httpd_query_key_value(buf, "lockpass2", pass2Param, sizeof(pass2Param));
+            preprocess_string(pass2Param);
+            ESP_LOGI(TAG, "Found pass2 parameter => %s (%d)", pass2Param, strlen(pass2Param));
+            if (strlen(passParam) == strlen(pass2Param) && strcmp(passParam, pass2Param) == 0)
             {
+                ESP_LOGI(TAG, "Passes are equal. Password will be set.");
                 nvs_handle_t nvs;
                 nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
                 nvs_set_str(nvs, "lock_pass", passParam);
                 nvs_commit(nvs);
                 nvs_close(nvs);
-                return apply_post_handler(req);
+                esp_timer_start_once(restart_timer, 500000);
+                return apply_get_handler(req);
+            }
+            else
+            {
+                ESP_LOGI(TAG, "Passes are not equal.");
             }
         }
     }
@@ -236,6 +251,12 @@ static httpd_uri_t applyp = {
     .uri = "/apply",
     .method = HTTP_POST,
     .handler = apply_post_handler,
+};
+
+static httpd_uri_t applyg = {
+    .uri = "/apply",
+    .method = HTTP_GET,
+    .handler = apply_get_handler,
 };
 
 static httpd_uri_t indexg = {
@@ -362,6 +383,7 @@ httpd_handle_t start_webserver(void)
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &indexp);
         httpd_register_uri_handler(server, &indexg);
+        httpd_register_uri_handler(server, &applyg);
         httpd_register_uri_handler(server, &applyp);
         httpd_register_uri_handler(server, &resetg);
         httpd_register_uri_handler(server, &scan_page_download);
