@@ -224,7 +224,11 @@ static esp_err_t lock_handler(httpd_req_t *req)
             ESP_LOGI(TAG, "Found pass2 parameter => %s (%d)", pass2Param, strlen(pass2Param));
             if (strlen(passParam) == strlen(pass2Param) && strcmp(passParam, pass2Param) == 0)
             {
-                ESP_LOGI(TAG, "Passes are equal. Password will be set.");
+                ESP_LOGI(TAG, "Passes are equal. Password will be changed.");
+                if (strlen(passParam) == 0)
+                {
+                    ESP_LOGI(TAG, "Pass will be removed");
+                }
                 nvs_handle_t nvs;
                 nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
                 nvs_set_str(nvs, "lock_pass", passParam);
