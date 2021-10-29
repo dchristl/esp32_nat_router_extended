@@ -73,7 +73,11 @@ static esp_err_t unlock_handler(httpd_req_t *req)
             }
         }
     }
-
+    if (req->method == HTTP_GET) // Relock if called
+    {
+        isLocked = true;
+        ESP_LOGI(TAG, "UI relocked");
+    }
     extern const char ul_start[] asm("_binary_unlock_html_start");
     extern const char ul_end[] asm("_binary_unlock_html_end");
     const size_t ul_html_size = (ul_end - ul_start);
@@ -105,7 +109,21 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     extern const char config_start[] asm("_binary_config_html_start");
     extern const char config_end[] asm("_binary_config_html_end");
     const size_t config_html_size = (config_end - config_start);
-    size_t size = strlen(ap_ssid) + strlen(ap_passwd);
+
+    char *display = NULL;
+
+    char *lock;
+    get_config_param_str("lock_pass", &lock);
+    if (strlen(lock) > 0)
+    {
+        display = "block";
+    }
+    else
+    {
+        display = "none";
+    }
+
+    size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(display);
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
         size = size + strlen(appliedSSID);
@@ -119,11 +137,11 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, ap_ssid, ap_passwd, appliedSSID, "");
+        sprintf(config_page, config_start, ap_ssid, ap_passwd, appliedSSID, "", display);
     }
     else
     {
-        sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd);
+        sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd, display);
     }
 
     setCloseHeader(req);
@@ -310,8 +328,28 @@ static esp_err_t lock_handler(httpd_req_t *req)
     extern const char l_end[] asm("_binary_lock_html_end");
     const size_t l_html_size = (l_end - l_start);
 
+    char *display = NULL;
+
+    char *lock;
+    get_config_param_str("lock_pass", &lock);
+    if (strlen(lock) > 0)
+    {
+        display = "block";
+    }
+    else
+    {
+        display = "none";
+    }
+
+    char *lock_page = malloc(l_html_size + strlen(display));
+
+    sprintf(lock_page, l_start, display);
+
     setCloseHeader(req);
-    return httpd_resp_send(req, l_start, l_html_size);
+
+    esp_err_t out = httpd_resp_send(req, lock_page, strlen(lock_page));
+    free(lock_page);
+    return out;
 }
 
 static httpd_uri_t applyp = {

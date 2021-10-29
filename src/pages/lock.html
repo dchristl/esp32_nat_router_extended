@@ -33,14 +33,14 @@
         </div>
       </div>
       <div class="form-group row col-9 offset-3">
-        <small class="form-text text-muted">Both fields empty = remove password</small>
+        <small class="form-text text-muted">Both fields empty will remove the password</small>
       </div>
       <div class="form-group row col-4 offset-4 mt-4">
         <input type="hidden" name='x' value='y'>
-        <input type='submit' value='Lock' class='btn btn-primary' />
+        <input type='submit' value='Save' class='btn btn-primary' />
       </div>
     </form>
-    <form action='/lock' method='POST'>
+    <form action='/lock' method='POST' style="display: %s;">
       <div class="form-group row col-4 offset-4 mt-2">
         <input type="hidden" name='lockpass' value=''>
         <input type="hidden" name='lockpass2' value=''>
