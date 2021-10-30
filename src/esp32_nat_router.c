@@ -266,9 +266,9 @@ static void initialize_console(void)
     setvbuf(stdin, NULL, _IONBF, 0);
 
     /* Minicom, screen, idf_monitor send CR when ENTER key is pressed */
-    esp_vfs_dev_uart_set_rx_line_endings(ESP_LINE_ENDINGS_CR);
+    esp_vfs_dev_uart_port_set_rx_line_endings(0, ESP_LINE_ENDINGS_CR);
     /* Move the caret to the beginning of the next line on '\n' */
-    esp_vfs_dev_uart_set_tx_line_endings(ESP_LINE_ENDINGS_CRLF);
+    esp_vfs_dev_uart_port_set_tx_line_endings(0, ESP_LINE_ENDINGS_CRLF);
 
     /* Configure UART. Note that REF_TICK is used so that the baud rate remains
      * correct while APB frequency is changing in light sleep mode.
@@ -494,6 +494,7 @@ char *static_ip = NULL;
 char *subnet_mask = NULL;
 char *gateway_addr = NULL;
 char *ap_ssid = NULL;
+char *lock_pass = NULL;
 char *ap_passwd = NULL;
 char *ap_ip = NULL;
 
@@ -554,6 +555,12 @@ void app_main(void)
     if (ap_ip == NULL)
     {
         ap_ip = param_set_default(DEFAULT_AP_IP);
+    }
+
+    get_config_param_str("lock_pass", &lock_pass);
+    if (lock_pass == NULL)
+    {
+        lock_pass = param_set_default("");
     }
 
     get_portmap_tab();

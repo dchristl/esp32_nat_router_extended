@@ -10,7 +10,7 @@ This is an extension of the great work of [martin-ger's ESP32 NAT Router-project
 - Scanning for APs
 - Resetting the device
 - Improved and stabilized UI
-<!-- - Possibility to secure the frontend-->
+- Securing the frontend
 
 ## First Boot
 After first boot the ESP32 NAT Router will offer a WiFi network with an open AP and the ssid "ESP32_NAT_Router". Configuration can either be done via a simple web interface or via the serial console. 
@@ -28,6 +28,8 @@ Now you can reconnect and reload the page and change the "Soft AP Settings". Cli
 
 ![image](docs/scan.png)
 ![image](docs/reset.png)
+![image](docs/lock.png)
+![image](docs/unlock.png)
 
 ## Interpreting the on board LED
 
@@ -180,5 +182,5 @@ see [How to build](docs/README.md)
 ### DNS
 As soon as the ESP32 STA has learned a DNS IP from its upstream DNS server on first connect, it passes that to newly connected clients.
 Before that by default the DNS-Server which is offerd to clients connecting to the ESP32 AP is set to 1.1.1.1.
-Replace the value of the *MY_DNS_IP_ADDR* with your desired DNS-Server IP address (in hex) if you want to use a different one.
+Replace the value of the *DEFAULT_DNS* with your desired DNS-Server IP address if you want to use a different one.
 

@@ -15,6 +15,8 @@
 
 esp_timer_handle_t restart_timer;
 
+bool isLocked = false;
+
 char *appliedSSID = NULL;
 
 static void restart_timer_callback(void *arg)
@@ -28,6 +30,61 @@ esp_timer_create_args_t restart_timer_args = {
     /* argument specified here will be passed to timer callback function */
     .arg = (void *)0,
     .name = "restart_timer"};
+
+static esp_err_t index_get_handler(httpd_req_t *req);
+static esp_err_t unlock_handler(httpd_req_t *req)
+{
+    httpd_req_to_sockfd(req);
+
+    int ret, remaining = req->content_len;
+    char buf[req->content_len];
+
+    while (remaining > 0)
+    {
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+        {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            {
+                continue;
+            }
+            ESP_LOGE(TAG, "Timeout occured");
+            return ESP_FAIL;
+        }
+
+        remaining -= ret;
+        ESP_LOGI(TAG, "Found parameter query => %s", buf);
+        char unlockParam[req->content_len];
+        if (httpd_query_key_value(buf, "unlock", unlockParam, sizeof(unlockParam)) == ESP_OK)
+        {
+
+            preprocess_string(unlockParam);
+            ESP_LOGI(TAG, "Found unlock parameter => %s (%d)", unlockParam, strlen(unlockParam));
+
+            if (strlen(unlockParam) > 0)
+            {
+                char *lock;
+                get_config_param_str("lock_pass", &lock);
+                if (strcmp(lock, unlockParam) == 0)
+                {
+                    isLocked = false;
+                    return index_get_handler(req);
+                }
+            }
+        }
+    }
+    if (req->method == HTTP_GET) // Relock if called
+    {
+        isLocked = true;
+        ESP_LOGI(TAG, "UI relocked");
+    }
+    extern const char ul_start[] asm("_binary_unlock_html_start");
+    extern const char ul_end[] asm("_binary_unlock_html_end");
+    const size_t ul_html_size = (ul_end - ul_start);
+
+    setCloseHeader(req);
+    return httpd_resp_send(req, ul_start, ul_html_size);
+}
 
 static esp_err_t reset_get_handler(httpd_req_t *req)
 {
@@ -44,11 +101,29 @@ static esp_err_t reset_get_handler(httpd_req_t *req)
 
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
     httpd_req_to_sockfd(req);
     extern const char config_start[] asm("_binary_config_html_start");
     extern const char config_end[] asm("_binary_config_html_end");
     const size_t config_html_size = (config_end - config_start);
-    size_t size = strlen(ap_ssid) + strlen(ap_passwd); 
+
+    char *display = NULL;
+
+    char *lock;
+    get_config_param_str("lock_pass", &lock);
+    if (strlen(lock) > 0)
+    {
+        display = "block";
+    }
+    else
+    {
+        display = "none";
+    }
+
+    size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(display);
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
         size = size + strlen(appliedSSID);
@@ -62,11 +137,11 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, ap_ssid, ap_passwd, appliedSSID, "");
+        sprintf(config_page, config_start, ap_ssid, ap_passwd, appliedSSID, "", display);
     }
     else
     {
-        sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd);
+        sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd, display);
     }
 
     setCloseHeader(req);
@@ -79,6 +154,11 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
 static esp_err_t index_post_handler(httpd_req_t *req)
 {
+
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
     httpd_req_to_sockfd(req);
 
     int ret, remaining = req->content_len;
@@ -114,12 +194,28 @@ static esp_err_t index_post_handler(httpd_req_t *req)
 
     return index_get_handler(req);
 }
-static esp_err_t apply_post_handler(httpd_req_t *req)
+
+static esp_err_t apply_get_handler(httpd_req_t *req)
 {
-    httpd_req_to_sockfd(req);
+
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
     extern const char apply_start[] asm("_binary_apply_html_start");
     extern const char apply_end[] asm("_binary_apply_html_end");
     const size_t apply_html_size = (apply_end - apply_start);
+    ESP_LOGI(TAG, "Requesting apply page");
+    setCloseHeader(req);
+    return httpd_resp_send(req, apply_start, apply_html_size);
+}
+static esp_err_t apply_post_handler(httpd_req_t *req)
+{
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
+    httpd_req_to_sockfd(req);
 
     int ret, remaining = req->content_len;
     char buf[req->content_len];
@@ -170,15 +266,102 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
             esp_timer_start_once(restart_timer, 500000);
         }
     }
-    ESP_LOGI(TAG, "Requesting apply page");
+    return apply_get_handler(req);
+}
+
+static esp_err_t lock_handler(httpd_req_t *req)
+{
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
+    httpd_req_to_sockfd(req);
+
+    int ret, remaining = req->content_len;
+    char buf[req->content_len];
+
+    while (remaining > 0)
+    {
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+        {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            {
+                continue;
+            }
+            ESP_LOGE(TAG, "Timeout occured");
+            return ESP_FAIL;
+        }
+
+        remaining -= ret;
+        ESP_LOGI(TAG, "Found parameter query => %s", buf);
+        char passParam[req->content_len], pass2Param[req->content_len];
+        if (httpd_query_key_value(buf, "lockpass", passParam, sizeof(passParam)) == ESP_OK)
+        {
+            preprocess_string(passParam);
+            ESP_LOGI(TAG, "Found pass parameter => %s (%d)", passParam, strlen(passParam));
+            httpd_query_key_value(buf, "lockpass2", pass2Param, sizeof(pass2Param));
+            preprocess_string(pass2Param);
+            ESP_LOGI(TAG, "Found pass2 parameter => %s (%d)", pass2Param, strlen(pass2Param));
+            if (strlen(passParam) == strlen(pass2Param) && strcmp(passParam, pass2Param) == 0)
+            {
+                ESP_LOGI(TAG, "Passes are equal. Password will be changed.");
+                if (strlen(passParam) == 0)
+                {
+                    ESP_LOGI(TAG, "Pass will be removed");
+                }
+                nvs_handle_t nvs;
+                nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
+                nvs_set_str(nvs, "lock_pass", passParam);
+                nvs_commit(nvs);
+                nvs_close(nvs);
+                esp_timer_start_once(restart_timer, 500000);
+                return apply_get_handler(req);
+            }
+            else
+            {
+                ESP_LOGI(TAG, "Passes are not equal.");
+            }
+        }
+    }
+    extern const char l_start[] asm("_binary_lock_html_start");
+    extern const char l_end[] asm("_binary_lock_html_end");
+    const size_t l_html_size = (l_end - l_start);
+
+    char *display = NULL;
+
+    char *lock;
+    get_config_param_str("lock_pass", &lock);
+    if (strlen(lock) > 0)
+    {
+        display = "block";
+    }
+    else
+    {
+        display = "none";
+    }
+
+    char *lock_page = malloc(l_html_size + strlen(display));
+
+    sprintf(lock_page, l_start, display);
+
     setCloseHeader(req);
-    return httpd_resp_send(req, apply_start, apply_html_size);
+
+    esp_err_t out = httpd_resp_send(req, lock_page, strlen(lock_page));
+    free(lock_page);
+    return out;
 }
 
 static httpd_uri_t applyp = {
     .uri = "/apply",
     .method = HTTP_POST,
     .handler = apply_post_handler,
+};
+
+static httpd_uri_t applyg = {
+    .uri = "/apply",
+    .method = HTTP_GET,
+    .handler = apply_get_handler,
 };
 
 static httpd_uri_t indexg = {
@@ -197,8 +380,36 @@ static httpd_uri_t resetg = {
     .method = HTTP_GET,
     .handler = reset_get_handler,
 };
+
+static httpd_uri_t unlockg = {
+    .uri = "/unlock",
+    .method = HTTP_GET,
+    .handler = unlock_handler,
+};
+static httpd_uri_t unlockp = {
+    .uri = "/unlock",
+    .method = HTTP_POST,
+    .handler = unlock_handler,
+};
+
+static httpd_uri_t lockp = {
+    .uri = "/lock",
+    .method = HTTP_POST,
+    .handler = lock_handler,
+};
+static httpd_uri_t lockg = {
+    .uri = "/lock",
+    .method = HTTP_GET,
+    .handler = lock_handler,
+};
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
 {
+
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
+
     httpd_req_to_sockfd(req);
 
     extern const char scan_start[] asm("_binary_scan_html_start");
@@ -271,8 +482,18 @@ httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.stack_size = 20000;
+    config.max_uri_handlers = 15;
 
     esp_timer_create(&restart_timer_args, &restart_timer);
+
+    char *lock = NULL;
+
+    get_config_param_str("lock_pass", &lock);
+    if (strlen(lock) > 0)
+    {
+        isLocked = true;
+        ESP_LOGI(TAG, "UI is locked with password '%s'", lock);
+    }
 
     // Start the httpd server
     ESP_LOGI(TAG, "Starting server on port: '%d'", config.server_port);
@@ -282,9 +503,14 @@ httpd_handle_t start_webserver(void)
         ESP_LOGI(TAG, "Registering URI handlers");
         httpd_register_uri_handler(server, &indexp);
         httpd_register_uri_handler(server, &indexg);
+        httpd_register_uri_handler(server, &applyg);
         httpd_register_uri_handler(server, &applyp);
         httpd_register_uri_handler(server, &resetg);
         httpd_register_uri_handler(server, &scan_page_download);
+        httpd_register_uri_handler(server, &unlockg);
+        httpd_register_uri_handler(server, &unlockp);
+        httpd_register_uri_handler(server, &lockg);
+        httpd_register_uri_handler(server, &lockp);
         httpd_register_uri_handler(server, &favicon_handler);
         httpd_register_uri_handler(server, &styles_handler);
         return server;
