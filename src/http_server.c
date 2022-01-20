@@ -112,9 +112,10 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     char *display = NULL;
 
-    char *lock;
-    get_config_param_str("lock_pass", &lock);
-    if (strlen(lock) > 0)
+    ESP_LOGI(TAG, "Before Lock");
+    char *lock_pass = NULL;
+    get_config_param_str("lock_pass", &lock_pass);
+    if (lock_pass != NULL && strlen(lock_pass) > 0)
     {
         display = "block";
     }
@@ -122,6 +123,7 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     {
         display = "none";
     }
+    ESP_LOGI(TAG, "After Lock");
 
     size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(display);
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
@@ -330,9 +332,9 @@ static esp_err_t lock_handler(httpd_req_t *req)
 
     char *display = NULL;
 
-    char *lock;
-    get_config_param_str("lock_pass", &lock);
-    if (strlen(lock) > 0)
+    char *lock_pass = NULL;
+    get_config_param_str("lock_pass", &lock_pass);
+    if (lock_pass != NULL && strlen(lock_pass) > 0)
     {
         display = "block";
     }
@@ -486,13 +488,13 @@ httpd_handle_t start_webserver(void)
 
     esp_timer_create(&restart_timer_args, &restart_timer);
 
-    char *lock = NULL;
+    char *lock_pass = NULL;
 
-    get_config_param_str("lock_pass", &lock);
-    if (strlen(lock) > 0)
+    get_config_param_str("lock_pass", &lock_pass);
+    if (lock_pass != NULL && strlen(lock_pass) > 0)
     {
         isLocked = true;
-        ESP_LOGI(TAG, "UI is locked with password '%s'", lock);
+        ESP_LOGI(TAG, "UI is locked with password '%s'", lock_pass);
     }
 
     // Start the httpd server

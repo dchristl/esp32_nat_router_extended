@@ -1,0 +1,15 @@
+set_sta mySSIDBR M0N2i1D2C
+
+nvs_erase_namespace esp32_nat
+
+set_ap mySSIDBR2 M0N2i1D2C
+
+nvs_namespace esp32_nat
+
+nvs_list nvs -n esp32_nat
+
+nvs_get ssid str
+
+nvs_get statnv
+nvs_get gateway_addr str
+nvs_get lock_pass str
