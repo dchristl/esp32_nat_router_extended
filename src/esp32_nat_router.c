@@ -360,7 +360,7 @@ static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
         break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
-        ESP_LOGI(TAG, "disconnected - retry to connect to the AP");
+        // ESP_LOGI(TAG, "disconnected - retry to connect to the AP");
         ap_connect = false;
         if (!has_static_ip)
         {
@@ -495,6 +495,7 @@ char *subnet_mask = NULL;
 char *gateway_addr = NULL;
 char *ap_ssid = NULL;
 char *lock_pass = NULL;
+char *scan_result = NULL;
 char *ap_passwd = NULL;
 char *ap_ip = NULL;
 
@@ -561,6 +562,12 @@ void app_main(void)
     if (lock_pass == NULL)
     {
         lock_pass = param_set_default("");
+    }  
+    
+      get_config_param_str("scan_result", &scan_result);
+    if (scan_result == NULL)
+    {
+        scan_result = param_set_default("");
     }
 
     get_portmap_tab();

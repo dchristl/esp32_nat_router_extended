@@ -12,4 +12,5 @@ nvs_get ssid str
 
 nvs_get statnv
 nvs_get gateway_addr str
+nvs_get scan_result str
 nvs_get lock_pass str

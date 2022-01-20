@@ -112,7 +112,6 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     char *display = NULL;
 
-    ESP_LOGI(TAG, "Before Lock");
     char *lock_pass = NULL;
     get_config_param_str("lock_pass", &lock_pass);
     if (lock_pass != NULL && strlen(lock_pass) > 0)
@@ -123,7 +122,6 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     {
         display = "none";
     }
-    ESP_LOGI(TAG, "After Lock");
 
     size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(display);
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
@@ -404,6 +402,7 @@ static httpd_uri_t lockg = {
     .method = HTTP_GET,
     .handler = lock_handler,
 };
+
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
 {
 
@@ -418,18 +417,44 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
     extern const char scan_end[] asm("_binary_scan_html_end");
     const size_t scan_html_size = (scan_end - scan_start);
 
-    const char *scan_result = fillNodes();
-
-    int size = scan_html_size + strlen(scan_result);
-    char *scan_page = malloc(size);
-    sprintf(scan_page, scan_start, scan_result);
-
     setCloseHeader(req);
 
     ESP_LOGI(TAG, "Requesting scan page");
 
-    esp_err_t ret = httpd_resp_send(req, scan_page, strlen(scan_page));
-    free(scan_page);
+    esp_err_t ret = httpd_resp_send(req, scan_start, scan_html_size);
+    fillNodes();
+    return ret;
+}
+
+static esp_err_t result_download_get_handler(httpd_req_t *req)
+{
+
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
+
+    httpd_req_to_sockfd(req);
+
+    extern const char result_start[] asm("_binary_result_html_start");
+    extern const char result_end[] asm("_binary_result_html_end");
+    const size_t result_html_size = (result_end - result_start);
+
+    char *result_param = NULL;
+    get_config_param_str("scan_result", &result_param);
+    if (result_param == NULL)
+    {
+        result_param = "<tr class='text-info'><td colspan='3'>No networks found</td></tr>";
+    }
+
+    int size = result_html_size + strlen(result_param);
+    char *result_page = malloc(size);
+    sprintf(result_page, result_start, result_param);
+
+    setCloseHeader(req);
+
+    esp_err_t ret = httpd_resp_send(req, result_page, strlen(result_page));
+    free(result_page);
     return ret;
 }
 // URI handler for getting "html page" file
@@ -437,6 +462,12 @@ httpd_uri_t scan_page_download = {
     .uri = "/scan",
     .method = HTTP_GET,
     .handler = scan_download_get_handler,
+    .user_ctx = NULL};
+
+httpd_uri_t result_page_download = {
+    .uri = "/result",
+    .method = HTTP_GET,
+    .handler = result_download_get_handler,
     .user_ctx = NULL};
 
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
@@ -509,6 +540,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &applyp);
         httpd_register_uri_handler(server, &resetg);
         httpd_register_uri_handler(server, &scan_page_download);
+        httpd_register_uri_handler(server, &result_page_download);
         httpd_register_uri_handler(server, &unlockg);
         httpd_register_uri_handler(server, &unlockp);
         httpd_register_uri_handler(server, &lockg);
@@ -521,9 +553,3 @@ httpd_handle_t start_webserver(void)
     ESP_LOGI(TAG, "Error starting server!");
     return NULL;
 }
-
-// static void stop_webserver(httpd_handle_t server)
-// {
-//     // Stop the httpd server
-//     httpd_stop(server);
-// }
