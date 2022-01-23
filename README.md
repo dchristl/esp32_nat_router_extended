@@ -164,11 +164,23 @@ show
 ## Flashing the prebuild binaries
 - Download and extract latest release
 - Install [esptool](https://github.com/espressif/esptool)
-- execute in extracted folder
+
+### Update from older version
+If this project was already installed. No data loss from previous version. 
+ 
 ```
-esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000 bootloader.bin 0x10000 firmware.bin 0x8000 partitions.bin
+esptool.py write_flash 0x10000 esp32nat_extended_vX.X.X.bin 
 ```
 
+### Fresh install/ Reset 
+
+If your device was used before for other projects or you want to reset all setting from previous version. Complete data loss!
+
+```
+esptool.py write_flash 0x0 esp32nat_extended_vX.X.X.bin 
+```
+
+### Alternative way/ Graphical (Windows only)
 As an alternative you might use [Espressif's Flash Download Tools](https://www.espressif.com/en/support/download/other-tools).
 
 Check the marked parameters and files like below:
