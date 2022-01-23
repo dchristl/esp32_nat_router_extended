@@ -162,7 +162,7 @@ show
 
 
 ## Flashing the prebuild binaries
-- Download [latest release](/dchristl/releases/latest/)
+- Download [latest release](https://github.com/dchristl/esp32_nat_router_extended/releases/latest)
 - Install [esptool](https://github.com/espressif/esptool)
 
 ### Update from older version
