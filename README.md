@@ -7,7 +7,7 @@ This is a firmware to use the ESP32 as WiFi NAT router. It can be used as
 This is an extension of the great work of [martin-ger's ESP32 NAT Router-project](https://github.com/martin-ger/esp32_nat_router). I used his project as a starting point for learning microcontroller programming and extended it with some features for my use case. 
 
 ## Additional features
-- Scanning for APs (s. [Hint](#markdown-header-Wifi-Scanning-Hints))
+- Scanning for APs (s. [Limitations](#wifi-scanning-limitation))
 - Resetting the device
 - Improved and stabilized UI
 - Securing the frontend
@@ -184,5 +184,5 @@ As soon as the ESP32 STA has learned a DNS IP from its upstream DNS server on fi
 Before that by default the DNS-Server which is offerd to clients connecting to the ESP32 AP is set to 1.1.1.1.
 Replace the value of the *DEFAULT_DNS* with your desired DNS-Server IP address if you want to use a different one.
 
-## Wifi Scanning Hints
+## Wifi scanning limitation
 Because of technical limitations, a client can not be simultaneously conected to device and scan for Wifis. Before the scan started all the clients will be disconnected. After that the scan will start, saved in nvs and the device will reboot. After reconnecting to the device you will be able to see the scanned networks. The scan result will be deleted afterwards, but it is always possible to retry the scanning. 
