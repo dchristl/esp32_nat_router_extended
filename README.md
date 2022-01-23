@@ -191,7 +191,7 @@ Replace the address **0x10000** with **0x0** if you want a fresh install.
 
 ## Building the Binaries
 
-see [How to build](docs/README.md)
+see [How to setup environment and build](docs/BUILD.md)
 
 ### DNS
 As soon as the ESP32 STA has learned a DNS IP from its upstream DNS server on first connect, it passes that to newly connected clients.
