@@ -162,7 +162,7 @@ show
 
 
 ## Flashing the prebuild binaries
-- Download and extract latest release
+- Download [latest release](/releases/latest)
 - Install [esptool](https://github.com/espressif/esptool)
 
 ### Update from older version
