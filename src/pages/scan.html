@@ -2,39 +2,26 @@
 <html lang="en">
 
 <head>
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="styles.css">
-    <title>Scan</title>
+
+    <head>
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+        <meta http-equiv="refresh" content="20; url=/result" />
+        <title>Scan</title>
+    </head>
 </head>
 
 <body>
     <div class="container">
         <div class="row text-center">
-            <h1>SSID Scan</h1>
+            <h1>Scan for networks</h1>
         </div>
-        <table class="table table-striped">
-            <thead class="text-center fw-bold">
-                <tr>
-                    <th class="fw-bold">SSID</th>
-                    <th class="fw-bold">Quality</th>
-                    <th class="fw-bold">Action</th>
-                </tr>
-            </thead>
-            <tbody class="text-center">
-                %s
-            </tbody>
-        </table>
-
-        <div class="form-group row col-4 offset-4 mt-2">
-            <a href='/scan' class='btn btn-warning'>Refresh</a>
-        </div>
-
-        <div class="form-group row col-4 offset-4 mt-5">
-            <a href='/' class='btn btn-light'>Back</a>
-        </div>
+        <h2 class="mt-2 text-center">The device will now be restarted and you will be disconnected. After 20s you will
+            be forwarded to the result page. Make sure your device will automatically reconnect to the new network.
+            Otherwise reconnect manually and visit http://192.168.4.1</h2>
     </div>
 </body>
 

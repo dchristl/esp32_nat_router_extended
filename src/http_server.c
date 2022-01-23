@@ -31,6 +31,7 @@ esp_timer_create_args_t restart_timer_args = {
     .arg = (void *)0,
     .name = "restart_timer"};
 
+static esp_err_t result_download_get_handler(httpd_req_t *req);
 static esp_err_t index_get_handler(httpd_req_t *req);
 static esp_err_t unlock_handler(httpd_req_t *req)
 {
@@ -105,6 +106,15 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     {
         return unlock_handler(req);
     }
+
+    char *result_param = NULL;
+    get_config_param_str("scan_result", &result_param);
+    if (result_param != NULL)
+    {
+        ESP_LOGI(TAG, "Scan result is available. Forwarding to scan page");
+        return result_download_get_handler(req);
+    }
+
     httpd_req_to_sockfd(req);
     extern const char config_start[] asm("_binary_config_html_start");
     extern const char config_end[] asm("_binary_config_html_end");
@@ -112,9 +122,9 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     char *display = NULL;
 
-    char *lock;
-    get_config_param_str("lock_pass", &lock);
-    if (strlen(lock) > 0)
+    char *lock_pass = NULL;
+    get_config_param_str("lock_pass", &lock_pass);
+    if (lock_pass != NULL && strlen(lock_pass) > 0)
     {
         display = "block";
     }
@@ -330,9 +340,9 @@ static esp_err_t lock_handler(httpd_req_t *req)
 
     char *display = NULL;
 
-    char *lock;
-    get_config_param_str("lock_pass", &lock);
-    if (strlen(lock) > 0)
+    char *lock_pass = NULL;
+    get_config_param_str("lock_pass", &lock_pass);
+    if (lock_pass != NULL && strlen(lock_pass) > 0)
     {
         display = "block";
     }
@@ -402,6 +412,7 @@ static httpd_uri_t lockg = {
     .method = HTTP_GET,
     .handler = lock_handler,
 };
+
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
 {
 
@@ -416,18 +427,49 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
     extern const char scan_end[] asm("_binary_scan_html_end");
     const size_t scan_html_size = (scan_end - scan_start);
 
-    const char *scan_result = fillNodes();
-
-    int size = scan_html_size + strlen(scan_result);
-    char *scan_page = malloc(size);
-    sprintf(scan_page, scan_start, scan_result);
-
     setCloseHeader(req);
 
     ESP_LOGI(TAG, "Requesting scan page");
 
-    esp_err_t ret = httpd_resp_send(req, scan_page, strlen(scan_page));
-    free(scan_page);
+    esp_err_t ret = httpd_resp_send(req, scan_start, scan_html_size);
+    fillNodes();
+    return ret;
+}
+
+static esp_err_t result_download_get_handler(httpd_req_t *req)
+{
+
+    if (isLocked)
+    {
+        return unlock_handler(req);
+    }
+
+    httpd_req_to_sockfd(req);
+
+    extern const char result_start[] asm("_binary_result_html_start");
+    extern const char result_end[] asm("_binary_result_html_end");
+    const size_t result_html_size = (result_end - result_start);
+
+    char *result_param = NULL;
+    get_config_param_str("scan_result", &result_param);
+    if (result_param == NULL)
+    {
+        result_param = "<tr class='text-danger'><td colspan='3'>No networks found</td></tr>";
+    }
+
+    int size = result_html_size + strlen(result_param);
+    char *result_page = malloc(size);
+    sprintf(result_page, result_start, result_param);
+
+    setCloseHeader(req);
+
+    esp_err_t ret = httpd_resp_send(req, result_page, strlen(result_page));
+    free(result_page);
+    nvs_handle_t nvs;
+    nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
+    nvs_erase_key(nvs, "scan_result");
+    nvs_commit(nvs);
+    nvs_close(nvs);
     return ret;
 }
 // URI handler for getting "html page" file
@@ -435,6 +477,12 @@ httpd_uri_t scan_page_download = {
     .uri = "/scan",
     .method = HTTP_GET,
     .handler = scan_download_get_handler,
+    .user_ctx = NULL};
+
+httpd_uri_t result_page_download = {
+    .uri = "/result",
+    .method = HTTP_GET,
+    .handler = result_download_get_handler,
     .user_ctx = NULL};
 
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
@@ -486,13 +534,13 @@ httpd_handle_t start_webserver(void)
 
     esp_timer_create(&restart_timer_args, &restart_timer);
 
-    char *lock = NULL;
+    char *lock_pass = NULL;
 
-    get_config_param_str("lock_pass", &lock);
-    if (strlen(lock) > 0)
+    get_config_param_str("lock_pass", &lock_pass);
+    if (lock_pass != NULL && strlen(lock_pass) > 0)
     {
         isLocked = true;
-        ESP_LOGI(TAG, "UI is locked with password '%s'", lock);
+        ESP_LOGI(TAG, "UI is locked with password '%s'", lock_pass);
     }
 
     // Start the httpd server
@@ -507,6 +555,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &applyp);
         httpd_register_uri_handler(server, &resetg);
         httpd_register_uri_handler(server, &scan_page_download);
+        httpd_register_uri_handler(server, &result_page_download);
         httpd_register_uri_handler(server, &unlockg);
         httpd_register_uri_handler(server, &unlockp);
         httpd_register_uri_handler(server, &lockg);
@@ -519,9 +568,3 @@ httpd_handle_t start_webserver(void)
     ESP_LOGI(TAG, "Error starting server!");
     return NULL;
 }
-
-// static void stop_webserver(httpd_handle_t server)
-// {
-//     // Stop the httpd server
-//     httpd_stop(server);
-// }

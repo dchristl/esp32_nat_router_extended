@@ -1,3 +1,4 @@
 build/**
 .pio/**
 .vscode/**
+commands.txt

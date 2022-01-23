@@ -7,7 +7,7 @@ This is a firmware to use the ESP32 as WiFi NAT router. It can be used as
 This is an extension of the great work of [martin-ger's ESP32 NAT Router-project](https://github.com/martin-ger/esp32_nat_router). I used his project as a starting point for learning microcontroller programming and extended it with some features for my use case. 
 
 ## Additional features
-- Scanning for APs
+- Scanning for APs (s. [Limitations](#wifi-scanning-limitation))
 - Resetting the device
 - Improved and stabilized UI
 - Securing the frontend
@@ -159,19 +159,33 @@ show
   Get status and config of the router
 ```
 
-If you want to enter non-ASCII or special characters (incl. ' ') you can use HTTP-style hex encoding (e.g. "My%20AccessPoint" results in a string "My AccessPoint").
+
 
 ## Flashing the prebuild binaries
 - Download and extract latest release
 - Install [esptool](https://github.com/espressif/esptool)
-- execute in extracted folder
+
+### Update from older version
+If this project was already installed. No data loss from previous version. 
+ 
 ```
-esptool.py --chip esp32 --port /dev/ttyUSB0 --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000 bootloader.bin 0x10000 firmware.bin 0x8000 partitions.bin
+esptool.py write_flash 0x10000 esp32nat_extended_vX.X.X.bin 
 ```
 
+### Fresh install/ Reset 
+
+If your device was used before for other projects or you want to reset all setting from previous version. Complete data loss!
+
+```
+esptool.py write_flash 0x0 esp32nat_extended_vX.X.X.bin 
+```
+
+### Alternative way/ Graphical (Windows only)
 As an alternative you might use [Espressif's Flash Download Tools](https://www.espressif.com/en/support/download/other-tools).
 
-Check the marked parameters and files like below:
+Check the marked parameters and files like below (ckeck the COM-Port for your environment). 
+
+Replace the address **0x10000** with **0x0** if you want a fresh install. 
 
 ![image](docs/win_flash.png)
 
@@ -184,3 +198,5 @@ As soon as the ESP32 STA has learned a DNS IP from its upstream DNS server on fi
 Before that by default the DNS-Server which is offerd to clients connecting to the ESP32 AP is set to 1.1.1.1.
 Replace the value of the *DEFAULT_DNS* with your desired DNS-Server IP address if you want to use a different one.
 
+## Wifi scanning limitation
+Because of technical limitations, a client can not be simultaneously conected to device and scan for Wifis. Before the scan started all the clients will be disconnected. After that the scan will start, saved in nvs and the device will reboot. After reconnecting to the device you will be able to see the scanned networks. The scan result will be deleted afterwards, but it is always possible to retry the scanning. 
