@@ -183,7 +183,9 @@ esptool.py write_flash 0x0 esp32nat_extended_vX.X.X.bin
 ### Alternative way/ Graphical (Windows only)
 As an alternative you might use [Espressif's Flash Download Tools](https://www.espressif.com/en/support/download/other-tools).
 
-Check the marked parameters and files like below:
+Check the marked parameters and files like below.
+
+Replace the address **0x10000** with **0x0** if you want a fresh install. 
 
 ![image](docs/win_flash.png)
 
