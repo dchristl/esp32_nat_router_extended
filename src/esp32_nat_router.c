@@ -360,7 +360,7 @@ static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
         break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
-        // ESP_LOGI(TAG, "disconnected - retry to connect to the AP");
+        ESP_LOGI(TAG, "disconnected - retry to connect to the AP");
         ap_connect = false;
         if (!has_static_ip)
         {
