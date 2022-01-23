@@ -162,7 +162,7 @@ show
 
 
 ## Flashing the prebuild binaries
-- Download [latest release](/releases/latest)
+- Download [latest release](/dchristl/releases/latest/)
 - Install [esptool](https://github.com/espressif/esptool)
 
 ### Update from older version
