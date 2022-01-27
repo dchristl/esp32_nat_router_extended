@@ -83,7 +83,7 @@ def main():
         help='List of addr, same order as bin_path (space seperated)')
     parser.add_argument
     args = parser.parse_args()
-    outputfile = "esp32nat_extended_v" + args.version + ".bin"
+    outputfile = "esp32nat_extended_full_v" + args.version + ".bin"
     mb = multiple_bin(outputfile, args.output_folder)
     for path, address in zip(args.bin_path, args.bin_address):
         mb.add_bin(os.path.join(args.input_folder, path), address)
