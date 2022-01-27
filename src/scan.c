@@ -20,6 +20,8 @@
 #include "esp_heap_caps.h"
 #include "helper.h"
 #include "router_globals.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 const char *ROW_TEMPLATE = "<tr class='text-%s'><td>%s</td><td>%d</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-primary'/></form></td></tr>";
 
@@ -115,8 +117,9 @@ static void print_cipher_type(int pairwise_cipher, int group_cipher)
 /* Initialize Wi-Fi as sta and set scan method */
 static char *wifi_scan(void)
 {
-
+    vTaskDelay(1000 / portTICK_RATE_MS);
     esp_wifi_disconnect();
+    vTaskDelay(1000 / portTICK_RATE_MS);
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 

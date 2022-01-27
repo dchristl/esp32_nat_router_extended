@@ -162,22 +162,24 @@ show
 
 
 ## Flashing the prebuild binaries
-- Download and extract latest release
+- Download [latest release](https://github.com/dchristl/esp32_nat_router_extended/releases/latest)
+  * Download esp32nat_extended_full_vX.X.X.bin for fresh install
+  * Download esp32nat_extended_vX.X.X.bin for update
 - Install [esptool](https://github.com/espressif/esptool)
+
+### First install/ Reset 
+
+If your device was used before for other projects or you want to reset all setting from previous version. Complete data loss!
+
+```
+esptool.py write_flash 0x0 esp32nat_extended_full_vX.X.X.bin 
+```
 
 ### Update from older version
 If this project was already installed. No data loss from previous version. 
  
 ```
 esptool.py write_flash 0x10000 esp32nat_extended_vX.X.X.bin 
-```
-
-### Fresh install/ Reset 
-
-If your device was used before for other projects or you want to reset all setting from previous version. Complete data loss!
-
-```
-esptool.py write_flash 0x0 esp32nat_extended_vX.X.X.bin 
 ```
 
 ### Alternative way/ Graphical (Windows only)
@@ -191,7 +193,7 @@ Replace the address **0x10000** with **0x0** if you want a fresh install.
 
 ## Building the Binaries
 
-see [How to build](docs/README.md)
+see [How to setup environment and build](docs/BUILD.md)
 
 ### DNS
 As soon as the ESP32 STA has learned a DNS IP from its upstream DNS server on first connect, it passes that to newly connected clients.
