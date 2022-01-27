@@ -111,6 +111,7 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     get_config_param_str("scan_result", &result_param);
     if (result_param != NULL)
     {
+        free(result_param);
         ESP_LOGI(TAG, "Scan result is available. Forwarding to scan page");
         return result_download_get_handler(req);
     }
@@ -438,7 +439,6 @@ static esp_err_t scan_download_get_handler(httpd_req_t *req)
 
 static esp_err_t result_download_get_handler(httpd_req_t *req)
 {
-
     if (isLocked)
     {
         return unlock_handler(req);
@@ -458,12 +458,12 @@ static esp_err_t result_download_get_handler(httpd_req_t *req)
     }
 
     int size = result_html_size + strlen(result_param);
-    char *result_page = malloc(size);
+    char *result_page = malloc(size + 1);
     sprintf(result_page, result_start, result_param);
 
     setCloseHeader(req);
 
-    esp_err_t ret = httpd_resp_send(req, result_page, strlen(result_page));
+    esp_err_t ret = httpd_resp_send(req, result_page, strlen(result_page) - 2);
     free(result_page);
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
