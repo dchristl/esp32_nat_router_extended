@@ -157,7 +157,7 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     setCloseHeader(req);
 
-    esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page));
+    esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page) - 10);
     free(config_page);
     free(appliedSSID);
     return ret;
@@ -358,7 +358,7 @@ static esp_err_t lock_handler(httpd_req_t *req)
 
     setCloseHeader(req);
 
-    esp_err_t out = httpd_resp_send(req, lock_page, strlen(lock_page));
+    esp_err_t out = httpd_resp_send(req, lock_page, strlen(lock_page) - 2);
     free(lock_page);
     return out;
 }
