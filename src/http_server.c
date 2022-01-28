@@ -502,11 +502,28 @@ static esp_err_t favicon_get_handler(httpd_req_t *req)
     return downloadStatic(req, (const char *)favicon_ico_start, favicon_ico_size);
 }
 
+
+static esp_err_t jquery_get_handler(httpd_req_t *req)
+{
+    extern const unsigned char jquery_js_start[] asm("_binary_jquery_js_start");
+    extern const unsigned char jquery_js_end[] asm("_binary_jquery_js_end");
+    const size_t jquery_js_size = (jquery_js_end - jquery_js_start);
+    httpd_resp_set_type(req, "text/javascript");
+    ESP_LOGI(TAG, "Requesting jquery");
+    return downloadStatic(req, (const char *)jquery_js_start, jquery_js_size);
+}
+
 // URI handler for getting favicon
 httpd_uri_t favicon_handler = {
     .uri = "/favicon.ico",
     .method = HTTP_GET,
     .handler = favicon_get_handler,
+    .user_ctx = NULL};
+
+httpd_uri_t jquery_handler = {
+    .uri = "/jquery.js",
+    .method = HTTP_GET,
+    .handler = jquery_get_handler,
     .user_ctx = NULL};
 
 static esp_err_t styles_download_get_handler(httpd_req_t *req)
@@ -561,6 +578,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &lockg);
         httpd_register_uri_handler(server, &lockp);
         httpd_register_uri_handler(server, &favicon_handler);
+        httpd_register_uri_handler(server, &jquery_handler);
         httpd_register_uri_handler(server, &styles_handler);
         return server;
     }

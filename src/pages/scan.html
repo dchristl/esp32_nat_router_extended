@@ -25,4 +25,19 @@
     </div>
 </body>
 
+<script src="jquery.js"></script>
+<script>
+    (function poll() {
+        $.ajax({
+            url: "/",
+            type: "GET",
+            success: function (data) {
+                console.log("polling");
+            },
+            dataType: "json",
+            complete: setTimeout(function () { console.log('Forwarding to result'); window.location.href = "/result"; }, 5000),
+            timeout: 3000
+        })
+    })();
+</script>
 </html>
