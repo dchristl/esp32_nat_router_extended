@@ -94,9 +94,9 @@
 
   <script src="jquery.js"></script>
   <script>
-    $('.password').on('mousedown mouseup mouseout', function mouseState(e) {
+    $('.password').on('mousedown mouseup mouseout touchstart touchend', function mouseState(e) {
       var field = $(this).parent().find('input');
-      if (e.type == "mousedown") {
+      if (e.type == "mousedown" || e.type == "touchstart") {
         field.get(0).type = 'text';
       } else {
         field.get(0).type = 'password';
