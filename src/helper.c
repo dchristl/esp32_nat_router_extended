@@ -48,6 +48,24 @@ void setApByQuery(char *buf, nvs_handle_t nvs)
     nvs_set_str(nvs, "ap_passwd", argv[2]);
 }
 
+char *findTextColorForSSID(int8_t rssi)
+{
+    char *color;
+    if (rssi >= -50)
+    {
+        color = "success";
+    }
+    else if (rssi >= -70)
+    {
+        color = "info";
+    }
+    else
+    {
+        color = "warning";
+    }
+    return color;
+}
+
 void setStaByQuery(char *buf, nvs_handle_t nvs)
 {
     int argc = 3;
@@ -57,4 +75,3 @@ void setStaByQuery(char *buf, nvs_handle_t nvs)
     nvs_set_str(nvs, "ssid", argv[1]);
     nvs_set_str(nvs, "passwd", argv[2]);
 }
-

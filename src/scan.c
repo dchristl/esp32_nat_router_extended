@@ -150,20 +150,7 @@ static char *wifi_scan(void)
             print_cipher_type(ap_info[i].pairwise_cipher, ap_info[i].group_cipher);
         }
         ESP_LOGI(TAG, "Channel \t\t%d\n", ap_info[i].primary);
-        char *css;
-        if (ap_info[i].rssi >= -50)
-        {
-            css = "success";
-        }
-        else if (ap_info[i].rssi >= -70)
-        {
-            css = "info";
-        }
-        else
-        {
-            css = "warning";
-        }
-
+        char *css = findTextColorForSSID(ap_info[i].rssi);
         sprintf(template, ROW_TEMPLATE, css, ap_info[i].ssid, ap_info[i].rssi, ap_info[i].ssid);
         strcat(str, template);
     }

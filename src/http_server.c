@@ -150,6 +150,19 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     char *symbol = BALLOT_BOX;
     char *textColor = "info";
 
+    wifi_ap_record_t apinfo;
+    memset(&apinfo, 0, sizeof(apinfo));
+    if (esp_wifi_sta_get_ap_info(&apinfo) == ESP_OK)
+    {
+        db = malloc(5);
+        sprintf(db, "%d", apinfo.rssi);
+        symbol = BALLOT_BOX_WITH_CHECK;
+        textColor = findTextColorForSSID(apinfo.rssi);
+        ESP_LOGI(TAG, "RSSI: %d", apinfo.rssi);
+        ESP_LOGI(TAG, "Channel: %d", apinfo.primary);
+        ESP_LOGI(TAG, "SSID: %s", apinfo.ssid);
+    };
+
     size = size + strlen(symbol) + strlen(textColor) + strlen(clients) + strlen(db);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
     char *config_page = malloc(config_html_size + size);
