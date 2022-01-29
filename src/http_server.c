@@ -145,7 +145,7 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     {
         size = size + strlen(ssid) + strlen(passwd);
     }
-    char *clients = "0";
+    char *clients = NULL;
     char *db = "0";
     char *symbol = BALLOT_BOX;
     char *textColor = "info";
@@ -162,6 +162,8 @@ static esp_err_t index_get_handler(httpd_req_t *req)
         ESP_LOGI(TAG, "Channel: %d", apinfo.primary);
         ESP_LOGI(TAG, "SSID: %s", apinfo.ssid);
     };
+    clients = malloc(6);
+    sprintf(clients, "%i", connect_count);
 
     size = size + strlen(symbol) + strlen(textColor) + strlen(clients) + strlen(db);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
@@ -178,9 +180,11 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 
     setCloseHeader(req);
 
-    esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page) - 18);
+    esp_err_t ret = httpd_resp_send(req, config_page, config_html_size + size - 18); // 9 *2 for parameter substitution (%s)
     free(config_page);
     free(appliedSSID);
+    free(clients);
+    free(db);
     return ret;
 }
 
