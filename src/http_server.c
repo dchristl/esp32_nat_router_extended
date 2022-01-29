@@ -99,6 +99,8 @@ static esp_err_t reset_get_handler(httpd_req_t *req)
     esp_err_t ret = httpd_resp_send(req, reset_start, reset_html_size);
     return ret;
 }
+static char BALLOT_BOX[] = "&#9744;";
+static char BALLOT_BOX_WITH_CHECK[] = "&#9745;";
 
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
@@ -143,21 +145,27 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     {
         size = size + strlen(ssid) + strlen(passwd);
     }
+    char *clients = "0";
+    char *db = "0";
+    char *symbol = BALLOT_BOX;
+    char *textColor = "info";
+
+    size = size + strlen(symbol) + strlen(textColor) + strlen(clients) + strlen(db);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
     char *config_page = malloc(config_html_size + size);
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, ap_ssid, ap_passwd, appliedSSID, "", display);
+        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, appliedSSID, "", display);
     }
     else
     {
-        sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd, display);
+        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, ssid, passwd, display);
     }
 
     setCloseHeader(req);
 
-    esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page) - 10);
+    esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page) - 18);
     free(config_page);
     free(appliedSSID);
     return ret;
@@ -501,7 +509,6 @@ static esp_err_t favicon_get_handler(httpd_req_t *req)
     ESP_LOGI(TAG, "Requesting favicon");
     return downloadStatic(req, (const char *)favicon_ico_start, favicon_ico_size);
 }
-
 
 static esp_err_t jquery_get_handler(httpd_req_t *req)
 {
