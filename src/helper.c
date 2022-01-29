@@ -96,7 +96,7 @@ void fillInfoData(char **clients, char **db, char **symbol, char **textColor)
         *symbol = BALLOT_BOX_WITH_CHECK;
         *textColor = findTextColorForSSID(apinfo.rssi);
         ESP_LOGI(TAG, "RSSI: %d", apinfo.rssi);
-        ESP_LOGI(TAG, "Channel: %d", apinfo.primary);
+        // ESP_LOGI(TAG, "Channel: %d", apinfo.primary);
         ESP_LOGI(TAG, "SSID: %s", apinfo.ssid);
     };
     *clients = malloc(6);

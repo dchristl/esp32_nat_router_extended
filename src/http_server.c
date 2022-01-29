@@ -310,7 +310,7 @@ static esp_err_t api_handler(httpd_req_t *req)
     char *json = malloc(size);
     sprintf(json, JSON_TEMPLATE, clients, db, textColor, symbol);
     esp_err_t ret = httpd_resp_send(req, json, size - 8);
-    ESP_LOGW(TAG, "%s", json);
+    ESP_LOGI(TAG, "JSON-Response: %s", json);
     free(json);
     free(clients);
     free(db);
