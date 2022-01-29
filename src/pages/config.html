@@ -17,7 +17,7 @@
     </div>
     <form action='apply' method='POST'>
       <h2>AP Settings (the new network)</h2>
-      <span class="text-info">%s client(s) connected</span>
+      <span class="text-info"><span id="clients">%s</span> client(s) connected</span>
       <div class="form-group row">
         <label for="ap_ssid" class="col-3">SSID</label>
         <div class="col-9">
@@ -102,6 +102,25 @@
         field.get(0).type = 'password';
       }
     });
+  </script>
+  <script>
+    (function poll() {
+      $.ajax({
+        url: "/api",
+        type: "GET",
+        success: function (data) {
+          console.log(data);
+          $('#clients').text(data.clients);
+          $('#db').text(data.strength);
+          $('#sta').removeClass();
+          $('#sta').addClass('text-' + data.text);
+          $('#symbol').html(data.symbol);
+        },
+        dataType: "json",
+        complete: setTimeout(function () { poll(); }, 3000),
+        timeout: 3000
+      })
+    })();
   </script>
 </body>
 

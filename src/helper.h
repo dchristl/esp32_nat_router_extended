@@ -24,3 +24,4 @@ void setStaByQuery(char *buf, nvs_handle_t nvs);
 void fillNodes();
 void push(node_t *head, int db, uint8_t ssid[33], int sec);
 char *findTextColorForSSID(int8_t rssi);
+void fillInfoData(char **clients, char **db, char **symbol, char **textColor);

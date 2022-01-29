@@ -19,6 +19,8 @@ bool isLocked = false;
 
 char *appliedSSID = NULL;
 
+const char *JSON_TEMPLATE = "{\"clients\": %s,\"strength\": %s,\"text\": \"%s\",\"symbol\": \"%s\"}";
+
 static void restart_timer_callback(void *arg)
 {
     ESP_LOGI(TAG, "Restarting now...");
@@ -99,8 +101,6 @@ static esp_err_t reset_get_handler(httpd_req_t *req)
     esp_err_t ret = httpd_resp_send(req, reset_start, reset_html_size);
     return ret;
 }
-static char BALLOT_BOX[] = "&#9744;";
-static char BALLOT_BOX_WITH_CHECK[] = "&#9745;";
 
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
@@ -145,25 +145,11 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     {
         size = size + strlen(ssid) + strlen(passwd);
     }
-    char *clients = NULL;
-    char *db = "0";
-    char *symbol = BALLOT_BOX;
-    char *textColor = "info";
-
-    wifi_ap_record_t apinfo;
-    memset(&apinfo, 0, sizeof(apinfo));
-    if (esp_wifi_sta_get_ap_info(&apinfo) == ESP_OK)
-    {
-        db = malloc(5);
-        sprintf(db, "%d", apinfo.rssi);
-        symbol = BALLOT_BOX_WITH_CHECK;
-        textColor = findTextColorForSSID(apinfo.rssi);
-        ESP_LOGI(TAG, "RSSI: %d", apinfo.rssi);
-        ESP_LOGI(TAG, "Channel: %d", apinfo.primary);
-        ESP_LOGI(TAG, "SSID: %s", apinfo.ssid);
-    };
-    clients = malloc(6);
-    sprintf(clients, "%i", connect_count);
+    char *clients = malloc(6);
+    char *db = malloc(5);
+    char *symbol = NULL;
+    char *textColor = NULL;
+    fillInfoData(&clients, &db, &symbol, &textColor);
 
     size = size + strlen(symbol) + strlen(textColor) + strlen(clients) + strlen(db);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
@@ -305,6 +291,32 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
     return apply_get_handler(req);
 }
 
+static esp_err_t api_handler(httpd_req_t *req)
+{
+    if (isLocked)
+    {
+        return httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, NULL);
+    }
+    httpd_resp_set_type(req, "application/json");
+
+    char *clients = malloc(6);
+    char *db = malloc(5);
+    char *symbol = NULL;
+    char *textColor = NULL;
+    fillInfoData(&clients, &db, &symbol, &textColor);
+
+    size_t size = strlen(JSON_TEMPLATE) + strlen(clients) + strlen(db) + strlen(textColor) + strlen(symbol);
+    ESP_LOGW(TAG, "size = %d %d %s %s %d", size, strlen(JSON_TEMPLATE), db, clients, strlen(symbol));
+    char *json = malloc(size);
+    sprintf(json, JSON_TEMPLATE, clients, db, textColor, symbol);
+    esp_err_t ret = httpd_resp_send(req, json, size - 8);
+    ESP_LOGW(TAG, "%s", json);
+    free(json);
+    free(clients);
+    free(db);
+    return ret;
+}
+
 static esp_err_t lock_handler(httpd_req_t *req)
 {
     if (isLocked)
@@ -437,6 +449,11 @@ static httpd_uri_t lockg = {
     .uri = "/lock",
     .method = HTTP_GET,
     .handler = lock_handler,
+};
+static httpd_uri_t apig = {
+    .uri = "/api",
+    .method = HTTP_GET,
+    .handler = api_handler,
 };
 
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
@@ -604,6 +621,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &favicon_handler);
         httpd_register_uri_handler(server, &jquery_handler);
         httpd_register_uri_handler(server, &styles_handler);
+        httpd_register_uri_handler(server, &apig);
         return server;
     }
 
