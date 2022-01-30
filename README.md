@@ -167,6 +167,7 @@ show
   * Download esp32nat_extended_full_vX.X.X.zip for fresh install
   * Download esp32nat_extended_vX.X.X.zip for update
 - Install [esptool](https://github.com/espressif/esptool)
+ 
 
 ### First install/ Reset 
 
@@ -184,6 +185,12 @@ If this project was already installed. No data loss from previous version.
 ```
 esptool.py write_flash 0x10000 esp32nat_extended_vX.X.X.bin 
 ```
+
+If any problem occurs, erase flash manually before flashing:
+```
+esptool.py erase_flash
+```
+
 
 ### Alternative way/ Graphical (Windows only)
 As an alternative you might use [Espressif's Flash Download Tools](https://www.espressif.com/en/support/download/other-tools).
