@@ -78,7 +78,7 @@ def copyAndRenameBinaries(version):
                     version + '.zip', 'release/esp32nat_extended_v' +
                     version + '.zip')
     fileList = glob.glob('release/*.bin')
-# Iterate over the list of filepaths & remove each file.
+    # Iterate over the list of filepaths & remove each file.
     for filePath in fileList:
         try:
             os.remove(filePath)
