@@ -6,6 +6,7 @@ import getopt
 import shutil
 import htmlmin
 import subprocess
+import glob
 from bs4 import BeautifulSoup
 from datetime import date
 
@@ -62,6 +63,8 @@ def copyAndRenameBinaries(version):
     os.mkdir('release')
     shutil.copyfile('.pio/build/esp32dev/firmware.bin',
                     'release/esp32nat_extended_v' + version + '.bin')
+    shutil.make_archive('tmp/esp32nat_extended_v' +
+                        version, 'zip', 'release')
     shutil.copyfile('.pio/build/esp32dev/bootloader.bin',
                     'release/bootloader.bin')
     shutil.copyfile('.pio/build/esp32dev/partitions.bin',
@@ -69,8 +72,18 @@ def copyAndRenameBinaries(version):
     shutil.make_archive('tmp/esp32nat_extended_full_v' +
                         version, 'zip', 'release')
     shutil.copyfile('tmp/esp32nat_extended_full_v' +
-                        version + '.zip','release/esp32nat_extended_full_v' +
-                        version + '.zip')
+                    version + '.zip', 'release/esp32nat_extended_full_v' +
+                    version + '.zip')
+    shutil.copyfile('tmp/esp32nat_extended_v' +
+                    version + '.zip', 'release/esp32nat_extended_v' +
+                    version + '.zip')
+    fileList = glob.glob('release/*.bin')
+# Iterate over the list of filepaths & remove each file.
+    for filePath in fileList:
+        try:
+            os.remove(filePath)
+        except:
+            print("Error while deleting file : ", filePath)
 
 
 def buildRelease(version):
