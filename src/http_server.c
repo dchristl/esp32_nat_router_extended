@@ -554,6 +554,16 @@ static esp_err_t jquery_get_handler(httpd_req_t *req)
     return downloadStatic(req, (const char *)jquery_js_start, jquery_js_size);
 }
 
+static esp_err_t bootstrap_get_handler(httpd_req_t *req)
+{
+    extern const unsigned char bootstrap_js_start[] asm("_binary_bootstrap_js_start");
+    extern const unsigned char bootstrap_js_end[] asm("_binary_bootstrap_js_end");
+    const size_t bootstrap_js_size = (bootstrap_js_end - bootstrap_js_start);
+    httpd_resp_set_type(req, "text/javascript");
+    ESP_LOGI(TAG, "Requesting bootstrap");
+    return downloadStatic(req, (const char *)bootstrap_js_start, bootstrap_js_size);
+}
+
 // URI handler for getting favicon
 httpd_uri_t favicon_handler = {
     .uri = "/favicon.ico",
@@ -567,10 +577,16 @@ httpd_uri_t jquery_handler = {
     .handler = jquery_get_handler,
     .user_ctx = NULL};
 
+httpd_uri_t bootstrap_handler = {
+    .uri = "/bootstrap.js",
+    .method = HTTP_GET,
+    .handler = bootstrap_get_handler,
+    .user_ctx = NULL};
+
 static esp_err_t styles_download_get_handler(httpd_req_t *req)
 {
-    extern const unsigned char styles_start[] asm("_binary_styles_css_start");
-    extern const unsigned char styles_end[] asm("_binary_styles_css_end");
+    extern const unsigned char styles_start[] asm("_binary_styles_1_css_start");
+    extern const unsigned char styles_end[] asm("_binary_styles_1_css_end");
     const size_t styles_size = (styles_end - styles_start);
     httpd_resp_set_type(req, "text/css");
     ESP_LOGI(TAG, "Requesting style.css");
@@ -578,7 +594,7 @@ static esp_err_t styles_download_get_handler(httpd_req_t *req)
 }
 
 httpd_uri_t styles_handler = {
-    .uri = "/styles.css",
+    .uri = "/styles-1.css",
     .method = HTTP_GET,
     .handler = styles_download_get_handler,
     .user_ctx = NULL};
@@ -620,6 +636,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &lockp);
         httpd_register_uri_handler(server, &favicon_handler);
         httpd_register_uri_handler(server, &jquery_handler);
+        httpd_register_uri_handler(server, &bootstrap_handler);
         httpd_register_uri_handler(server, &styles_handler);
         httpd_register_uri_handler(server, &apig);
         return server;
