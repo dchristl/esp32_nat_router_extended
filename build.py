@@ -3,7 +3,6 @@
 import os
 import sys
 import getopt
-import merge_bin_esp
 import shutil
 import htmlmin
 import subprocess
@@ -60,9 +59,13 @@ def cleanAndBuild():
 
 
 def copyAndRenameBinaries(version):
-    merge_bin_esp.main(version)
     shutil.copyfile('.pio/build/esp32dev/firmware.bin',
                     'release/esp32nat_extended_v' + version + '.bin')
+    shutil.copyfile('.pio/build/esp32dev/bootloader.bin',
+                    'release/bootloader.bin')
+    shutil.copyfile('.pio/build/esp32dev/partitions.bin',
+                    'release/partitions.bin')
+    shutil.make_archive('release/esp32nat_extended_full_v' + version + '.zip', 'zip', 'release')                    
 
 
 def buildRelease(version):
