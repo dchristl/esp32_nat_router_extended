@@ -54,8 +54,8 @@ def cleanAndBuild():
         shutil.rmtree('release')
     except OSError as e:
         print("Error: %s - %s." % (e.filename, e.strerror))
-    # os.system('platformio run -t clean')
-    # os.system('platformio run')
+    os.system('platformio run -t clean')
+    os.system('platformio run')
 
 
 def copyAndRenameBinaries(version):
@@ -66,8 +66,11 @@ def copyAndRenameBinaries(version):
                     'release/bootloader.bin')
     shutil.copyfile('.pio/build/esp32dev/partitions.bin',
                     'release/partitions.bin')
-    shutil.make_archive('release/esp32nat_extended_full_v' +
-                        version + '.zip', 'zip', 'release')
+    shutil.make_archive('tmp/esp32nat_extended_full_v' +
+                        version, 'zip', 'release')
+    shutil.copyfile('tmp/esp32nat_extended_full_v' +
+                        version + '.zip','release/esp32nat_extended_full_v' +
+                        version + '.zip')
 
 
 def buildRelease(version):
