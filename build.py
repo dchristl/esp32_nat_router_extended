@@ -8,6 +8,7 @@ import shutil
 import htmlmin
 import subprocess
 from bs4 import BeautifulSoup
+from datetime import date
 
 
 def shrinkHtml():
@@ -29,7 +30,7 @@ def shrinkHtml():
             continue
 
 
-def updateVersion(version):
+def updateAbout(version):
     markup = open('src/pages/config.html', 'r')
     soup = BeautifulSoup(markup, 'html.parser')
     versionTag = soup.find("td", {"id": "version"})
@@ -37,7 +38,9 @@ def updateVersion(version):
     hashTag = soup.find("td", {"id": "hash"})
     hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
     hashTag.string = hash.decode("utf-8").strip()
-    print(hashTag)
+    today = date.today()
+    dateTag = soup.find("td", {"id": "date"})
+    dateTag.string = today
     with open("src/pages/config.html", "w") as file:
         file.write(str(soup))
 
@@ -65,7 +68,7 @@ def copyAndRenameBinaries(version):
 def buildRelease(version):
     shrinkHtml()
     commitAndPush(version)
-    updateVersion(version)
+    updateAbout(version)
     cleanAndBuild()
     copyAndRenameBinaries(version)
 
