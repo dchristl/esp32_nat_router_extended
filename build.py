@@ -40,7 +40,7 @@ def updateAbout(version):
     hashTag.string = hash.decode("utf-8").strip()
     today = date.today()
     dateTag = soup.find("td", {"id": "date"})
-    dateTag.string = today
+    dateTag.string = today.strftime("%d.%m.%Y")
     with open("src/pages/config.html", "w") as file:
         file.write(str(soup))
 
