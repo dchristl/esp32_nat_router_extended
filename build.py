@@ -59,13 +59,15 @@ def cleanAndBuild():
 
 
 def copyAndRenameBinaries(version):
+    os.mkdir('release')
     shutil.copyfile('.pio/build/esp32dev/firmware.bin',
                     'release/esp32nat_extended_v' + version + '.bin')
     shutil.copyfile('.pio/build/esp32dev/bootloader.bin',
                     'release/bootloader.bin')
     shutil.copyfile('.pio/build/esp32dev/partitions.bin',
                     'release/partitions.bin')
-    shutil.make_archive('release/esp32nat_extended_full_v' + version + '.zip', 'zip', 'release')                    
+    shutil.make_archive('release/esp32nat_extended_full_v' +
+                        version + '.zip', 'zip', 'release')
 
 
 def buildRelease(version):
