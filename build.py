@@ -54,8 +54,8 @@ def cleanAndBuild():
         shutil.rmtree('release')
     except OSError as e:
         print("Error: %s - %s." % (e.filename, e.strerror))
-    # os.system('platformio run -t clean')
-    # os.system('platformio run')
+    os.system('platformio run -t clean')
+    os.system('platformio run')
 
 
 def copyAndRenameBinaries(version):
