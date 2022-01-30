@@ -35,25 +35,17 @@ def updateVersion(version):
     versionTag = soup.find("td", {"id": "version"})
     versionTag.string = version
     hashTag = soup.find("td", {"id": "hash"})
-    hash = subprocess.check_output(['git','rev-parse','--short','HEAD'])
+    hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
     hashTag.string = hash.decode("utf-8").strip()
     print(hashTag)
     with open("src/pages/config.html", "w") as file:
         file.write(str(soup))
-
 
 
 def commitAndPush(version):
-    markup = open('src/pages/config.html', 'r')
-    soup = BeautifulSoup(markup, 'html.parser')
-    versionTag = soup.find("td", {"id": "version"})
-    versionTag.string = version
-    hashTag = soup.find("td", {"id": "hash"})
-    hash = subprocess.check_output(['git','rev-parse','--short','HEAD'])
-    hashTag.string = hash.decode("utf-8").strip()
-    print(hashTag)
-    with open("src/pages/config.html", "w") as file:
-        file.write(str(soup))
+    os.system('git add -A && git commit -m \"new release: ' + version + '\"')
+    os.system('git push')
+
 
 def cleanAndBuild():
     try:
@@ -79,6 +71,9 @@ def buildRelease(version):
 
 
 def main(argv):
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
     version = ''
     try:
         opts, args = getopt.getopt(argv, "hi:version:", ["version="])
