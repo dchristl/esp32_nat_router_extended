@@ -6,6 +6,8 @@ import getopt
 import merge_bin_esp
 import shutil
 import htmlmin
+import subprocess
+from bs4 import BeautifulSoup
 
 
 def shrinkHtml():
@@ -27,8 +29,17 @@ def shrinkHtml():
             continue
 
 
-def updateInformationFile(version):
-    print('Not yet implemented')
+def updateVersion(version):
+    markup = open('src/pages/config.html', 'r')
+    soup = BeautifulSoup(markup, 'html.parser')
+    versionTag = soup.find("td", {"id": "version"})
+    versionTag.string = version
+    hashTag = soup.find("td", {"id": "hash"})
+    hash = subprocess.check_output(['git','rev-parse','--short','HEAD'])
+    hashTag.string = hash.decode("utf-8").strip()
+    print(hashTag)
+    with open("src/pages/config.html", "w") as file:
+        file.write(str(soup))
 
 
 def cleanAndBuild():
@@ -47,8 +58,8 @@ def copyAndRenameBinaries(version):
 
 
 def buildRelease(version):
+    updateVersion(version)
     shrinkHtml()
-    updateInformationFile(version)
     cleanAndBuild()
     copyAndRenameBinaries(version)
 
