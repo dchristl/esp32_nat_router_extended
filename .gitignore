@@ -1,5 +1,5 @@
 build/**
 .pio/**
 .vscode/**
-
+__pycache__/**
 commands.txt
