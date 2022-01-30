@@ -48,6 +48,24 @@ void setApByQuery(char *buf, nvs_handle_t nvs)
     nvs_set_str(nvs, "ap_passwd", argv[2]);
 }
 
+char *findTextColorForSSID(int8_t rssi)
+{
+    char *color;
+    if (rssi >= -50)
+    {
+        color = "success";
+    }
+    else if (rssi >= -70)
+    {
+        color = "info";
+    }
+    else
+    {
+        color = "warning";
+    }
+    return color;
+}
+
 void setStaByQuery(char *buf, nvs_handle_t nvs)
 {
     int argc = 3;
@@ -58,3 +76,29 @@ void setStaByQuery(char *buf, nvs_handle_t nvs)
     nvs_set_str(nvs, "passwd", argv[2]);
 }
 
+static char BALLOT_BOX[] = "&#9744;";
+static char BALLOT_BOX_WITH_CHECK[] = "&#9745;";
+
+void fillInfoData(char **clients, char **db, char **symbol, char **textColor)
+{
+
+    *clients = "0";
+    *db = malloc(5);
+    sprintf(*db, "%d", 0);
+    *symbol = BALLOT_BOX;
+    *textColor = "info";
+    wifi_ap_record_t apinfo;
+    memset(&apinfo, 0, sizeof(apinfo));
+    if (esp_wifi_sta_get_ap_info(&apinfo) == ESP_OK)
+    {
+        *db = malloc(5);
+        sprintf(*db, "%d", apinfo.rssi);
+        *symbol = BALLOT_BOX_WITH_CHECK;
+        *textColor = findTextColorForSSID(apinfo.rssi);
+        ESP_LOGI(TAG, "RSSI: %d", apinfo.rssi);
+        // ESP_LOGI(TAG, "Channel: %d", apinfo.primary);
+        ESP_LOGI(TAG, "SSID: %s", apinfo.ssid);
+    };
+    *clients = malloc(6);
+    sprintf(*clients, "%i", connect_count);
+}

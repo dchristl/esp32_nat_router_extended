@@ -62,12 +62,11 @@ class multiple_bin():
                 raise Exception("Not possible to create this bin, overlapping between %s and %s" % (
                     self.bin_array[i].file_name, self.bin_array[i-1].file_name))
 
-
-def main():
+def main(args):
     parser = argparse.ArgumentParser(
         description='Script to merge *.bin file at different position')
     parser.add_argument(
-        '--output_folder', default="build",
+        '--output_folder', default="release",
         help='Output folder path')
     parser.add_argument(
         '--input_folder', default=".pio/build/esp32dev/",

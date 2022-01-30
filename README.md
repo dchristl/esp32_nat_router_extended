@@ -7,10 +7,11 @@ This is a firmware to use the ESP32 as WiFi NAT router. It can be used as
 This is an extension of the great work of [martin-ger's ESP32 NAT Router-project](https://github.com/martin-ger/esp32_nat_router). I used his project as a starting point for learning microcontroller programming and extended it with some features for my use case. 
 
 ## Additional features
-- Scanning for APs (s. [Limitations](#wifi-scanning-limitation))
+- Scanning for APs (s. [limitations](#wifi-scanning-limitation))
 - Resetting the device
 - Improved and stabilized UI
-- Securing the frontend
+- Secure frontend by password
+- Show connected state and quality in UI
 
 ## First Boot
 After first boot the ESP32 NAT Router will offer a WiFi network with an open AP and the ssid "ESP32_NAT_Router". Configuration can either be done via a simple web interface or via the serial console. 

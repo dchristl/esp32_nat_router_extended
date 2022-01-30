@@ -19,6 +19,8 @@ bool isLocked = false;
 
 char *appliedSSID = NULL;
 
+const char *JSON_TEMPLATE = "{\"clients\": %s,\"strength\": %s,\"text\": \"%s\",\"symbol\": \"%s\"}";
+
 static void restart_timer_callback(void *arg)
 {
     ESP_LOGI(TAG, "Restarting now...");
@@ -143,23 +145,32 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     {
         size = size + strlen(ssid) + strlen(passwd);
     }
+    char *clients = malloc(6);
+    char *db = malloc(5);
+    char *symbol = NULL;
+    char *textColor = NULL;
+    fillInfoData(&clients, &db, &symbol, &textColor);
+
+    size = size + strlen(symbol) + strlen(textColor) + strlen(clients) + strlen(db);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
     char *config_page = malloc(config_html_size + size);
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, ap_ssid, ap_passwd, appliedSSID, "", display);
+        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, appliedSSID, "", display);
     }
     else
     {
-        sprintf(config_page, config_start, ap_ssid, ap_passwd, ssid, passwd, display);
+        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, ssid, passwd, display);
     }
 
     setCloseHeader(req);
 
-    esp_err_t ret = httpd_resp_send(req, config_page, strlen(config_page));
+    esp_err_t ret = httpd_resp_send(req, config_page, config_html_size + size - 18); // 9 *2 for parameter substitution (%s)
     free(config_page);
     free(appliedSSID);
+    free(clients);
+    free(db);
     return ret;
 }
 
@@ -280,6 +291,31 @@ static esp_err_t apply_post_handler(httpd_req_t *req)
     return apply_get_handler(req);
 }
 
+static esp_err_t api_handler(httpd_req_t *req)
+{
+    if (isLocked)
+    {
+        return httpd_resp_send_err(req, HTTPD_401_UNAUTHORIZED, NULL);
+    }
+    httpd_resp_set_type(req, "application/json");
+
+    char *clients = malloc(6);
+    char *db = malloc(5);
+    char *symbol = NULL;
+    char *textColor = NULL;
+    fillInfoData(&clients, &db, &symbol, &textColor);
+
+    size_t size = strlen(JSON_TEMPLATE) + strlen(clients) + strlen(db) + strlen(textColor) + strlen(symbol);
+    char *json = malloc(size);
+    sprintf(json, JSON_TEMPLATE, clients, db, textColor, symbol);
+    esp_err_t ret = httpd_resp_send(req, json, size - 8);
+    ESP_LOGI(TAG, "JSON-Response: %s", json);
+    free(json);
+    free(clients);
+    free(db);
+    return ret;
+}
+
 static esp_err_t lock_handler(httpd_req_t *req)
 {
     if (isLocked)
@@ -358,7 +394,7 @@ static esp_err_t lock_handler(httpd_req_t *req)
 
     setCloseHeader(req);
 
-    esp_err_t out = httpd_resp_send(req, lock_page, strlen(lock_page));
+    esp_err_t out = httpd_resp_send(req, lock_page, strlen(lock_page) - 2);
     free(lock_page);
     return out;
 }
@@ -412,6 +448,11 @@ static httpd_uri_t lockg = {
     .uri = "/lock",
     .method = HTTP_GET,
     .handler = lock_handler,
+};
+static httpd_uri_t apig = {
+    .uri = "/api",
+    .method = HTTP_GET,
+    .handler = api_handler,
 };
 
 static esp_err_t scan_download_get_handler(httpd_req_t *req)
@@ -502,6 +543,26 @@ static esp_err_t favicon_get_handler(httpd_req_t *req)
     return downloadStatic(req, (const char *)favicon_ico_start, favicon_ico_size);
 }
 
+static esp_err_t jquery_get_handler(httpd_req_t *req)
+{
+    extern const unsigned char jquery_js_start[] asm("_binary_jquery_js_start");
+    extern const unsigned char jquery_js_end[] asm("_binary_jquery_js_end");
+    const size_t jquery_js_size = (jquery_js_end - jquery_js_start);
+    httpd_resp_set_type(req, "text/javascript");
+    ESP_LOGI(TAG, "Requesting jquery");
+    return downloadStatic(req, (const char *)jquery_js_start, jquery_js_size);
+}
+
+static esp_err_t bootstrap_get_handler(httpd_req_t *req)
+{
+    extern const unsigned char bootstrap_js_start[] asm("_binary_bootstrap_js_start");
+    extern const unsigned char bootstrap_js_end[] asm("_binary_bootstrap_js_end");
+    const size_t bootstrap_js_size = (bootstrap_js_end - bootstrap_js_start);
+    httpd_resp_set_type(req, "text/javascript");
+    ESP_LOGI(TAG, "Requesting bootstrap");
+    return downloadStatic(req, (const char *)bootstrap_js_start, bootstrap_js_size);
+}
+
 // URI handler for getting favicon
 httpd_uri_t favicon_handler = {
     .uri = "/favicon.ico",
@@ -509,10 +570,22 @@ httpd_uri_t favicon_handler = {
     .handler = favicon_get_handler,
     .user_ctx = NULL};
 
+httpd_uri_t jquery_handler = {
+    .uri = "/jquery.js",
+    .method = HTTP_GET,
+    .handler = jquery_get_handler,
+    .user_ctx = NULL};
+
+httpd_uri_t bootstrap_handler = {
+    .uri = "/bootstrap.js",
+    .method = HTTP_GET,
+    .handler = bootstrap_get_handler,
+    .user_ctx = NULL};
+
 static esp_err_t styles_download_get_handler(httpd_req_t *req)
 {
-    extern const unsigned char styles_start[] asm("_binary_styles_css_start");
-    extern const unsigned char styles_end[] asm("_binary_styles_css_end");
+    extern const unsigned char styles_start[] asm("_binary_styles_1_css_start");
+    extern const unsigned char styles_end[] asm("_binary_styles_1_css_end");
     const size_t styles_size = (styles_end - styles_start);
     httpd_resp_set_type(req, "text/css");
     ESP_LOGI(TAG, "Requesting style.css");
@@ -520,7 +593,7 @@ static esp_err_t styles_download_get_handler(httpd_req_t *req)
 }
 
 httpd_uri_t styles_handler = {
-    .uri = "/styles.css",
+    .uri = "/styles-1.css",
     .method = HTTP_GET,
     .handler = styles_download_get_handler,
     .user_ctx = NULL};
@@ -530,7 +603,7 @@ httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.stack_size = 20000;
-    config.max_uri_handlers = 15;
+    config.max_uri_handlers = 20;
 
     esp_timer_create(&restart_timer_args, &restart_timer);
 
@@ -561,7 +634,10 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &lockg);
         httpd_register_uri_handler(server, &lockp);
         httpd_register_uri_handler(server, &favicon_handler);
+        httpd_register_uri_handler(server, &jquery_handler);
+        httpd_register_uri_handler(server, &bootstrap_handler);
         httpd_register_uri_handler(server, &styles_handler);
+        httpd_register_uri_handler(server, &apig);
         return server;
     }
 
