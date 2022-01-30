@@ -218,3 +218,8 @@ Replace the value of the *DEFAULT_DNS* with your desired DNS-Server IP address i
 
 ## Wifi scanning limitation
 Because of technical limitations, a client can not be simultaneously conected to device and scan for Wifis. Before the scan started all the clients will be disconnected. After that the scan will start, saved in nvs and the device will reboot. After reconnecting to the device you will be able to see the scanned networks. The scan result will be deleted afterwards, but it is always possible to retry the scanning. 
+
+## Misc
+
+If you have any problems, suggestions for new features feel free to ask or raise an issue. This is a spare time project, I will answer if I'm free.
+If you like my work and want to support me, you can [buy me coffee](https://www.buymeacoffee.com/dchristl) or send me a donation via [PayPal](https://bit.ly/3Gde3KN)
