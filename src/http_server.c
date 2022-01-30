@@ -306,7 +306,6 @@ static esp_err_t api_handler(httpd_req_t *req)
     fillInfoData(&clients, &db, &symbol, &textColor);
 
     size_t size = strlen(JSON_TEMPLATE) + strlen(clients) + strlen(db) + strlen(textColor) + strlen(symbol);
-    ESP_LOGW(TAG, "size = %d %d %s %s %d", size, strlen(JSON_TEMPLATE), db, clients, strlen(symbol));
     char *json = malloc(size);
     sprintf(json, JSON_TEMPLATE, clients, db, textColor, symbol);
     esp_err_t ret = httpd_resp_send(req, json, size - 8);
@@ -604,7 +603,7 @@ httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.stack_size = 20000;
-    config.max_uri_handlers = 15;
+    config.max_uri_handlers = 20;
 
     esp_timer_create(&restart_timer_args, &restart_timer);
 
