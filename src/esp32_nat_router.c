@@ -7,8 +7,6 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
-#include <stdio.h>
-#include <string.h>
 #include <pthread.h>
 #include "esp_system.h"
 #include "esp_log.h"
@@ -20,6 +18,8 @@
 #include "esp_vfs_fat.h"
 #include "nvs.h"
 #include "nvs_flash.h"
+
+#include "esp_event.h"
 
 #include "freertos/event_groups.h"
 #include "esp_wifi.h"
@@ -273,13 +273,17 @@ static void initialize_console(void)
     /* Configure UART. Note that REF_TICK is used so that the baud rate remains
      * correct while APB frequency is changing in light sleep mode.
      */
-    const uart_config_t uart_config = {
-        .baud_rate = CONFIG_ESP_CONSOLE_UART_BAUDRATE,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .source_clk = UART_SCLK_REF_TICK,
+    const uart_config_t uart_config = {.baud_rate = CONFIG_ESP_CONSOLE_UART_BAUDRATE,
+                                       .data_bits = UART_DATA_8_BITS,
+                                       .parity = UART_PARITY_DISABLE,
+                                       .stop_bits = UART_STOP_BITS_1,
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
+                                       .source_clk = UART_SCLK_REF_TICK,
+#else
+                                       .source_clk = UART_SCLK_XTAL,
+#endif
     };
+
     /* Install UART driver for interrupt-driven reads and writes */
     ESP_ERROR_CHECK(uart_driver_install(CONFIG_ESP_CONSOLE_UART_NUM,
                                         256, 0, 0, NULL, 0));
@@ -289,11 +293,10 @@ static void initialize_console(void)
     esp_vfs_dev_uart_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
 
     /* Initialize the console */
-    esp_console_config_t console_config = {
-        .max_cmdline_args = 8,
-        .max_cmdline_length = 256,
+    esp_console_config_t console_config = {.max_cmdline_args = 8,
+                                           .max_cmdline_length = 256,
 #if CONFIG_LOG_COLORS
-        .hint_color = atoi(LOG_COLOR_CYAN)
+                                           .hint_color = atoi(LOG_COLOR_CYAN)
 #endif
     };
     ESP_ERROR_CHECK(esp_console_init(&console_config));
@@ -338,51 +341,51 @@ void *led_status_thread(void *p)
     }
 }
 
-static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
+static void wifi_event_handler(void *arg, esp_event_base_t event_base,
+                               int32_t event_id, void *event_data)
 {
     esp_netif_dns_info_t dns;
+    ip_addr_t dnsserver;
 
-    switch (event->event_id)
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
-    case SYSTEM_EVENT_STA_START:
         esp_wifi_connect();
-        break;
-    case SYSTEM_EVENT_STA_GOT_IP:
-        ap_connect = true;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->event_info.got_ip.ip_info.ip));
-        my_ip = event->event_info.got_ip.ip_info.ip.addr;
-        if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
-        {
-            dhcps_dns_setserver((const ip_addr_t *)&dns.ip);
-            ESP_LOGI(TAG, "set dns to:" IPSTR, IP2STR(&dns.ip.u_addr.ip4));
-        }
-        apply_portmap_tab();
-        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
-        break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
+    {
         ESP_LOGI(TAG, "disconnected - retry to connect to the AP");
         ap_connect = false;
-        if (!has_static_ip)
-        {
-            delete_portmap_tab();
-        }
         esp_wifi_connect();
+        ESP_LOGI(TAG, "retry to connect to the AP");
         xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
-        break;
-    case SYSTEM_EVENT_AP_STACONNECTED:
+    }
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+    {
+        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
+        {
+            dnsserver.type = IPADDR_TYPE_V4;
+            dnsserver.u_addr.ip4.addr = dns.ip.u_addr.ip4.addr;
+            // If can't get DNS server, uses default one (1.1.1.)
+            if (dnsserver.u_addr.ip4.addr == IPADDR_ANY)
+                dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_DNS);
+            dhcps_dns_setserver(&dnsserver);
+            ESP_LOGI(TAG, "set dns to:" IPSTR, IP2STR(&(dnsserver.u_addr.ip4)));
+        }
+        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    }
+    else if (event_base == IP_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED)
+    {
         connect_count++;
         ESP_LOGI(TAG, "%d. station connected", connect_count);
-        break;
-    case SYSTEM_EVENT_AP_STADISCONNECTED:
+    }
+    else if (event_base == IP_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED)
+    {
         connect_count--;
         ESP_LOGI(TAG, "station disconnected - %d remain", connect_count);
-        break;
-    default:
-        break;
     }
-    return ESP_OK;
 }
-
 const int CONNECTED_BIT = BIT0;
 #define JOIN_TIMEOUT_MS (2000)
 
@@ -420,7 +423,18 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     esp_netif_set_ip_info(wifiAP, &ipInfo_ap);
     esp_netif_dhcps_start(wifiAP);
 
-    ESP_ERROR_CHECK(esp_event_loop_init(wifi_event_handler, NULL));
+    esp_event_handler_instance_t instance_any_id;
+    esp_event_handler_instance_t instance_got_ip;
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                                                        ESP_EVENT_ANY_ID,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        &instance_any_id));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
+                                                        IP_EVENT_STA_GOT_IP,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        &instance_got_ip));
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -465,8 +479,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     dhcps_set_option_info(6, &dhcps_dns_value, sizeof(dhcps_dns_value));
 
     // Set custom dns server address for dhcp server
-    dnsserver.u_addr.ip4.addr = ipaddr_addr(DEFAULT_DNS);
-    ;
+    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_DNS);
     dnsserver.type = IPADDR_TYPE_V4;
     dhcps_dns_setserver(&dnsserver);
 
@@ -562,9 +575,9 @@ void app_main(void)
     if (lock_pass == NULL)
     {
         lock_pass = param_set_default("");
-    }  
-    
-      get_config_param_str("scan_result", &scan_result);
+    }
+
+    get_config_param_str("scan_result", &scan_result);
     if (scan_result == NULL)
     {
         scan_result = param_set_default("");

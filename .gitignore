@@ -4,3 +4,4 @@ build/**
 __pycache__/**
 release/**
 commands.txt
+ws.code-workspace
