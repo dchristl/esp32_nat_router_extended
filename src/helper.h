@@ -17,7 +17,6 @@ typedef struct node
     struct node *next;
 } node_t;
 
-esp_err_t downloadStatic(httpd_req_t *req, const char *fileStart, const size_t fileSize);
 void setCloseHeader(httpd_req_t *req);
 void setApByQuery(char *buf, nvs_handle_t nvs);
 void setStaByQuery(char *buf, nvs_handle_t nvs);

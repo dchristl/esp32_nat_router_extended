@@ -14,6 +14,7 @@
 #include "nvs.h"
 
 #include "esp_http_client.h"
+#include "urihandler/handler.h"
 
 #define REFRESH_TIMER_PERIOD 5 * 600000
 
@@ -563,37 +564,6 @@ esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
     return ESP_FAIL;
 }
 
-// Handler to download a "favicon.ico" file kept on the server
-static esp_err_t favicon_get_handler(httpd_req_t *req)
-{
-    extern const unsigned char favicon_ico_start[] asm("_binary_favicon_ico_start");
-    extern const unsigned char favicon_ico_end[] asm("_binary_favicon_ico_end");
-    const size_t favicon_ico_size = (favicon_ico_end - favicon_ico_start);
-    httpd_resp_set_type(req, "image/x-icon");
-    ESP_LOGI(TAG, "Requesting favicon");
-    return downloadStatic(req, (const char *)favicon_ico_start, favicon_ico_size);
-}
-
-static esp_err_t jquery_get_handler(httpd_req_t *req)
-{
-    extern const unsigned char jquery_js_start[] asm("_binary_jquery_js_start");
-    extern const unsigned char jquery_js_end[] asm("_binary_jquery_js_end");
-    const size_t jquery_js_size = (jquery_js_end - jquery_js_start);
-    httpd_resp_set_type(req, "text/javascript");
-    ESP_LOGI(TAG, "Requesting jquery");
-    return downloadStatic(req, (const char *)jquery_js_start, jquery_js_size);
-}
-
-static esp_err_t bootstrap_get_handler(httpd_req_t *req)
-{
-    extern const unsigned char bootstrap_js_start[] asm("_binary_bootstrap_js_start");
-    extern const unsigned char bootstrap_js_end[] asm("_binary_bootstrap_js_end");
-    const size_t bootstrap_js_size = (bootstrap_js_end - bootstrap_js_start);
-    httpd_resp_set_type(req, "text/javascript");
-    ESP_LOGI(TAG, "Requesting bootstrap");
-    return downloadStatic(req, (const char *)bootstrap_js_start, bootstrap_js_size);
-}
-
 // URI handler for getting favicon
 httpd_uri_t favicon_handler = {
     .uri = "/favicon.ico",
@@ -613,16 +583,6 @@ httpd_uri_t bootstrap_handler = {
     .handler = bootstrap_get_handler,
     .user_ctx = NULL};
 
-static esp_err_t styles_download_get_handler(httpd_req_t *req)
-{
-    extern const unsigned char styles_start[] asm("_binary_styles_1_css_start");
-    extern const unsigned char styles_end[] asm("_binary_styles_1_css_end");
-    const size_t styles_size = (styles_end - styles_start);
-    httpd_resp_set_type(req, "text/css");
-    ESP_LOGI(TAG, "Requesting style.css");
-    return downloadStatic(req, (const char *)styles_start, styles_size);
-}
-
 httpd_uri_t styles_handler = {
     .uri = "/styles-1.css",
     .method = HTTP_GET,
@@ -639,7 +599,7 @@ httpd_handle_t start_webserver(void)
     esp_timer_create(&restart_timer_args, &restart_timer);
 
     char *lock_pass = NULL;
-    bool keepAlive = false;
+    int keepAlive = 0;
 
     get_config_param_str("lock_pass", &lock_pass);
     if (lock_pass != NULL && strlen(lock_pass) > 0)
@@ -647,8 +607,8 @@ httpd_handle_t start_webserver(void)
         isLocked = true;
         ESP_LOGI(TAG, "UI is locked with password '%s'", lock_pass);
     }
-    get_config_param_str("keep_alive", &keepAlive);
-    if (keepAlive != NULL && keepAlive)
+    get_config_param_int("keep_alive", &keepAlive);
+    if (keepAlive == 1)
     {
         esp_timer_create(&refresh_timer_args, &refresh_timer);
         esp_timer_start_periodic(refresh_timer, REFRESH_TIMER_PERIOD);
