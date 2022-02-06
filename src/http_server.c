@@ -13,7 +13,11 @@
 #include "cmd_nvs.h"
 #include "nvs.h"
 
-esp_timer_handle_t restart_timer;
+#include "esp_http_client.h"
+
+#define REFRESH_TIMER_PERIOD 5 * 600000
+
+esp_timer_handle_t restart_timer, refresh_timer;
 
 bool isLocked = false;
 
@@ -26,12 +30,39 @@ static void restart_timer_callback(void *arg)
     ESP_LOGI(TAG, "Restarting now...");
     esp_restart();
 }
+static void refresh_timer_callback(void *arg)
+{
+    ESP_LOGI(TAG, "Starting ws call");
+    esp_http_client_config_t config = {
+        .url = "https://www.startpage.com/",
+        .method = HTTP_METHOD_HEAD,
+        .disable_auto_redirect = true};
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+
+    // GET
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK)
+    {
+        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %d ", esp_http_client_get_status_code(client),
+                 esp_http_client_get_content_length(client));
+    }
+    else
+    {
+        ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
+    }
+    esp_http_client_cleanup(client);
+}
 
 esp_timer_create_args_t restart_timer_args = {
     .callback = &restart_timer_callback,
     /* argument specified here will be passed to timer callback function */
     .arg = (void *)0,
     .name = "restart_timer"};
+
+esp_timer_create_args_t refresh_timer_args = {
+    .callback = &refresh_timer_callback,
+    .arg = (void *)0,
+    .name = "refresh_timer"};
 
 static esp_err_t result_download_get_handler(httpd_req_t *req);
 static esp_err_t index_get_handler(httpd_req_t *req);
@@ -608,12 +639,24 @@ httpd_handle_t start_webserver(void)
     esp_timer_create(&restart_timer_args, &restart_timer);
 
     char *lock_pass = NULL;
+    bool keepAlive = false;
 
     get_config_param_str("lock_pass", &lock_pass);
     if (lock_pass != NULL && strlen(lock_pass) > 0)
     {
         isLocked = true;
         ESP_LOGI(TAG, "UI is locked with password '%s'", lock_pass);
+    }
+    get_config_param_str("keep_alive", &keepAlive);
+    if (keepAlive != NULL && keepAlive)
+    {
+        esp_timer_create(&refresh_timer_args, &refresh_timer);
+        esp_timer_start_periodic(refresh_timer, REFRESH_TIMER_PERIOD);
+        ESP_LOGI(TAG, "Keep alive is enabled");
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Keep alive is disabled");
     }
 
     // Start the httpd server
