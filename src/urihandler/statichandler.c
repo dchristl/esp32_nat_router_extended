@@ -1,11 +1,16 @@
 #include "handler.h"
 
+static const char *TAG_HANDLER = "LockHandler";
+
+void closeHeader(httpd_req_t *req)
+{
+    httpd_resp_set_hdr(req, "Connection", "close");
+}
+
 esp_err_t download(httpd_req_t *req, const char *fileStart, const size_t fileSize)
 {
     httpd_resp_set_hdr(req, "Cache-Control", "max-age=31536000");
-
-    httpd_resp_set_hdr(req, "Connection", "close");
-
+    closeHeader(req);
     return httpd_resp_send(req, fileStart, fileSize);
 }
 
@@ -48,4 +53,24 @@ esp_err_t favicon_get_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "image/x-icon");
     ESP_LOGI(TAG_HANDLER, "Requesting favicon");
     return download(req, (const char *)favicon_ico_start, favicon_ico_size);
+}
+
+esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
+{
+    httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Page not found");
+    return ESP_FAIL;
+}
+
+
+esp_err_t reset_get_handler(httpd_req_t *req)
+{
+    httpd_req_to_sockfd(req);
+    extern const char reset_start[] asm("_binary_reset_html_start");
+    extern const char reset_end[] asm("_binary_reset_html_end");
+    const size_t reset_html_size = (reset_end - reset_start);
+
+    closeHeader(req);
+
+    esp_err_t ret = httpd_resp_send(req, reset_start, reset_html_size);
+    return ret;
 }

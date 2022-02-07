@@ -10,18 +10,10 @@
 /*
     This example shows how to scan for available set of APs.
 */
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/event_groups.h"
-#include "esp_wifi.h"
-#include "esp_log.h"
-#include "esp_event.h"
-#include "nvs_flash.h"
-#include "esp_heap_caps.h"
-#include "helper.h"
-#include "router_globals.h"
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
+
+#include "scan.h"
+
+static const char *TAG = "Scan";
 
 const char *ROW_TEMPLATE = "<tr class='text-%s'><td>%s</td><td>%d</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-primary'/></form></td></tr>";
 
@@ -112,6 +104,24 @@ static void print_cipher_type(int pairwise_cipher, int group_cipher)
         ESP_LOGI(TAG, "Group Cipher \tWIFI_CIPHER_TYPE_UNKNOWN");
         break;
     }
+}
+
+char *findTextColorForSSID(int8_t rssi)
+{
+    char *color;
+    if (rssi >= -50)
+    {
+        color = "success";
+    }
+    else if (rssi >= -70)
+    {
+        color = "info";
+    }
+    else
+    {
+        color = "warning";
+    }
+    return color;
 }
 
 /* Initialize Wi-Fi as sta and set scan method */
