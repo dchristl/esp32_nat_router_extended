@@ -1,12 +1,4 @@
 #include "urihandler/handler.h"
-#include <esp_event.h>
-#include <esp_log.h>
-#include <esp_system.h>
-#include <esp_timer.h>
-#include <sys/param.h>
-#include "esp_netif.h"
-
-#include <esp_http_server.h>
 
 #include "router_globals.h"
 #include "timer.h"
