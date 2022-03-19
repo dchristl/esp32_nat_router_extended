@@ -79,7 +79,7 @@ void applyAdvancedConfig(char *buf)
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
 
-    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)];
+    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)];
     if (httpd_query_key_value(buf, "keepalive", keepAliveParam, sizeof(keepAliveParam)) == ESP_OK)
     {
         preprocess_string(keepAliveParam);
@@ -102,6 +102,11 @@ void applyAdvancedConfig(char *buf)
     {
         ESP_LOGI(TAG, "ON Board LED will be disabled");
         nvs_set_i32(nvs, "led_disabled", 1);
+    }
+    if (httpd_query_key_value(buf, "wsenabled", lockParam, sizeof(lockParam)) != ESP_OK)
+    {
+        ESP_LOGI(TAG, "Webserver will be disabled");
+        nvs_set_i32(nvs, "lock", 1);
     }
 
     nvs_commit(nvs);

@@ -604,18 +604,19 @@ void app_main(void)
     ip_napt_enable(my_ap_ip, 1);
     ESP_LOGI(TAG, "NAT is enabled");
 
-    char *lock = NULL;
-    get_config_param_str("lock", &lock);
-    if (lock == NULL)
-    {
-        lock = param_set_default("0");
-    }
-    if (strcmp(lock, "0") == 0)
+    int lock = 0;
+    get_config_param_int("lock", &lock);
+    if (lock == 0)
     {
         ESP_LOGI(TAG, "Starting config web server");
         start_webserver();
     }
-    free(lock);
+    else
+    {
+        ESP_LOGW(TAG, "Web server is disabled. Reenable with following commands and reboot afterwards:");
+        ESP_LOGW(TAG, "'nvs_namespace esp32_nat'");
+        ESP_LOGW(TAG, "'nvs_set lock i32 -v 0'");
+    }
 
     initialize_console();
 
