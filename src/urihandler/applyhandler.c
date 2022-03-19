@@ -48,6 +48,54 @@ void setStaByQuery(char *buf, nvs_handle_t nvs)
     nvs_set_str(nvs, "passwd", argv[2]);
 }
 
+void applyApStaConfig(char *buf)
+{
+    ESP_LOGI(TAG, "Applying Wifi config");
+    char *postCopy;
+    postCopy = malloc(sizeof(char) * (strlen(buf) + 1));
+    strcpy(postCopy, buf);
+    nvs_handle_t nvs;
+    nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
+    setApByQuery(postCopy, nvs);
+    setStaByQuery(postCopy, nvs);
+    nvs_commit(nvs);
+    nvs_close(nvs);
+    free(postCopy);
+}
+
+void eraseNvs()
+{
+    ESP_LOGW(TAG, "Erasing %s", PARAM_NAMESPACE);
+    int argc = 2;
+    char *argv[argc];
+    argv[0] = "erase_namespace";
+    argv[1] = PARAM_NAMESPACE;
+    erase_ns(argc, argv);
+}
+
+void applyAdvancedConfig(char *buf)
+{
+    ESP_LOGI(TAG, "Applying advanced config");
+    nvs_handle_t nvs;
+    nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
+
+    char keepAliveParam[strlen(buf)];
+    if (httpd_query_key_value(buf, "keepalive", keepAliveParam, sizeof(keepAliveParam)) == ESP_OK)
+    {
+        preprocess_string(keepAliveParam);
+        ESP_LOGI(TAG, "keep alive will be enabled");
+        nvs_set_i32(nvs, "keep_alive", 1);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "keep alive will be disabled");
+        nvs_set_i32(nvs, "keep_alive", 0);
+    }
+
+    nvs_commit(nvs);
+    nvs_close(nvs);
+}
+
 esp_err_t apply_get_handler(httpd_req_t *req)
 {
 
@@ -93,30 +141,20 @@ esp_err_t apply_post_handler(httpd_req_t *req)
         {
             ESP_LOGI(TAG, "Found function parameter => %s", funcParam);
             preprocess_string(funcParam);
+
+            if (strcmp(funcParam, "config") == 0)
+            {
+                applyApStaConfig(buf);
+            }
             if (strcmp(funcParam, "erase") == 0)
             {
-                ESP_LOGW(TAG, "Erasing %s", PARAM_NAMESPACE);
-                int argc = 2;
-                char *argv[argc];
-                argv[0] = "erase_namespace";
-                argv[1] = PARAM_NAMESPACE;
-                erase_ns(argc, argv);
+                eraseNvs();
             }
-            restartByTimer();
-        }
-        else
-        {
-            char *postCopy;
-            postCopy = malloc(sizeof(char) * (strlen(buf) + 1));
-            strcpy(postCopy, buf);
-            nvs_handle_t nvs;
-            nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-            setApByQuery(postCopy, nvs);
-            setStaByQuery(postCopy, nvs);
-            nvs_commit(nvs);
-            nvs_close(nvs);
-            free(postCopy);
-            restartByTimer();
+            if (strcmp(funcParam, "advanced") == 0)
+            {
+                applyAdvancedConfig(buf);
+            }
+            // restartByTimer(); //FIXME
         }
     }
     return apply_get_handler(req);
