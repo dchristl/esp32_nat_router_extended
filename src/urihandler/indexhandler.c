@@ -1,7 +1,5 @@
 #include "handler.h"
-
 #include <sys/param.h>
-
 #include "router_globals.h"
 
 static const char *TAG = "IndexHandler";

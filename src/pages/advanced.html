@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <meta charset="utf-8" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <link href="styles-9ee3c4491d35b3c1d830fa9da31c7861.css" rel="stylesheet" />
+    <title>Advanced</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row text-center p-3">
+            <h1>Advanced configuration</h1>
+        </div>
+        <form action="apply" method="POST">
+            <h2>Misc</h2>
+            <div class="form-group row mt-2">
+                %s
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="ledenabled" name="ledenabled" checked>
+                    <label class="form-check-label" for="ledenabled">LED enabled</label>
+                </div>
+                <div class="alert alert-light mt-2" role="alert">
+                    This enables or disables the on board LED, if available. Uncheck this option for less power
+                    consumption and less disturbing blinking. Of course, you will not be able to interpret the number of
+                    connected devices anymore by this LED.
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="keepalive" name="keepalive">
+                    <label class="form-check-label" for="keepalive">Keep connection alive</label>
+                </div>
+                <div class="alert alert-light mt-2" role="alert">
+                    Check this option for networks with a forced disconnect after some inactivity. This will call <a
+                        href="https:www.startpage.com">Startpage.com</a> every minute with a small footprint to keep the
+                    connection alive.
+                </div>
+            </div>
+            <div class="form-group row mt-2 ">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="wsenabled" name="wsenabled" checked>
+                    <label class="form-check-label" for="wsenabled">Webserver enabled</label>
+                </div>
+                <div class="alert alert-danger mt-2" role="alert">
+                    This enables or disables the webserver for security reasons. Use this with caution. If disabled, you
+                    will not be able to configure the device with your browser anymore.
+                </div>
+            </div>
+            <h2>DNS</h2>
+            <div class="form-group row mt-2">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="dns" id="default" value="default" checked>
+                    <label class="form-check-label" for="default">
+                        Default DNS from uplink WiFi-network
+                    </label>
+                </div>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="radio" name="dns" id="cloudflare" value="cloudflare">
+                    <label class="form-check-label" for="cloudflare">
+                        1.1.1.1 (Cloudflare)
+                    </label>
+                </div>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="radio" name="dns" id="adguard" value="adguard">
+                    <label class="form-check-label" for="adguard">
+                        94.140.14.14 (AdGuard)
+                    </label>
+                </div>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="radio" name="dns" id="custom" value="custom">
+                    <label class="form-check-label" for="custom">
+                        Custom
+                    </label>
+                    <input class="form-control mt-2" id="dnsip" maxlength="15" name="dnsip" placeholder="IPv4 address"
+                        type="text" value="" />
+                </div>
+                <div class="alert alert-warning mt-2" role="alert">
+                    A simple warning alert—check it out!
+                </div>
+            </div>
+            <h2>MAC</h2>
+            <div class="form-group row mt-2">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="mac" id="defaultmac" value="default" checked>
+                    <label class="form-check-label" for="defaultmac">
+                        Default MAC address
+                    </label>
+                </div>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="radio" name="mac" id="custommac" value="custom">
+                    <label class="form-check-label" for="custommac">
+                        Custom
+                    </label>
+                    <input class="form-control mt-2" id="mac" maxlength="15" name="macaddress" placeholder="MAC address"
+                        type="text" value="" />
+                </div>
+                <div class="alert alert-warning mt-2" role="alert">
+                    A simple warning alert—check it out!
+                </div>
+            </div>
+            <div class="form-group row col-4 offset-4 mt-4"> <input class="btn btn-primary" type="submit"
+                    value="Apply changes" /> </div>
+        </form>
+
+        <form action="reset" method="GET">
+            <div class="form-group row col-4 offset-4 mt-5"> <input class="btn btn-warning" type="submit"
+                    value="Erase flash" /> </div>
+        </form>
+
+        <div class="form-group row col-4 offset-4 mt-5"> <a href="/" class="btn btn-light">Back</a> </div>
+    </div>
+    <script src="jquery.js"></script>
+    <script>
+        function refreshRadios() {
+            $('input[value="custom"]').each(function () {
+                $(this).next().next().prop('disabled', $(this).prop('checked') ? false : true);
+            })
+        };
+        $('input[type=radio]').change(function () {
+            refreshRadios();
+        });
+        $(document).ready(function () {
+            refreshRadios();
+        });
+    </script>
+
+</body>
+
+</html>

@@ -5,7 +5,6 @@
 
 static const char *TAG = "HTTPServer";
 
-
 static httpd_uri_t applyp = {
     .uri = "/apply",
     .method = HTTP_POST,
@@ -75,6 +74,12 @@ httpd_uri_t result_page_download = {
     .handler = result_download_get_handler,
     .user_ctx = NULL};
 
+httpd_uri_t advanced_page_download = {
+    .uri = "/advanced",
+    .method = HTTP_GET,
+    .handler = advanced_download_get_handler,
+    .user_ctx = NULL};
+
 // URI handler for getting favicon
 httpd_uri_t favicon_handler = {
     .uri = "/favicon.ico",
@@ -95,7 +100,7 @@ httpd_uri_t bootstrap_handler = {
     .user_ctx = NULL};
 
 httpd_uri_t styles_handler = {
-    .uri = "/styles-1.css",
+    .uri = "/styles-9ee3c4491d35b3c1d830fa9da31c7861.css",
     .method = HTTP_GET,
     .handler = styles_download_get_handler,
     .user_ctx = NULL};
@@ -151,6 +156,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &bootstrap_handler);
         httpd_register_uri_handler(server, &styles_handler);
         httpd_register_uri_handler(server, &apig);
+        httpd_register_uri_handler(server, &advanced_page_download);
         return server;
     }
 
