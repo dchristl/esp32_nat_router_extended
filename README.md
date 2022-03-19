@@ -8,9 +8,10 @@ This is an extension of the great work of [martin-ger's ESP32 NAT Router-project
 
 ## Additional features
 - Scanning for APs (s. [limitations](#wifi-scanning-limitation))
-- Resetting the device
 - Improved and stabilized UI
-- Secure frontend by password
+- Resetting the device in UI and with Pin/ Button
+- 
+- Secure frontend by password or complete disabling
 - Show connected state and quality in UI
 
 ## First Boot

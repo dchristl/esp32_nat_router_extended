@@ -23,43 +23,51 @@ void fillParamArray(char *buf, char *argv[], char *ssidKey, char *passKey)
         httpd_query_key_value(buf, passKey, passParam, 64);
         preprocess_string(passParam);
         ESP_LOGI(TAG, "Found URL query parameter => %s=%s", passKey, passParam);
+        argv[1] = (char *)malloc(sizeof(char) * (strlen(ssidParam) + 1));
+        argv[2] = (char *)malloc(sizeof(char) * (strlen(passParam) + 1));
         strcpy(argv[1], ssidParam);
         strcpy(argv[2], passParam);
     }
 }
 
-void setApByQuery(char *buf, nvs_handle_t nvs)
+void setApByQuery(char *buf)
 {
     int argc = 3;
     char *argv[argc];
     argv[0] = "set_ap";
     fillParamArray(buf, argv, "ap_ssid", "ap_password");
-    nvs_set_str(nvs, "ap_ssid", argv[1]);
-    nvs_set_str(nvs, "ap_passwd", argv[2]);
+    nvs_handle_t nvs;
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_ssid", argv[1]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_passwd", argv[2]));
+    ESP_ERROR_CHECK(nvs_commit(nvs));
+    nvs_close(nvs);
 }
 
-void setStaByQuery(char *buf, nvs_handle_t nvs)
+void setStaByQuery(char *buf)
 {
     int argc = 3;
     char *argv[argc];
     argv[0] = "set_sta";
     fillParamArray(buf, argv, "ssid", "password");
-    nvs_set_str(nvs, "ssid", argv[1]);
-    nvs_set_str(nvs, "passwd", argv[2]);
+    nvs_handle_t nvs;
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", argv[1]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "passwd", argv[2]));
+    ESP_ERROR_CHECK(nvs_commit(nvs));
+    nvs_close(nvs);
 }
 
 void applyApStaConfig(char *buf)
 {
-    ESP_LOGI(TAG, "Applying Wifi config");
+
     char *postCopy;
     postCopy = malloc(sizeof(char) * (strlen(buf) + 1));
     strcpy(postCopy, buf);
-    nvs_handle_t nvs;
-    nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    setApByQuery(postCopy, nvs);
-    setStaByQuery(postCopy, nvs);
-    nvs_commit(nvs);
-    nvs_close(nvs);
+
+    setApByQuery(postCopy);
+    setStaByQuery(postCopy);
+
     free(postCopy);
 }
 
@@ -171,7 +179,7 @@ esp_err_t apply_post_handler(httpd_req_t *req)
             {
                 applyAdvancedConfig(buf);
             }
-            restartByTimer();
+            // restartByTimer();
         }
     }
     return apply_get_handler(req);
