@@ -375,12 +375,12 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         }
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }
-    else if (event_base == IP_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED)
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED)
     {
         connect_count++;
         ESP_LOGI(TAG, "%d. station connected", connect_count);
     }
-    else if (event_base == IP_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED)
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED)
     {
         connect_count--;
         ESP_LOGI(TAG, "station disconnected - %d remain", connect_count);
@@ -508,6 +508,7 @@ char *subnet_mask = NULL;
 char *gateway_addr = NULL;
 char *ap_ssid = NULL;
 char *lock_pass = NULL;
+int led_disabled = 0;
 char *scan_result = NULL;
 char *ap_passwd = NULL;
 char *ap_ip = NULL;
@@ -589,7 +590,16 @@ void app_main(void)
     wifi_init(ssid, passwd, static_ip, subnet_mask, gateway_addr, ap_ssid, ap_passwd, ap_ip);
 
     pthread_t t1;
-    pthread_create(&t1, NULL, led_status_thread, NULL);
+    get_config_param_int("led_disabled", &led_disabled);
+    if (scan_result == NULL || led_disabled == 0)
+    {
+        ESP_LOGI(TAG, "On board LED is enabled");
+        pthread_create(&t1, NULL, led_status_thread, NULL);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "On board LED is disabled");
+    }
 
     ip_napt_enable(my_ap_ip, 1);
     ESP_LOGI(TAG, "NAT is enabled");
