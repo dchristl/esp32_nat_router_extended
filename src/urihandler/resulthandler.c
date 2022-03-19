@@ -6,6 +6,8 @@
 #include "cmd_nvs.h"
 #include "router_globals.h"
 
+static const char *TAG = "ResultHandler";
+
 esp_err_t result_download_get_handler(httpd_req_t *req)
 {
     if (isLocked())
@@ -39,5 +41,6 @@ esp_err_t result_download_get_handler(httpd_req_t *req)
     nvs_erase_key(nvs, "scan_result");
     nvs_commit(nvs);
     nvs_close(nvs);
+    ESP_LOGI(TAG, "Requesting result page");
     return ret;
 }

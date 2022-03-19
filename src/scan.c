@@ -17,7 +17,7 @@ static const char *TAG = "Scan";
 
 const char *ROW_TEMPLATE = "<tr class='text-%s'><td>%s</td><td>%d</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-primary'/></form></td></tr>";
 
-#define DEFAULT_SCAN_LIST_SIZE 12
+#define DEFAULT_SCAN_LIST_SIZE 10
 
 static void print_auth_mode(int authmode)
 {
@@ -183,9 +183,9 @@ void fillNodes()
 
     const char *scan_result = wifi_scan();
     nvs_handle_t nvs;
-    nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    nvs_set_str(nvs, "scan_result", scan_result);
-    nvs_commit(nvs);
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "scan_result", scan_result));
+    ESP_ERROR_CHECK(nvs_commit(nvs));
     nvs_close(nvs);
     esp_restart();
 }
