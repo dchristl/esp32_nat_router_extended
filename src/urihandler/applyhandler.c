@@ -30,32 +30,25 @@ void fillParamArray(char *buf, char *argv[], char *ssidKey, char *passKey)
     }
 }
 
-void setApByQuery(char *buf)
+void setApByQuery(char *buf, nvs_handle_t nvs)
 {
     int argc = 3;
     char *argv[argc];
     argv[0] = "set_ap";
     fillParamArray(buf, argv, "ap_ssid", "ap_password");
-    nvs_handle_t nvs;
-    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_ssid", argv[1]));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_passwd", argv[2]));
-    ESP_ERROR_CHECK(nvs_commit(nvs));
-    nvs_close(nvs);
 }
 
-void setStaByQuery(char *buf)
+void setStaByQuery(char *buf, nvs_handle_t nvs)
 {
     int argc = 3;
     char *argv[argc];
     argv[0] = "set_sta";
     fillParamArray(buf, argv, "ssid", "password");
-    nvs_handle_t nvs;
-    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+
     ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", argv[1]));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "passwd", argv[2]));
-    ESP_ERROR_CHECK(nvs_commit(nvs));
-    nvs_close(nvs);
 }
 
 void applyApStaConfig(char *buf)
@@ -64,10 +57,12 @@ void applyApStaConfig(char *buf)
     char *postCopy;
     postCopy = malloc(sizeof(char) * (strlen(buf) + 1));
     strcpy(postCopy, buf);
-
-    setApByQuery(postCopy);
-    setStaByQuery(postCopy);
-
+    nvs_handle_t nvs;
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    setApByQuery(postCopy, nvs);
+    setStaByQuery(postCopy, nvs);
+    ESP_ERROR_CHECK(nvs_commit(nvs));
+    nvs_close(nvs);
     free(postCopy);
 }
 
@@ -179,7 +174,7 @@ esp_err_t apply_post_handler(httpd_req_t *req)
             {
                 applyAdvancedConfig(buf);
             }
-            // restartByTimer();
+            restartByTimer();
         }
     }
     return apply_get_handler(req);
