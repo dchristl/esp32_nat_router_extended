@@ -5,7 +5,7 @@
 
 static const char *TAG = "Timer";
 
-#define REFRESH_TIMER_PERIOD 5 * 600000
+#define REFRESH_TIMER_PERIOD 5 * 60000000
 
 esp_timer_handle_t restart_timer, refresh_timer;
 
@@ -16,7 +16,7 @@ static void restart_timer_callback(void *arg)
 }
 static void refresh_timer_callback(void *arg)
 {
-    ESP_LOGI(TAG, "Starting ws call");
+    ESP_LOGI(TAG, "Starting web call for keep alive");
     esp_http_client_config_t config = {
         .url = "https://www.startpage.com/",
         .method = HTTP_METHOD_HEAD,
