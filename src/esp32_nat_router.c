@@ -30,6 +30,7 @@
 
 #include "cmd_decl.h"
 #include <esp_http_server.h>
+#include "driver/gpio.h"
 
 #if !IP_NAPT
 #error "IP_NAPT must be defined"
@@ -40,6 +41,8 @@
 
 // On board LED
 #define BLINK_GPIO 2
+
+#define RESET_PIN_MASK ((1ULL << GPIO_NUM_23))
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t wifi_event_group;
@@ -520,9 +523,69 @@ char *param_set_default(const char *def_val)
     return retval;
 }
 
+bool checkForResetPinAndReset()
+{
+    gpio_config_t io_conf;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_INPUT;
+    io_conf.pin_bit_mask = RESET_PIN_MASK;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+
+    int gpioLevel = gpio_get_level(GPIO_NUM_23);
+    int counter = 0;
+    while (counter < 5 && gpioLevel == 0)
+    {
+        gpio_reset_pin(BLINK_GPIO);
+        gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+
+        gpio_set_level(BLINK_GPIO, 1);
+
+        for (int i = 0; i < 10; i++)
+        {
+            gpio_set_level(BLINK_GPIO, 0);
+            vTaskDelay(50 / portTICK_PERIOD_MS);
+            gpio_set_level(BLINK_GPIO, 1);
+            vTaskDelay(50 / portTICK_PERIOD_MS);
+        }
+
+        counter++;
+        ESP_LOGW(TAG, "Reset Pin (GPIO 23) set for %ds", counter);
+        gpioLevel = gpio_get_level(GPIO_NUM_23);
+    }
+    if (counter == 5)
+    {
+        ESP_LOGW(TAG, "Device will be resetted! Disconnect bridge and reboot device afterwards.");
+        int argc = 2;
+        char *argv[argc];
+        argv[0] = "erase_namespace";
+        argv[1] = PARAM_NAMESPACE;
+        erase_ns(argc, argv);
+        return true;
+    }
+    else
+    {
+        gpio_set_level(BLINK_GPIO, 0);
+        ESP_LOGI(TAG, "Device will boot up normally.");
+    }
+    return false;
+}
+
 void app_main(void)
 {
     initialize_nvs();
+    register_nvs();
+    if (checkForResetPinAndReset())
+    {
+        return;
+    }
+    initialize_console();
+    /* Register commands */
+    esp_console_register_help_command();
+    register_system();
+
+    register_router();
 
 #if CONFIG_STORE_HISTORY
     initialize_filesystem();
@@ -617,14 +680,6 @@ void app_main(void)
         ESP_LOGW(TAG, "'nvs_namespace esp32_nat'");
         ESP_LOGW(TAG, "'nvs_set lock i32 -v 0'");
     }
-
-    initialize_console();
-
-    /* Register commands */
-    esp_console_register_help_command();
-    register_system();
-    register_nvs();
-    register_router();
 
     /* Prompt to be printed before each line.
      * This can be customized, made dynamic, etc.
