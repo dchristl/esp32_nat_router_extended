@@ -7,6 +7,7 @@
 #include "nvs.h"
 #include "cmd_nvs.h"
 #include "router_globals.h"
+#include "esp_wifi.h"
 
 static const char *TAG = "ApplyHandler";
 
@@ -76,6 +77,12 @@ void eraseNvs()
     erase_ns(argc, argv);
 }
 
+void setDNSToDefault(nvs_handle_t *nvs)
+{
+    nvs_erase_key(*nvs, "custom_dns");
+    ESP_LOGI(TAG, "DNS set to default (uplink network)");
+}
+
 void applyAdvancedConfig(char *buf)
 {
     ESP_LOGI(TAG, "Applying advanced config");
@@ -117,13 +124,31 @@ void applyAdvancedConfig(char *buf)
         preprocess_string(dnsParam);
         if (strlen(dnsParam) == 0)
         {
-            nvs_erase_key(nvs, "custom_dns");
-            ESP_LOGI(TAG, "DNS set to default (uplink network)");
+            setDNSToDefault(&nvs);
         }
         else if (strcmp(dnsParam, "custom") == 0)
         {
-            // TODO read value
-            nvs_set_str(nvs, "custom_dns", "99.99.99.99");
+            if (httpd_query_key_value(buf, "dnsip", customDnsParam, sizeof(customDnsParam)) == ESP_OK)
+            {
+                uint32_t ipasInt = esp_ip4addr_aton(customDnsParam);
+                if (ipasInt == UINT32_MAX || ipasInt == 0)
+                {
+                    ESP_LOGW(TAG, "Invalid custom DNS. Setting back to default!");
+                    setDNSToDefault(&nvs);
+                }
+                else
+                {
+                    esp_ip4_addr_t *addr = malloc(IP4ADDR_STRLEN_MAX);
+                    addr->addr = ipasInt;
+                    esp_ip4addr_ntoa(addr, customDnsParam, IP4ADDR_STRLEN_MAX);
+                    ESP_LOGI(TAG, "DNS set to: %s", customDnsParam);
+                    nvs_set_str(nvs, "custom_dns", customDnsParam);
+                }
+            }
+            else
+            {
+                setDNSToDefault(&nvs);
+            }
         }
         else
         {
@@ -133,8 +158,7 @@ void applyAdvancedConfig(char *buf)
     }
     else
     {
-        nvs_erase_key(nvs, "custom_dns");
-        ESP_LOGI(TAG, "DNS set to default (uplink network)");
+        setDNSToDefault(&nvs);
     }
 
     nvs_commit(nvs);

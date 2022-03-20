@@ -19,7 +19,7 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
 
     // char *display = NULL;
 
-    int param_count = 8;
+    int param_count = 9;
 
     int keepAlive = 0;
     int ledDisabled = 0;
@@ -30,6 +30,7 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     char *cloudCB = "";
     char *adguardCB = "";
     char *customCB = "";
+    char *customDNSIP = "";
 
     char currentMAC[18];
     size_t size = param_count * 2; //%s for parameter substitution
@@ -70,12 +71,13 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     else
     {
         customCB = "checked";
+        get_config_param_str("custom_dns", &customDNSIP);
     }
 
-    size = size + strlen(aliveCB) + strlen(ledCB) + strlen(currentDNS) + strlen(currentMAC) + strlen("checked");
+    size = size + strlen(aliveCB) + strlen(ledCB) + strlen(currentDNS) + strlen(currentMAC) + strlen("checked") + strlen(customDNSIP);
     ESP_LOGI(TAG, "Allocating additional %d bytes for advanced page.", advanced_html_size + size);
     char *advanced_page = malloc(advanced_html_size + size);
-    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, currentMAC);
+    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC);
     closeHeader(req);
     esp_err_t ret = httpd_resp_send(req, advanced_page, strlen(advanced_page) - (param_count * 2)); // -2 for every parameter substitution (%s)
     free(advanced_page);
