@@ -344,6 +344,27 @@ void *led_status_thread(void *p)
     }
 }
 
+void fillDNS(ip_addr_t *dnsserver)
+{
+    char *customDNS = NULL;
+    get_config_param_str("custom_dns", &customDNS);
+
+    if (customDNS == NULL)
+    {
+        // If can't get DNS server, uses default one (1.1.1.)
+        if (dnsserver->u_addr.ip4.addr == IPADDR_ANY)
+        {
+            dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_DNS);
+        }
+    }
+    else
+    {
+
+        ESP_LOGI(TAG, "Setting custom DNS server to: %s", customDNS);
+        dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(customDNS);
+    }
+}
+
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data)
 {
@@ -370,11 +391,9 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         {
             dnsserver.type = IPADDR_TYPE_V4;
             dnsserver.u_addr.ip4.addr = dns.ip.u_addr.ip4.addr;
-            // If can't get DNS server, uses default one (1.1.1.)
-            if (dnsserver.u_addr.ip4.addr == IPADDR_ANY)
-                dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_DNS);
+            fillDNS(&dnsserver);
             dhcps_dns_setserver(&dnsserver);
-            ESP_LOGI(TAG, "set dns to:" IPSTR, IP2STR(&(dnsserver.u_addr.ip4)));
+            ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dnsserver.u_addr.ip4)));
         }
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }

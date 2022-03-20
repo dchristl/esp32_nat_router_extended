@@ -45,16 +45,16 @@
             <span class="text-info">Your current DNS is: %s</span>
             <div class="form-group row mt-2">
                 <div class="form-check"> <input class="form-check-input" type="radio" name="dns" id="default"
-                        value="default" checked> <label class="form-check-label" for="default"> Default DNS from uplink
+                        value="" %s> <label class="form-check-label" for="default"> Default DNS from uplink
                         WiFi-network</label> </div>
                 <div class="form-check mt-2"> <input class="form-check-input" type="radio" name="dns" id="cloudflare"
-                        value="cloudflare"> <label class="form-check-label" for="cloudflare"> 1.1.1.1 (Cloudflare)
+                        value="1.1.1.1" %s> <label class="form-check-label" for="cloudflare"> 1.1.1.1 (Cloudflare)
                     </label> </div>
                 <div class="form-check mt-2"> <input class="form-check-input" type="radio" name="dns" id="adguard"
-                        value="adguard"> <label class="form-check-label" for="adguard"> 94.140.14.14 (AdGuard) </label>
+                        value="94.140.14.14" %s> <label class="form-check-label" for="adguard"> 94.140.14.14 (AdGuard) </label>
                 </div>
                 <div class="form-check mt-2"> <input class="form-check-input" type="radio" name="dns" id="custom"
-                        value="custom"> <label class="form-check-label" for="custom"> Custom </label> <input
+                        value="custom" %s> <label class="form-check-label" for="custom"> Custom </label> <input
                         class="form-control mt-2" id="dnsip" maxlength="15" name="dnsip" placeholder="IPv4 address"
                         type="text" value="" /> </div>
                 <div class="alert alert-warning mt-2" role="alert">This overrides the DNS server of the uplink

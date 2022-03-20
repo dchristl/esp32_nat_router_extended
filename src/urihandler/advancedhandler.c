@@ -19,13 +19,18 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
 
     // char *display = NULL;
 
-    int param_count = 4;
+    int param_count = 8;
 
     int keepAlive = 0;
     int ledDisabled = 0;
     char *aliveCB = "";
     char *ledCB = "";
     char *currentDNS = "";
+    char *defCB = "";
+    char *cloudCB = "";
+    char *adguardCB = "";
+    char *customCB = "";
+
     char currentMAC[18];
     size_t size = param_count * 2; //%s for parameter substitution
 
@@ -47,10 +52,30 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
 
     sprintf(currentMAC, "%x:%x:%x:%x:%x:%x", base_mac_addr[0], base_mac_addr[1], base_mac_addr[2], base_mac_addr[3], base_mac_addr[4], base_mac_addr[5]);
 
-    size = size + strlen(aliveCB) + strlen(ledCB) + strlen(currentDNS) + strlen(currentMAC);
+    char *customDNS = NULL;
+    get_config_param_str("custom_dns", &customDNS);
+
+    if (customDNS == NULL)
+    {
+        defCB = "checked";
+    }
+    else if (strcmp(customDNS, "1.1.1.1") == 0)
+    {
+        cloudCB = "checked";
+    }
+    else if (strcmp(customDNS, "94.140.14.14") == 0)
+    {
+        adguardCB = "checked";
+    }
+    else
+    {
+        customCB = "checked";
+    }
+
+    size = size + strlen(aliveCB) + strlen(ledCB) + strlen(currentDNS) + strlen(currentMAC) + strlen("checked");
     ESP_LOGI(TAG, "Allocating additional %d bytes for advanced page.", advanced_html_size + size);
     char *advanced_page = malloc(advanced_html_size + size);
-    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, currentMAC);
+    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, currentMAC);
     closeHeader(req);
     esp_err_t ret = httpd_resp_send(req, advanced_page, strlen(advanced_page) - (param_count * 2)); // -2 for every parameter substitution (%s)
     free(advanced_page);

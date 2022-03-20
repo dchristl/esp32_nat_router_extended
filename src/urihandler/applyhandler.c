@@ -82,7 +82,7 @@ void applyAdvancedConfig(char *buf)
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
 
-    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)];
+    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)], dnsParam[strlen(buf)], customDnsParam[strlen(buf)];
     if (httpd_query_key_value(buf, "keepalive", keepAliveParam, sizeof(keepAliveParam)) == ESP_OK)
     {
         preprocess_string(keepAliveParam);
@@ -110,6 +110,31 @@ void applyAdvancedConfig(char *buf)
     {
         ESP_LOGI(TAG, "Webserver will be disabled");
         nvs_set_i32(nvs, "lock", 1);
+    }
+
+    if (httpd_query_key_value(buf, "dns", dnsParam, sizeof(dnsParam)) == ESP_OK)
+    {
+        preprocess_string(dnsParam);
+        if (strlen(dnsParam) == 0)
+        {
+            nvs_erase_key(nvs, "custom_dns");
+            ESP_LOGI(TAG, "DNS set to default (uplink network)");
+        }
+        else if (strcmp(dnsParam, "custom") == 0)
+        {
+            // TODO read value
+            nvs_set_str(nvs, "custom_dns", "99.99.99.99");
+        }
+        else
+        {
+            ESP_LOGI(TAG, "DNS set to: %s", dnsParam);
+            nvs_set_str(nvs, "custom_dns", dnsParam);
+        }
+    }
+    else
+    {
+        nvs_erase_key(nvs, "custom_dns");
+        ESP_LOGI(TAG, "DNS set to default (uplink network)");
     }
 
     nvs_commit(nvs);
