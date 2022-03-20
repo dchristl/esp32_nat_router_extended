@@ -365,6 +365,24 @@ void fillDNS(ip_addr_t *dnsserver)
     }
 }
 
+void fillMac()
+{
+    char *customMac = NULL;
+    get_config_param_str("custom_mac", &customMac);
+    if (customMac != NULL)
+    {
+        ESP_LOGI(TAG, "Setting custom MAC address: %s", customMac);
+        int intMacs[6] = {0};
+        uint8_t uintMacs[6] = {0};
+        sscanf(customMac, "%x:%x:%x:%x:%x:%x", &intMacs[0], &intMacs[1], &intMacs[2], &intMacs[3], &intMacs[4], &intMacs[5]);
+        for (int i = 0; i < 6; ++i)
+        {
+            uintMacs[i] = intMacs[i];
+        }
+        esp_base_mac_addr_set(uintMacs);
+    }
+}
+
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data)
 {
@@ -613,6 +631,7 @@ void app_main(void)
     ESP_LOGI(TAG, "Command history disabled");
 #endif
 
+    fillMac();
     get_config_param_str("ssid", &ssid);
     if (ssid == NULL)
     {

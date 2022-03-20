@@ -49,7 +49,7 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     currentDNS = ip4addr_ntoa(&usedDNS);
 
     uint8_t base_mac_addr[6] = {0};
-    ESP_ERROR_CHECK(esp_efuse_mac_get_default(base_mac_addr));
+    ESP_ERROR_CHECK(esp_base_mac_addr_get(base_mac_addr));
 
     sprintf(currentMAC, "%x:%x:%x:%x:%x:%x", base_mac_addr[0], base_mac_addr[1], base_mac_addr[2], base_mac_addr[3], base_mac_addr[4], base_mac_addr[5]);
 
