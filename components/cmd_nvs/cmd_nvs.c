@@ -466,7 +466,7 @@ static esp_err_t erase_all(const char *name)
         }
     }
 
-    ESP_LOGI(TAG, "Namespace '%s' was %s erased", name, (err == ESP_OK) ? "" : "not");
+    ESP_LOGI(TAG, "Namespace '%s' was %serased", name, (err == ESP_OK) ? "" : "not ");
 
     nvs_close(nvs);
     return ESP_OK;
