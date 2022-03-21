@@ -17,10 +17,6 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     extern const char advanced_end[] asm("_binary_advanced_html_end");
     const size_t advanced_html_size = (advanced_end - advanced_start);
 
-    // char *display = NULL;
-
-    int param_count = 9;
-
     int keepAlive = 0;
     int ledDisabled = 0;
     char *aliveCB = "";
@@ -31,9 +27,12 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     char *adguardCB = "";
     char *customCB = "";
     char *customDNSIP = "";
+    char *defMacCB = "";
+    char *customMacCB = "";
+    char *customMac = "";
 
     char currentMAC[18];
-    size_t size = param_count * 2; //%s for parameter substitution
+    char defaultMAC[18];
 
     get_config_param_int("keep_alive", &keepAlive);
     if (keepAlive == 1)
@@ -47,11 +46,6 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     }
     ip4_addr_t usedDNS = dhcps_dns_getserver();
     currentDNS = ip4addr_ntoa(&usedDNS);
-
-    uint8_t base_mac_addr[6] = {0};
-    ESP_ERROR_CHECK(esp_base_mac_addr_get(base_mac_addr));
-
-    sprintf(currentMAC, "%x:%x:%x:%x:%x:%x", base_mac_addr[0], base_mac_addr[1], base_mac_addr[2], base_mac_addr[3], base_mac_addr[4], base_mac_addr[5]);
 
     char *customDNS = NULL;
     get_config_param_str("custom_dns", &customDNS);
@@ -74,12 +68,34 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
         get_config_param_str("custom_dns", &customDNSIP);
     }
 
-    size = size + strlen(aliveCB) + strlen(ledCB) + strlen(currentDNS) + strlen(currentMAC) + strlen("checked") + strlen(customDNSIP);
-    ESP_LOGI(TAG, "Allocating additional %d bytes for advanced page.", advanced_html_size + size);
-    char *advanced_page = malloc(advanced_html_size + size);
-    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC);
+    uint8_t base_mac_addr[6] = {0};
+    uint8_t default_mac_addr[6] = {0};
+    ESP_ERROR_CHECK(esp_base_mac_addr_get(base_mac_addr));
+    ESP_ERROR_CHECK(esp_efuse_mac_get_default(default_mac_addr));
+
+    sprintf(currentMAC, "%x:%x:%x:%x:%x:%x", base_mac_addr[0], base_mac_addr[1], base_mac_addr[2], base_mac_addr[3], base_mac_addr[4], base_mac_addr[5]);
+    sprintf(defaultMAC, "%x:%x:%x:%x:%x:%x", default_mac_addr[0], default_mac_addr[1], default_mac_addr[2], default_mac_addr[3], default_mac_addr[4], default_mac_addr[5]);
+
+    if (strcmp(currentMAC, defaultMAC) == 0)
+    {
+        defMacCB = "checked";
+    }
+    else
+    {
+        customMacCB = "checked";
+        customMac = currentMAC;
+    }
+
+    u_int size = advanced_html_size + strlen(aliveCB) + strlen(ledCB) + strlen(currentDNS) + strlen(currentMAC) + 2 * strlen("checked") + strlen(customDNSIP) + strlen(defaultMAC) + strlen(customMac);
+    ESP_LOGI(TAG, "Allocating additional %d bytes for advanced page.", size);
+    char *advanced_page = malloc(size);
+
+    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC, defMacCB, defaultMAC,
+            customMacCB, customMac, '\0');
+
     closeHeader(req);
-    esp_err_t ret = httpd_resp_send(req, advanced_page, strlen(advanced_page) - (param_count * 2)); // -2 for every parameter substitution (%s)
+    esp_err_t ret = httpd_resp_send(req, advanced_page, HTTPD_RESP_USE_STRLEN);
+
     free(advanced_page);
 
     return ret;

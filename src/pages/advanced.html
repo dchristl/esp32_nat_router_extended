@@ -69,13 +69,15 @@
             <span class="text-info">Your current MAC address is: <span
                     style="text-transform: uppercase;">%s</span></span>
             <div class="form-group row mt-2">
-                <div class="form-check"> <input class="form-check-input" type="radio" id="defaultmac" name="custommac" value="default"
-                        checked> <label class="form-check-label" for="defaultmac"> Default MAC address
+                <div class="form-check"> <input class="form-check-input" type="radio" id="defaultmac" name="custommac"
+                        value="default" %s> <label class="form-check-label" for="defaultmac"> Default MAC address <span
+                            style="text-transform: uppercase;">(%s)</span>
                     </label> </div>
-                <div class="form-check mt-2"> <input class="form-check-input" type="radio" id="custommac" name="custommac"
-                        value="custom"> <label class="form-check-label" for="custommac"> Custom </label> <input
-                        class="form-control mt-2" id="mac" maxlength="17" name="macaddress"
-                        placeholder="MAC address in format AB:BC:DE:F1:23:45" type="text" value="" /> </div>
+                <div class="form-check mt-2"> <input  class="form-check-input"
+                        type="radio" id="custommac" name="custommac" value="custom" %s> <label class="form-check-label"
+                        for="custommac"> Custom </label> <input style="text-transform:uppercase" class="form-control mt-2" id="mac" maxlength="17"
+                        name="macaddress" placeholder="MAC address in format AB:BC:DE:F1:23:45" type="text"
+                        value="%s" /> </div>
                 <div class="alert alert-warning mt-2" role="alert">This overrides the MAC address of the device.
                     Changing this can be used for networks with MAC limitations. For example, limited number of devices
                     or specific MACs. If you define an invalid address, the value will be set back to default one.</div>
@@ -92,7 +94,8 @@
         <div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
     </div>
     <script src=jquery.js></script>
-    <script>         function refreshRadios() { $('input[value="custom"]').each(function () { $(this).next().next().prop('disabled', $(this).prop('checked') ? false : true); }) }; $('input[type=radio]').change(function () { refreshRadios(); }); $(document).ready(function () { refreshRadios(); });     </script>
+    <script>
+        function refreshRadios() { $('input[value="custom"]').each(function () { $(this).next().next().prop('disabled', $(this).prop('checked') ? false : true); }) }; $('input[type=radio]').change(function () { refreshRadios(); }); $(document).ready(function () { refreshRadios(); });     
+    </script>
 </body>
-
-</html>
+</html>%c
