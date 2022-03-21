@@ -28,8 +28,10 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     char *customCB = "";
     char *customDNSIP = "";
     char *defMacCB = "";
+    char *rndMacCB = "";
     char *customMacCB = "";
     char *customMac = "";
+    char *macSetting = "";
 
     char currentMAC[18];
     char defaultMAC[18];
@@ -76,7 +78,14 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     sprintf(currentMAC, "%x:%x:%x:%x:%x:%x", base_mac_addr[0], base_mac_addr[1], base_mac_addr[2], base_mac_addr[3], base_mac_addr[4], base_mac_addr[5]);
     sprintf(defaultMAC, "%x:%x:%x:%x:%x:%x", default_mac_addr[0], default_mac_addr[1], default_mac_addr[2], default_mac_addr[3], default_mac_addr[4], default_mac_addr[5]);
 
-    if (strcmp(currentMAC, defaultMAC) == 0)
+    get_config_param_str("custom_mac", &macSetting);
+
+    if (strcmp(macSetting, "random") == 0)
+    {
+        rndMacCB = "checked";
+    }
+
+    else if (strcmp(currentMAC, defaultMAC) == 0)
     {
         defMacCB = "checked";
     }
@@ -86,17 +95,23 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
         customMac = currentMAC;
     }
 
-    u_int size = advanced_html_size + strlen(aliveCB) + strlen(ledCB) + strlen(currentDNS) + strlen(currentMAC) + 2 * strlen("checked") + strlen(customDNSIP) + strlen(defaultMAC) + strlen(customMac);
+    u_int size = advanced_html_size + strlen(aliveCB) + strlen(ledCB) + strlen(currentDNS) + strlen(currentMAC) + 2 * strlen("checked") + strlen(customDNSIP) + 2 * strlen(defaultMAC) + strlen(customMac);
     ESP_LOGI(TAG, "Allocating additional %d bytes for advanced page.", size);
     char *advanced_page = malloc(size);
 
-    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC, defMacCB, defaultMAC,
-            customMacCB, customMac, '\0');
+    char *subMac = malloc(strlen(defaultMAC) + 1);
+    strcpy(subMac, defaultMAC);
+
+    strncpy(subMac, &defaultMAC[9], 6);
+    subMac[strlen(subMac) - 2] = '\0';
+
+    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC, defMacCB, defaultMAC, rndMacCB, subMac, customMacCB, customMac, '\0');
 
     closeHeader(req);
     esp_err_t ret = httpd_resp_send(req, advanced_page, HTTPD_RESP_USE_STRLEN);
 
     free(advanced_page);
+    free(subMac);
 
     return ret;
 }

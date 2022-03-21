@@ -108,7 +108,7 @@ void applyAdvancedConfig(char *buf)
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
 
-    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)], dnsParam[strlen(buf)], customDnsParam[strlen(buf)], macaddress[strlen(buf)];
+    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)], dnsParam[strlen(buf)], customDnsParam[strlen(buf)], macaddress[strlen(buf)], custommac[strlen(buf)];
     if (httpd_query_key_value(buf, "keepalive", keepAliveParam, sizeof(keepAliveParam)) == ESP_OK)
     {
         preprocess_string(keepAliveParam);
@@ -137,25 +137,33 @@ void applyAdvancedConfig(char *buf)
         ESP_LOGI(TAG, "Webserver will be disabled");
         nvs_set_i32(nvs, "lock", 1);
     }
-
-    if (httpd_query_key_value(buf, "macaddress", macaddress, sizeof(macaddress)) == ESP_OK)
+    if (httpd_query_key_value(buf, "custommac", custommac, sizeof(custommac)) == ESP_OK)
     {
-        preprocess_string(macaddress);
-        int success = str2mac(macaddress);
-        if (success)
+        preprocess_string(custommac);
+        if (strcmp("random", custommac) == 0)
         {
-            ESP_LOGI(TAG, "MAC address set to: %s", macaddress);
-            nvs_set_str(nvs, "custom_mac", macaddress);
+            ESP_LOGI(TAG, "MAC address set to random");
+            nvs_set_str(nvs, "custom_mac", custommac);
+        }
+        else if (httpd_query_key_value(buf, "macaddress", macaddress, sizeof(macaddress)) == ESP_OK)
+        {
+            preprocess_string(macaddress);
+            int success = str2mac(macaddress);
+            if (success)
+            {
+                ESP_LOGI(TAG, "MAC address set to: %s", macaddress);
+                nvs_set_str(nvs, "custom_mac", macaddress);
+            }
+            else
+            {
+                ESP_LOGI(TAG, "MAC address '%s' is invalid", macaddress);
+                setMACToDefault(&nvs);
+            }
         }
         else
         {
-            ESP_LOGI(TAG, "MAC address '%s' is invalid", macaddress);
             setMACToDefault(&nvs);
         }
-    }
-    else
-    {
-        setMACToDefault(&nvs);
     }
 
     if (httpd_query_key_value(buf, "dns", dnsParam, sizeof(dnsParam)) == ESP_OK)
@@ -262,7 +270,7 @@ esp_err_t apply_post_handler(httpd_req_t *req)
             {
                 applyAdvancedConfig(buf);
             }
-            restartByTimer(); 
+            restartByTimer();
         }
     }
     return apply_get_handler(req);
