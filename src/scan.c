@@ -12,11 +12,10 @@
 */
 
 #include "scan.h"
+#include "router_globals.h"
 
 static const char *TAG = "Scan";
 
-
-#define DEFAULT_SCAN_LIST_SIZE 15
 
 static void print_auth_mode(int authmode)
 {

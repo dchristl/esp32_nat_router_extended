@@ -42,7 +42,9 @@ esp_err_t result_download_get_handler(httpd_req_t *req)
     const size_t result_html_size = (result_end - result_start);
 
     char *result_param = NULL;
-    char result[5000];
+    int allocatedSize = (strlen(ROW_TEMPLATE) + 100) * DEFAULT_SCAN_LIST_SIZE ;
+
+    char result[allocatedSize];
     strcpy(result, "");
     get_config_param_str("scan_result", &result_param);
     if (result_param == NULL)
@@ -55,9 +57,7 @@ esp_err_t result_download_get_handler(httpd_req_t *req)
         char *row = strtok_r(result_param, "\x05", &end_str);
         while (row != NULL)
         {
-            // char tmp[strlen(row)];
-            // strcpy(tmp, row);
-            char *template = malloc(strlen(ROW_TEMPLATE) + 1000);
+            char *template = malloc(strlen(ROW_TEMPLATE) + 100);
             char *ssid = strtok(row, "\x03");
             char *rssi = strtok(NULL, "\x03");
 
