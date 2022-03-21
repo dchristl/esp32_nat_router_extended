@@ -102,7 +102,6 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     char *subMac = malloc(strlen(defaultMAC) + 1);
     strcpy(subMac, defaultMAC);
 
-    strncpy(subMac, &defaultMAC[9], 6);
     subMac[strlen(subMac) - 2] = '\0';
 
     sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC, defMacCB, defaultMAC, rndMacCB, subMac, customMacCB, customMac, '\0');

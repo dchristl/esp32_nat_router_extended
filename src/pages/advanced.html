@@ -45,7 +45,7 @@
             <span class="text-info">Your current DNS is: %s</span>
             <div class="form-group row mt-2">
                 <div class="form-check"> <input class="form-check-input" type="radio" name="dns" id="default" value=""
-                        %s> <label class="form-check-label" for="default"> Default DNS from uplink
+                        %s> <label class="form-check-label" for="default"> Default from uplink
                         WiFi-network</label> </div>
                 <div class="form-check mt-2"> <input class="form-check-input" type="radio" name="dns" id="cloudflare"
                         value="1.1.1.1" %s> <label class="form-check-label" for="cloudflare"> 1.1.1.1 (Cloudflare)
@@ -71,13 +71,13 @@
             <div class="form-group row mt-2">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" id="defaultmac" name="custommac" value="default" %s>
-                    <label class="form-check-label" for="defaultmac"> Default MAC address <span
+                    <label class="form-check-label" for="defaultmac"> Default <span
                             style="text-transform: uppercase;">(%s)</span> </label>
 
                 </div>
                 <div class="form-check mt-2">
                     <input class="form-check-input" type="radio" id="randomMac" name="custommac" value="random" %s>
-                    <label class="form-check-label" for="randomMac">Random MAC<span style="text-transform: uppercase;">
+                    <label class="form-check-label" for="randomMac">Random<span style="text-transform: uppercase;">
                             (%sXX)</span>.</label>
                 </div>
                 <div class="form-check mt-2"> <input class="form-check-input" type="radio" id="custommac"
@@ -86,9 +86,8 @@
                         placeholder="MAC address in format AB:BC:DE:F1:23:45" type="text" value="%s" /> </div>
                 <div class="alert alert-warning mt-2" role="alert">This overrides the MAC address of the device.
                     Changing this can be used for networks with MAC limitations. For example, limited number of devices
-                    or specific MACs. Random MAC changes on every reboot. This can bypass time limits in some WiFis,
-                    where you can use it for free only for a fixed timespan. If you define an invalid address, the value
-                    will be set back to default one.</div>
+                    or specific MACs. If you define an invalid address, the value
+                    will be reset to default. To bypass time by device limits in some WiFis (e.g. 30min free per device and day) you can select "Random". This will change the last part of the default MAC on every reboot.</div>
             </div>
             <div class="form-group row col-4 offset-4 mt-4"> <input class="btn btn-primary" type=submit
                     value="Apply changes"> </div>
