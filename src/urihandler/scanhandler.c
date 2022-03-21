@@ -9,7 +9,6 @@ static const char *TAG = "ScanHandler";
 static char BALLOT_BOX[] = "&#9744;";
 static char BALLOT_BOX_WITH_CHECK[] = "&#9745;";
 
-
 void fillInfoData(char **clients, char **db, char **symbol, char **textColor)
 {
 
@@ -52,7 +51,7 @@ esp_err_t scan_download_get_handler(httpd_req_t *req)
 
     ESP_LOGI(TAG, "Requesting scan page");
 
-    esp_err_t ret = httpd_resp_send(req, scan_start, scan_html_size);
+    esp_err_t ret = httpd_resp_send(req, scan_start, scan_html_size - 2);
     fillNodes();
     return ret;
 }

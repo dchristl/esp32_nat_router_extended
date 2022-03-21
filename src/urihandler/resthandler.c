@@ -21,7 +21,7 @@ esp_err_t rest_handler(httpd_req_t *req)
     size_t size = strlen(JSON_TEMPLATE) + strlen(clients) + strlen(db) + strlen(textColor) + strlen(symbol);
     char *json = malloc(size);
     sprintf(json, JSON_TEMPLATE, clients, db, textColor, symbol);
-    esp_err_t ret = httpd_resp_send(req, json, size - 8);
+    esp_err_t ret = httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
     ESP_LOGD(TAG, "JSON-Response: %s", json);
     free(json);
     free(clients);

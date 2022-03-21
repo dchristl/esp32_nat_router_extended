@@ -69,7 +69,7 @@ esp_err_t unlock_handler(httpd_req_t *req)
     const size_t ul_html_size = (ul_end - ul_start);
 
     closeHeader(req);
-    return httpd_resp_send(req, ul_start, ul_html_size + 1);
+    return httpd_resp_send(req, ul_start, ul_html_size - 2);
 }
 esp_err_t lock_handler(httpd_req_t *req)
 {
@@ -145,11 +145,11 @@ esp_err_t lock_handler(httpd_req_t *req)
 
     char *lock_page = malloc(l_html_size + strlen(display) + 1);
 
-    sprintf(lock_page, l_start, display);
+    sprintf(lock_page, l_start, display, '\0');
 
     closeHeader(req);
 
-    esp_err_t out = httpd_resp_send(req, lock_page, strlen(lock_page) - 2);
+    esp_err_t out = httpd_resp_send(req, lock_page, HTTPD_RESP_USE_STRLEN);
     free(lock_page);
     return out;
 }

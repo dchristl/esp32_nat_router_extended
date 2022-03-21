@@ -6,7 +6,6 @@ static const char *TAG = "IndexHandler";
 
 char *appliedSSID = NULL;
 
-
 esp_err_t index_get_handler(httpd_req_t *req)
 {
     if (isLocked())
@@ -20,7 +19,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
     {
         free(result_param);
         ESP_LOGI(TAG, "Scan result is available. Forwarding to scan page");
-        return result_download_get_handler(req); 
+        return result_download_get_handler(req);
     }
 
     httpd_req_to_sockfd(req);
@@ -62,23 +61,22 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, appliedSSID, "", display);
+        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, appliedSSID, "", display, '\0');
     }
     else
     {
-        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, ssid, passwd, display);
+        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, ssid, passwd, display, '\0');
     }
 
     closeHeader(req);
 
-    esp_err_t ret = httpd_resp_send(req, config_page, config_html_size + size - 18); // 9 *2 for parameter substitution (%s)
+    esp_err_t ret = httpd_resp_send(req, config_page, HTTPD_RESP_USE_STRLEN);
     free(config_page);
     free(appliedSSID);
     free(clients);
     free(db);
     return ret;
 }
-
 
 esp_err_t index_post_handler(httpd_req_t *req)
 {

@@ -224,7 +224,7 @@ esp_err_t apply_get_handler(httpd_req_t *req)
     const size_t apply_html_size = (apply_end - apply_start);
     ESP_LOGI(TAG, "Requesting apply page");
     closeHeader(req);
-    return httpd_resp_send(req, apply_start, apply_html_size);
+    return httpd_resp_send(req, apply_start, apply_html_size - 2);
 }
 esp_err_t apply_post_handler(httpd_req_t *req)
 {
