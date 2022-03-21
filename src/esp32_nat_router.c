@@ -376,9 +376,7 @@ void fillMac()
         {
             uint8_t default_mac_addr[6] = {0};
             ESP_ERROR_CHECK(esp_efuse_mac_get_default(default_mac_addr));
-
-            default_mac_addr[5] = 76;
-
+            default_mac_addr[5] = (esp_random() % 254 + 1);
             ESP_LOGI(TAG, "Setting random MAC address: %x:%x:%x:%x:%x:%x", default_mac_addr[0], default_mac_addr[1], default_mac_addr[2], default_mac_addr[3], default_mac_addr[4], default_mac_addr[5]);
             esp_base_mac_addr_set(default_mac_addr);
         }
