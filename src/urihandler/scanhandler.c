@@ -44,14 +44,12 @@ esp_err_t scan_download_get_handler(httpd_req_t *req)
     httpd_req_to_sockfd(req);
 
     extern const char scan_start[] asm("_binary_scan_html_start");
-    extern const char scan_end[] asm("_binary_scan_html_end");
-    const size_t scan_html_size = (scan_end - scan_start);
 
     closeHeader(req);
 
     ESP_LOGI(TAG, "Requesting scan page");
 
-    esp_err_t ret = httpd_resp_send(req, scan_start, scan_html_size - 2);
+    esp_err_t ret = httpd_resp_send(req, scan_start,HTTPD_RESP_USE_STRLEN);
     fillNodes();
     return ret;
 }

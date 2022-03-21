@@ -104,7 +104,7 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
 
     subMac[strlen(subMac) - 2] = '\0';
 
-    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC, defMacCB, defaultMAC, rndMacCB, subMac, customMacCB, customMac, '\0');
+    sprintf(advanced_page, advanced_start, ledCB, aliveCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC, defMacCB, defaultMAC, rndMacCB, subMac, customMacCB, customMac);
 
     closeHeader(req);
     esp_err_t ret = httpd_resp_send(req, advanced_page, HTTPD_RESP_USE_STRLEN);

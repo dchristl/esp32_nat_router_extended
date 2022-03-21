@@ -220,11 +220,9 @@ esp_err_t apply_get_handler(httpd_req_t *req)
         return unlock_handler(req);
     }
     extern const char apply_start[] asm("_binary_apply_html_start");
-    extern const char apply_end[] asm("_binary_apply_html_end");
-    const size_t apply_html_size = (apply_end - apply_start);
     ESP_LOGI(TAG, "Requesting apply page");
     closeHeader(req);
-    return httpd_resp_send(req, apply_start, apply_html_size - 2);
+    return httpd_resp_send(req, apply_start, HTTPD_RESP_USE_STRLEN);
 }
 esp_err_t apply_post_handler(httpd_req_t *req)
 {

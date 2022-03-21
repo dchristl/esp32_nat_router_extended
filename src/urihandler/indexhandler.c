@@ -61,11 +61,11 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, appliedSSID, "", display, '\0');
+        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, appliedSSID, "", display);
     }
     else
     {
-        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, ssid, passwd, display, '\0');
+        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, ssid, passwd, display);
     }
 
     closeHeader(req);

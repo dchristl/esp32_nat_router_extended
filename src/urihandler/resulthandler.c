@@ -73,7 +73,7 @@ esp_err_t result_download_get_handler(httpd_req_t *req)
 
     int size = result_html_size + strlen(result);
     char *result_page = malloc(size + 1);
-    sprintf(result_page, result_start, result, '\0');
+    sprintf(result_page, result_start, result);
 
     closeHeader(req);
 
