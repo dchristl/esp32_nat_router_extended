@@ -83,6 +83,25 @@ void setDNSToDefault(nvs_handle_t *nvs)
     ESP_LOGI(TAG, "DNS set to default (uplink network)");
 }
 
+void setMACToDefault(nvs_handle_t *nvs)
+{
+    nvs_erase_key(*nvs, "custom_mac");
+    ESP_LOGI(TAG, "MAC set to default");
+}
+
+bool str2mac(const char *mac)
+{
+    uint8_t values[6] = {0};
+    if (6 == sscanf(mac, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5]))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 void applyAdvancedConfig(char *buf)
 {
     ESP_LOGI(TAG, "Applying advanced config");
@@ -122,13 +141,21 @@ void applyAdvancedConfig(char *buf)
     if (httpd_query_key_value(buf, "macaddress", macaddress, sizeof(macaddress)) == ESP_OK)
     {
         preprocess_string(macaddress);
-        ESP_LOGI(TAG, "MAC address set to: %s", macaddress);
-        nvs_set_str(nvs, "custom_mac", macaddress);
+        int success = str2mac(macaddress);
+        if (success)
+        {
+            ESP_LOGI(TAG, "MAC address set to: %s", macaddress);
+            nvs_set_str(nvs, "custom_mac", macaddress);
+        }
+        else
+        {
+            ESP_LOGI(TAG, "MAC address '%s' is invalid", macaddress);
+            setMACToDefault(&nvs);
+        }
     }
     else
     {
-        nvs_erase_key(nvs, "custom_mac");
-        ESP_LOGI(TAG, "MAC set to default");
+        setMACToDefault(&nvs);
     }
 
     if (httpd_query_key_value(buf, "dns", dnsParam, sizeof(dnsParam)) == ESP_OK)
@@ -235,7 +262,7 @@ esp_err_t apply_post_handler(httpd_req_t *req)
             {
                 applyAdvancedConfig(buf);
             }
-            restartByTimer();
+            restartByTimer(); 
         }
     }
     return apply_get_handler(req);
