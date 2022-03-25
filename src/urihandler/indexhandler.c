@@ -49,23 +49,22 @@ esp_err_t index_get_handler(httpd_req_t *req)
     {
         size = size + strlen(ssid) + strlen(passwd);
     }
-    char *clients = malloc(6);
-    char *db = malloc(5);
+    char *db = NULL;
     char *symbol = NULL;
     char *textColor = NULL;
-    fillInfoData(&clients, &db, &symbol, &textColor);
+    fillInfoData(&db, &symbol, &textColor);
 
-    size = size + strlen(symbol) + strlen(textColor) + strlen(clients) + strlen(db);
+    size = size + strlen(symbol) + strlen(textColor) + 5 /* Länge der clients */ + strlen(db);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
     char *config_page = malloc(config_html_size + size);
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, appliedSSID, "", display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, appliedSSID, "", display);
     }
     else
     {
-        sprintf(config_page, config_start, clients, ap_ssid, ap_passwd, textColor, symbol, db, ssid, passwd, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, ssid, passwd, display);
     }
 
     closeHeader(req);
@@ -73,7 +72,6 @@ esp_err_t index_get_handler(httpd_req_t *req)
     esp_err_t ret = httpd_resp_send(req, config_page, HTTPD_RESP_USE_STRLEN);
     free(config_page);
     free(appliedSSID);
-    free(clients);
     free(db);
     return ret;
 }
