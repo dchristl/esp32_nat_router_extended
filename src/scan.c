@@ -10,22 +10,12 @@
 /*
     This example shows how to scan for available set of APs.
 */
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/event_groups.h"
-#include "esp_wifi.h"
-#include "esp_log.h"
-#include "esp_event.h"
-#include "nvs_flash.h"
-#include "esp_heap_caps.h"
-#include "helper.h"
+
+#include "scan.h"
 #include "router_globals.h"
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
 
-const char *ROW_TEMPLATE = "<tr class='text-%s'><td>%s</td><td>%d</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-primary'/></form></td></tr>";
+static const char *TAG = "Scan";
 
-#define DEFAULT_SCAN_LIST_SIZE 12
 
 static void print_auth_mode(int authmode)
 {
@@ -114,6 +104,7 @@ static void print_cipher_type(int pairwise_cipher, int group_cipher)
     }
 }
 
+
 /* Initialize Wi-Fi as sta and set scan method */
 static char *wifi_scan(void)
 {
@@ -135,11 +126,9 @@ static char *wifi_scan(void)
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
     ESP_LOGI(TAG, "Total APs scanned = %u", ap_count);
 
-    int size = strlen(ROW_TEMPLATE) + DEFAULT_SCAN_LIST_SIZE * sizeof(ap_info);
-    ESP_LOGI(TAG, "Requested size = %d", size);
-    char str[size];
-    strcpy(str, "");
-    char *template = (char *)malloc(sizeof(char) * size);
+    char result[DEFAULT_SCAN_LIST_SIZE * 100];
+    strcpy(result, "");
+   
     for (int i = 0; (i < DEFAULT_SCAN_LIST_SIZE) && (i < ap_count); i++)
     {
         ESP_LOGI(TAG, "SSID \t\t%s", ap_info[i].ssid);
@@ -150,12 +139,17 @@ static char *wifi_scan(void)
             print_cipher_type(ap_info[i].pairwise_cipher, ap_info[i].group_cipher);
         }
         ESP_LOGI(TAG, "Channel \t\t%d\n", ap_info[i].primary);
-        char *css = findTextColorForSSID(ap_info[i].rssi);
-        sprintf(template, ROW_TEMPLATE, css, ap_info[i].ssid, ap_info[i].rssi, ap_info[i].ssid);
-        strcat(str, template);
+     
+        char *tmp = malloc(100);
+
+
+        sprintf(tmp, "%s\x03%d\x05", ap_info[i].ssid, ap_info[i].rssi);
+
+        strcat(result, tmp);
+        free(tmp);
     }
-    free(template);
-    char *a_ptr = str;
+
+    char *a_ptr = result;
 
     return a_ptr;
 }
@@ -173,9 +167,9 @@ void fillNodes()
 
     const char *scan_result = wifi_scan();
     nvs_handle_t nvs;
-    nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    nvs_set_str(nvs, "scan_result", scan_result);
-    nvs_commit(nvs);
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "scan_result", scan_result));
+    ESP_ERROR_CHECK(nvs_commit(nvs));
     nvs_close(nvs);
-    esp_restart();
+    esp_restart();  
 }

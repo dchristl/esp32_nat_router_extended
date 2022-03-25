@@ -4,6 +4,9 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
+
+#include "cc.h"
+
 #pragma once
 
 #ifdef __cplusplus
@@ -40,6 +43,8 @@ esp_err_t get_config_param_str(char* name, char** param);
 void print_portmap_tab();
 esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
 esp_err_t del_portmap(u8_t proto, u16_t mport);
+
+#define DEFAULT_SCAN_LIST_SIZE 15
 
 #ifdef __cplusplus
 }

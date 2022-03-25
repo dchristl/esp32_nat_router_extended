@@ -44,7 +44,7 @@ static void register_set_ap_ip(void);
 static void register_show(void);
 static void register_portmap(void);
 
-void preprocess_string(char* str)
+void /*  */preprocess_string(char* str)
 {
     char *p, *q;
 

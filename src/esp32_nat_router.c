@@ -7,8 +7,6 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 
-#include <stdio.h>
-#include <string.h>
 #include <pthread.h>
 #include "esp_system.h"
 #include "esp_log.h"
@@ -21,6 +19,8 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 
+#include "esp_event.h"
+
 #include "freertos/event_groups.h"
 #include "esp_wifi.h"
 
@@ -30,6 +30,7 @@
 
 #include "cmd_decl.h"
 #include <esp_http_server.h>
+#include "driver/gpio.h"
 
 #if !IP_NAPT
 #error "IP_NAPT must be defined"
@@ -40,6 +41,8 @@
 
 // On board LED
 #define BLINK_GPIO 2
+
+#define RESET_PIN_MASK ((1ULL << GPIO_NUM_23))
 
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t wifi_event_group;
@@ -273,13 +276,17 @@ static void initialize_console(void)
     /* Configure UART. Note that REF_TICK is used so that the baud rate remains
      * correct while APB frequency is changing in light sleep mode.
      */
-    const uart_config_t uart_config = {
-        .baud_rate = CONFIG_ESP_CONSOLE_UART_BAUDRATE,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .source_clk = UART_SCLK_REF_TICK,
+    const uart_config_t uart_config = {.baud_rate = CONFIG_ESP_CONSOLE_UART_BAUDRATE,
+                                       .data_bits = UART_DATA_8_BITS,
+                                       .parity = UART_PARITY_DISABLE,
+                                       .stop_bits = UART_STOP_BITS_1,
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2
+                                       .source_clk = UART_SCLK_REF_TICK,
+#else
+                                       .source_clk = UART_SCLK_XTAL,
+#endif
     };
+
     /* Install UART driver for interrupt-driven reads and writes */
     ESP_ERROR_CHECK(uart_driver_install(CONFIG_ESP_CONSOLE_UART_NUM,
                                         256, 0, 0, NULL, 0));
@@ -289,11 +296,10 @@ static void initialize_console(void)
     esp_vfs_dev_uart_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
 
     /* Initialize the console */
-    esp_console_config_t console_config = {
-        .max_cmdline_args = 8,
-        .max_cmdline_length = 256,
+    esp_console_config_t console_config = {.max_cmdline_args = 8,
+                                           .max_cmdline_length = 256,
 #if CONFIG_LOG_COLORS
-        .hint_color = atoi(LOG_COLOR_CYAN)
+                                           .hint_color = atoi(LOG_COLOR_CYAN)
 #endif
     };
     ESP_ERROR_CHECK(esp_console_init(&console_config));
@@ -338,51 +344,101 @@ void *led_status_thread(void *p)
     }
 }
 
-static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
+void fillDNS(ip_addr_t *dnsserver)
 {
-    esp_netif_dns_info_t dns;
+    char *customDNS = NULL;
+    get_config_param_str("custom_dns", &customDNS);
 
-    switch (event->event_id)
+    if (customDNS == NULL)
     {
-    case SYSTEM_EVENT_STA_START:
-        esp_wifi_connect();
-        break;
-    case SYSTEM_EVENT_STA_GOT_IP:
-        ap_connect = true;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->event_info.got_ip.ip_info.ip));
-        my_ip = event->event_info.got_ip.ip_info.ip.addr;
-        if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
+        // If can't get DNS server, uses default one (1.1.1.)
+        if (dnsserver->u_addr.ip4.addr == IPADDR_ANY)
         {
-            dhcps_dns_setserver((const ip_addr_t *)&dns.ip);
-            ESP_LOGI(TAG, "set dns to:" IPSTR, IP2STR(&dns.ip.u_addr.ip4));
+            dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_DNS);
         }
-        apply_portmap_tab();
-        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
-        break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
-        ESP_LOGI(TAG, "disconnected - retry to connect to the AP");
-        ap_connect = false;
-        if (!has_static_ip)
-        {
-            delete_portmap_tab();
-        }
-        esp_wifi_connect();
-        xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
-        break;
-    case SYSTEM_EVENT_AP_STACONNECTED:
-        connect_count++;
-        ESP_LOGI(TAG, "%d. station connected", connect_count);
-        break;
-    case SYSTEM_EVENT_AP_STADISCONNECTED:
-        connect_count--;
-        ESP_LOGI(TAG, "station disconnected - %d remain", connect_count);
-        break;
-    default:
-        break;
     }
-    return ESP_OK;
+    else
+    {
+
+        ESP_LOGI(TAG, "Setting custom DNS server to: %s", customDNS);
+        dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(customDNS);
+    }
 }
 
+void fillMac()
+{
+    char *customMac = NULL;
+    get_config_param_str("custom_mac", &customMac);
+    if (customMac != NULL)
+    {
+
+        if (strcmp("random", customMac) == 0)
+        {
+            uint8_t default_mac_addr[6] = {0};
+            ESP_ERROR_CHECK(esp_efuse_mac_get_default(default_mac_addr));
+            default_mac_addr[5] = (esp_random() % 254 + 1);
+            ESP_LOGI(TAG, "Setting random MAC address: %x:%x:%x:%x:%x:%x", default_mac_addr[0], default_mac_addr[1], default_mac_addr[2], default_mac_addr[3], default_mac_addr[4], default_mac_addr[5]);
+            esp_base_mac_addr_set(default_mac_addr);
+        }
+        else
+        {
+            uint8_t uintMacs[6] = {0};
+            ESP_LOGI(TAG, "Setting custom MAC address: %s", customMac);
+            int intMacs[6] = {0};
+
+            sscanf(customMac, "%x:%x:%x:%x:%x:%x", &intMacs[0], &intMacs[1], &intMacs[2], &intMacs[3], &intMacs[4], &intMacs[5]);
+            for (int i = 0; i < 6; ++i)
+            {
+                uintMacs[i] = intMacs[i];
+            }
+            esp_base_mac_addr_set(uintMacs);
+        }
+    }
+}
+
+static void wifi_event_handler(void *arg, esp_event_base_t event_base,
+                               int32_t event_id, void *event_data)
+{
+    esp_netif_dns_info_t dns;
+    ip_addr_t dnsserver;
+
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
+    {
+        esp_wifi_connect();
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
+    {
+        ESP_LOGI(TAG, "disconnected - retry to connect to the AP");
+        ap_connect = false;
+        esp_wifi_connect();
+        ESP_LOGI(TAG, "retry to connect to the AP");
+        xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    }
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+    {
+        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
+        {
+            dnsserver.type = IPADDR_TYPE_V4;
+            dnsserver.u_addr.ip4.addr = dns.ip.u_addr.ip4.addr;
+            fillDNS(&dnsserver);
+            dhcps_dns_setserver(&dnsserver);
+            ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dnsserver.u_addr.ip4)));
+        }
+        xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED)
+    {
+        connect_count++;
+        ESP_LOGI(TAG, "%d. station connected", connect_count);
+    }
+    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED)
+    {
+        connect_count--;
+        ESP_LOGI(TAG, "station disconnected - %d remain", connect_count);
+    }
+}
 const int CONNECTED_BIT = BIT0;
 #define JOIN_TIMEOUT_MS (2000)
 
@@ -420,7 +476,18 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     esp_netif_set_ip_info(wifiAP, &ipInfo_ap);
     esp_netif_dhcps_start(wifiAP);
 
-    ESP_ERROR_CHECK(esp_event_loop_init(wifi_event_handler, NULL));
+    esp_event_handler_instance_t instance_any_id;
+    esp_event_handler_instance_t instance_got_ip;
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                                                        ESP_EVENT_ANY_ID,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        &instance_any_id));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
+                                                        IP_EVENT_STA_GOT_IP,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        &instance_got_ip));
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -465,8 +532,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     dhcps_set_option_info(6, &dhcps_dns_value, sizeof(dhcps_dns_value));
 
     // Set custom dns server address for dhcp server
-    dnsserver.u_addr.ip4.addr = ipaddr_addr(DEFAULT_DNS);
-    ;
+    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_DNS);
     dnsserver.type = IPADDR_TYPE_V4;
     dhcps_dns_setserver(&dnsserver);
 
@@ -495,6 +561,7 @@ char *subnet_mask = NULL;
 char *gateway_addr = NULL;
 char *ap_ssid = NULL;
 char *lock_pass = NULL;
+int led_disabled = 0;
 char *scan_result = NULL;
 char *ap_passwd = NULL;
 char *ap_ip = NULL;
@@ -506,9 +573,69 @@ char *param_set_default(const char *def_val)
     return retval;
 }
 
+bool checkForResetPinAndReset()
+{
+    gpio_config_t io_conf;
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_INPUT;
+    io_conf.pin_bit_mask = RESET_PIN_MASK;
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+    ESP_ERROR_CHECK(gpio_config(&io_conf));
+
+    int gpioLevel = gpio_get_level(GPIO_NUM_23);
+    int counter = 0;
+    while (counter < 5 && gpioLevel == 0)
+    {
+        gpio_reset_pin(BLINK_GPIO);
+        gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+
+        gpio_set_level(BLINK_GPIO, 1);
+
+        for (int i = 0; i < 10; i++)
+        {
+            gpio_set_level(BLINK_GPIO, 0);
+            vTaskDelay(50 / portTICK_PERIOD_MS);
+            gpio_set_level(BLINK_GPIO, 1);
+            vTaskDelay(50 / portTICK_PERIOD_MS);
+        }
+
+        counter++;
+        ESP_LOGW(TAG, "Reset Pin (GPIO 23) set for %ds", counter);
+        gpioLevel = gpio_get_level(GPIO_NUM_23);
+    }
+    if (counter == 5)
+    {
+        ESP_LOGW(TAG, "Device will be resetted! Disconnect bridge and reboot device afterwards.");
+        int argc = 2;
+        char *argv[argc];
+        argv[0] = "erase_namespace";
+        argv[1] = PARAM_NAMESPACE;
+        erase_ns(argc, argv);
+        return true;
+    }
+    else
+    {
+        gpio_set_level(BLINK_GPIO, 0);
+        ESP_LOGI(TAG, "Device will boot up normally.");
+    }
+    return false;
+}
+
 void app_main(void)
 {
     initialize_nvs();
+    register_nvs();
+    if (checkForResetPinAndReset())
+    {
+        return;
+    }
+    initialize_console();
+    /* Register commands */
+    esp_console_register_help_command();
+    register_system();
+
+    register_router();
 
 #if CONFIG_STORE_HISTORY
     initialize_filesystem();
@@ -517,6 +644,7 @@ void app_main(void)
     ESP_LOGI(TAG, "Command history disabled");
 #endif
 
+    fillMac();
     get_config_param_str("ssid", &ssid);
     if (ssid == NULL)
     {
@@ -562,9 +690,9 @@ void app_main(void)
     if (lock_pass == NULL)
     {
         lock_pass = param_set_default("");
-    }  
-    
-      get_config_param_str("scan_result", &scan_result);
+    }
+
+    get_config_param_str("scan_result", &scan_result);
     if (scan_result == NULL)
     {
         scan_result = param_set_default("");
@@ -576,31 +704,33 @@ void app_main(void)
     wifi_init(ssid, passwd, static_ip, subnet_mask, gateway_addr, ap_ssid, ap_passwd, ap_ip);
 
     pthread_t t1;
-    pthread_create(&t1, NULL, led_status_thread, NULL);
+    get_config_param_int("led_disabled", &led_disabled);
+    if (scan_result == NULL || led_disabled == 0)
+    {
+        ESP_LOGI(TAG, "On board LED is enabled");
+        pthread_create(&t1, NULL, led_status_thread, NULL);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "On board LED is disabled");
+    }
 
     ip_napt_enable(my_ap_ip, 1);
     ESP_LOGI(TAG, "NAT is enabled");
 
-    char *lock = NULL;
-    get_config_param_str("lock", &lock);
-    if (lock == NULL)
-    {
-        lock = param_set_default("0");
-    }
-    if (strcmp(lock, "0") == 0)
+    int lock = 0;
+    get_config_param_int("lock", &lock);
+    if (lock == 0)
     {
         ESP_LOGI(TAG, "Starting config web server");
         start_webserver();
     }
-    free(lock);
-
-    initialize_console();
-
-    /* Register commands */
-    esp_console_register_help_command();
-    register_system();
-    register_nvs();
-    register_router();
+    else
+    {
+        ESP_LOGW(TAG, "Web server is disabled. Reenable with following commands and reboot afterwards:");
+        ESP_LOGW(TAG, "'nvs_namespace esp32_nat'");
+        ESP_LOGW(TAG, "'nvs_set lock i32 -v 0'");
+    }
 
     /* Prompt to be printed before each line.
      * This can be customized, made dynamic, etc.
