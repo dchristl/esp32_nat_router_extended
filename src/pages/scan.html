@@ -1,1 +1,34 @@
-<!DOCTYPE html><html lang=en> <head><head><link rel="shortcut icon" type=image/x-icon href=favicon.ico><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width, initial-scale=1"><link rel=stylesheet href=styles-9ee3c4491d35b3c1d830fa9da31c7861.css><meta http-equiv=refresh content="20; url=/"><title>Scan</title></head> </head> <body> <div class=container> <div class="row text-center"> <h1>Scan for networks</h1> </div> <h2 class="mt-2 text-center">The device will now be restarted and you will be disconnected. After 20s you will be forwarded to the result page. Make sure your device will automatically reconnect to the new network. Otherwise reconnect manually and visit <a href=http://192.168.4.1>http://192.168.4.1</a></h2> </div> </body> <script src=jquery.js></script> <script>     (function poll() {         $.ajax({             url: "/",             type: "GET",             success: function (data) {                 console.log("polling");             },             dataType: "json",             complete: setTimeout(function () { console.log('Forwarding to result'); window.location.href = "/result"; }, 5000),             timeout: 3000         })     })(); </script> </html>
+<!DOCTYPE html>
+<html lang=en>
+
+<head>
+
+    <head>
+        <link rel="shortcut icon" type=image/x-icon href=favicon.ico>
+        <meta charset=utf-8>
+        <meta http-equiv=X-UA-Compatible content="IE=edge">
+        <meta name=viewport content="width=device-width, initial-scale=1">
+        <link rel=stylesheet href=styles-9ee3c4491d35b3c1d830fa9da31c7861.css>
+        <meta http-equiv=refresh content="20; url=/">
+        <title>Scan</title>
+    </head>
+</head>
+
+<body>
+    <div class=container>
+        <div class="row text-center">
+            <h1>Scan for networks</h1>
+        </div>
+        <div class="alert alert-light mt-2 text-center" role=alert>
+            <h2 class="mt-2 text-center">The device will now be restarted and you will be disconnected. After 20s you
+                will
+                be forwarded to the result page. Make sure your device will automatically reconnect to the new network.
+                Otherwise reconnect manually and visit <a href=http://192.168.4.1>the default url</a></h2>
+        </div>
+
+    </div>
+</body>
+<script src=jquery.js></script>
+<script>     (function poll() { $.ajax({ url: "/", type: "GET", success: function (data) { console.log("polling"); }, dataType: "json", complete: setTimeout(function () { console.log('Forwarding to result'); window.location.href = "/result"; }, 5000), timeout: 3000 }) })(); </script>
+
+</html>
