@@ -496,12 +496,11 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     wifi_config_t wifi_config = {0};
     wifi_config_t ap_config = {
         .ap = {
-            .channel = 0,
             .authmode = WIFI_AUTH_WPA2_PSK,
             .ssid_hidden = 0,
             .max_connection = 8,
             .beacon_interval = 100,
-        }};
+            .pairwise_cipher = WIFI_CIPHER_TYPE_CCMP}};
 
     strlcpy((char *)ap_config.sta.ssid, ap_ssid, sizeof(ap_config.sta.ssid));
     if (strlen(ap_passwd) < 8)
@@ -518,8 +517,8 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
         strlcpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
         strlcpy((char *)wifi_config.sta.password, passwd, sizeof(wifi_config.sta.password));
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
-        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
         ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &ap_config));
+        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
     }
     else
     {
