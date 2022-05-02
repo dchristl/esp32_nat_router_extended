@@ -50,10 +50,28 @@ esp_err_t favicon_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, favicon_ico_start, favicon_ico_size);
 }
 
+esp_err_t redirectToRoot(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, HTTPD_TYPE_TEXT);
+    httpd_resp_set_status(req, "301 Moved Permanently");
+    char str[strlen("http://") + strlen(DEFAULT_AP_IP)];
+    strcpy(str, "http://");
+    strcat(str, DEFAULT_AP_IP);
+    httpd_resp_set_hdr(req, "Location", str);
+    httpd_resp_send(req, NULL, 0);
+    return ESP_OK;
+}
+
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 {
-    httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Page not found");
-    return ESP_FAIL;
+    if (isDnsStarted())
+    {
+        return redirectToRoot(req);
+    }
+    else
+    {
+        return httpd_resp_send_404(req);
+    }
 }
 
 esp_err_t reset_get_handler(httpd_req_t *req)

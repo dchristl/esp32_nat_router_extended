@@ -157,6 +157,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &styles_handler);
         httpd_register_uri_handler(server, &apig);
         httpd_register_uri_handler(server, &advanced_page_download);
+        httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
         return server;
     }
 
