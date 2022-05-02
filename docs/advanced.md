@@ -137,6 +137,20 @@ portmap  [add|del] [TCP|UDP] <ext_portno> <int_ip> <int_portno>
 show 
   Get status and config of the router
 ```
+### NVS-Parameters in esp32 namespace
+
+| Parameter   | Type | Hints
+| ----------- | ----------- | ------- |
+| ap_ssid      | str       |SSID of the AP network|
+| ap_passwd   | str        | Password of the AP network|
+| ssid      | str       |SSID of the STA network|
+| keep_alive   | i32        | Keep the connection alive|
+| led_disabled   | i32        | Is the LED disabled|
+| lock   | i32        | Webserver is disabled|
+| custom_mac   | str        | Custom Mac address or "random"|
+| custom_dns   | str        | Custom DNS address|
+| lock_pass   | str        | Password for the UI lock|
+| scan_result   | str        | Temporary parameter for the last scan result|
 
 # DNS
 As soon as the ESP32 STA has learned a DNS IP from its upstream DNS server on first connect, it passes that to newly connected clients.

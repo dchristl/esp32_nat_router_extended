@@ -546,9 +546,9 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     }
     else
     {
-        start_dns_server();
         ESP_LOGI(TAG, "wifi_init_ap with default finished.");
     }
+    start_dns_server();
 }
 
 char *ssid = NULL;
