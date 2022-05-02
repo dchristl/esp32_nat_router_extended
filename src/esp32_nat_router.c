@@ -51,9 +51,6 @@ static EventGroupHandle_t wifi_event_group;
  * - are we connected to the AP with an IP? */
 const int WIFI_CONNECTED_BIT = BIT0;
 
-#define DEFAULT_AP_IP "192.168.4.1"
-#define DEFAULT_DNS "1.1.1.1"
-
 /* Global vars */
 uint16_t connect_count = 0;
 bool ap_connect = false;
@@ -351,15 +348,14 @@ void fillDNS(ip_addr_t *dnsserver)
 
     if (customDNS == NULL)
     {
-        // If can't get DNS server, uses default one (1.1.1.)
+        // If can't get DNS server, uses default one
         if (dnsserver->u_addr.ip4.addr == IPADDR_ANY)
         {
-            dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_DNS);
+            dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_AP_IP);
         }
     }
     else
     {
-
         ESP_LOGI(TAG, "Setting custom DNS server to: %s", customDNS);
         dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(customDNS);
     }
@@ -418,6 +414,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        stop_dns_server();
         if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
         {
             dnsserver.type = IPADDR_TYPE_V4;
@@ -496,12 +493,11 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     wifi_config_t wifi_config = {0};
     wifi_config_t ap_config = {
         .ap = {
-            .channel = 0,
             .authmode = WIFI_AUTH_WPA2_PSK,
             .ssid_hidden = 0,
             .max_connection = 8,
             .beacon_interval = 100,
-        }};
+            .pairwise_cipher = WIFI_CIPHER_TYPE_CCMP}};
 
     strlcpy((char *)ap_config.sta.ssid, ap_ssid, sizeof(ap_config.sta.ssid));
     if (strlen(ap_passwd) < 8)
@@ -518,8 +514,8 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
         strlcpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
         strlcpy((char *)wifi_config.sta.password, passwd, sizeof(wifi_config.sta.password));
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
-        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
         ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &ap_config));
+        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
     }
     else
     {
@@ -532,7 +528,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     dhcps_set_option_info(6, &dhcps_dns_value, sizeof(dhcps_dns_value));
 
     // Set custom dns server address for dhcp server
-    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_DNS);
+    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_AP_IP);
     dnsserver.type = IPADDR_TYPE_V4;
     dhcps_dns_setserver(&dnsserver);
 
@@ -552,6 +548,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     {
         ESP_LOGI(TAG, "wifi_init_ap with default finished.");
     }
+    start_dns_server();
 }
 
 char *ssid = NULL;

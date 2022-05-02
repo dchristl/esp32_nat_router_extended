@@ -6,8 +6,24 @@ static const char *TAG = "IndexHandler";
 
 char *appliedSSID = NULL;
 
+bool isWrongHost(httpd_req_t *req)
+{
+    size_t buf_len = strlen(DEFAULT_AP_IP) + 1;
+    char *host = malloc(buf_len);
+    httpd_req_get_hdr_value_str(req, "Host", host, buf_len);
+    bool out = strcmp(host, DEFAULT_AP_IP) != 0;
+    free(host);
+    return out;
+}
+
 esp_err_t index_get_handler(httpd_req_t *req)
 {
+    if (isWrongHost(req) && isDnsStarted())
+    {
+        ESP_LOGI(TAG, "Captive portal redirect");
+        return redirectToRoot(req);
+    }
+
     if (isLocked())
     {
         return unlock_handler(req);

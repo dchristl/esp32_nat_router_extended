@@ -1,5 +1,6 @@
 #include <esp_log.h>
 #include <esp_http_server.h>
+#include "router_globals.h"
 
 /* Static */
 void closeHeader(httpd_req_t *req);
@@ -8,6 +9,7 @@ esp_err_t bootstrap_get_handler(httpd_req_t *req);
 esp_err_t jquery_get_handler(httpd_req_t *req);
 esp_err_t favicon_get_handler(httpd_req_t *req);
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err);
+esp_err_t redirectToRoot(httpd_req_t *req);
 esp_err_t reset_get_handler(httpd_req_t *req);
 
 /* IndexHandler */

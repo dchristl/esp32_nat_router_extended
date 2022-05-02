@@ -137,8 +137,21 @@ portmap  [add|del] [TCP|UDP] <ext_portno> <int_ip> <int_portno>
 show 
   Get status and config of the router
 ```
+### NVS-Parameters in esp32 namespace
+
+| Parameter   | Type | Hints
+| ----------- | ----------- | ------- |
+| ap_ssid      | str       |SSID of the AP network|
+| ap_passwd   | str        | Password of the AP network|
+| ssid      | str       |SSID of the STA network|
+| keep_alive   | i32        | Keep the connection alive|
+| led_disabled   | i32        | Is the LED disabled|
+| lock   | i32        | Webserver is disabled|
+| custom_mac   | str        | Custom Mac address or "random"|
+| custom_dns   | str        | Custom DNS address|
+| lock_pass   | str        | Password for the UI lock|
+| scan_result   | str        | Temporary parameter for the last scan result|
 
 # DNS
 As soon as the ESP32 STA has learned a DNS IP from its upstream DNS server on first connect, it passes that to newly connected clients.
-Before that by default the DNS-Server which is offerd to clients connecting to the ESP32 AP is set to 1.1.1.1.
-Replace the value of the *DEFAULT_DNS* with your desired DNS-Server IP address if you want to use a different one.
+Before that by default the DNS-Server which is offerd to clients connecting to the ESP32 AP is set to 192.168.4.1 and sets up a [Captive portal](https://en.wikipedia.org/wiki/Captive_portal). All DNS (http) resolutions will be resolved to 192.168.4.1 itself, so any input will lead to the start page.
