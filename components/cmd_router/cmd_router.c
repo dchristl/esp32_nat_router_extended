@@ -146,7 +146,18 @@ char *getDefaultIPByNetmask()
 
 char *getNetmask()
 {
-    return DEFAULT_NETMASK_CLASS_C;
+    char *netmask = NULL;
+
+    get_config_param_str("netmask", &netmask);
+
+    if (netmask == NULL)
+    {
+        return DEFAULT_NETMASK_CLASS_C;
+    }
+    else
+    {
+        return netmask;
+    }
 }
 
 esp_err_t get_config_param_blob(char *name, uint8_t *blob, size_t blob_len)

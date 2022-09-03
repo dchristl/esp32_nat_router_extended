@@ -469,7 +469,11 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     ipInfo_ap.ip.addr = my_ap_ip;
     ipInfo_ap.gw.addr = my_ap_ip;
 
-    ipInfo_ap.netmask.addr = ipaddr_addr(getNetmask());
+    char *netmask = getNetmask();
+
+    ipInfo_ap.netmask.addr = ipaddr_addr(netmask);
+
+    ESP_LOGI(TAG, "Netmask is set to %s, therefore private IP is %s", netmask, ap_ip);
 
     esp_netif_dhcps_stop(wifiAP); // stop before setting ip WifiAP
     esp_netif_set_ip_info(wifiAP, &ipInfo_ap);
@@ -533,9 +537,6 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
     dnsserver.type = IPADDR_TYPE_V4;
     dhcps_dns_setserver(&dnsserver);
-
-    //    tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_AP, TCPIP_ADAPTER_DNS_MAIN, &dnsinfo);
-    //    ESP_LOGI(TAG, "DNS IP:" IPSTR, IP2STR(&dnsinfo.ip.u_addr.ip4));
 
     xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
                         pdFALSE, pdTRUE, JOIN_TIMEOUT_MS / portTICK_PERIOD_MS);
