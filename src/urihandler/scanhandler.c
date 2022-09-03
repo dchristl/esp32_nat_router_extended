@@ -40,13 +40,21 @@ esp_err_t scan_download_get_handler(httpd_req_t *req)
 
     httpd_req_to_sockfd(req);
 
+    const char *defaultIP = getDefaultIPByNetmask();
+
     extern const char scan_start[] asm("_binary_scan_html_start");
+    extern const char scan_end[] asm("_binary_scan_html_end");
+    const size_t scan_html_size = (scan_end - scan_start);
+
+    char *scan_page = malloc(scan_html_size + strlen(defaultIP));
+
+    sprintf(scan_page, scan_start, defaultIP);
 
     closeHeader(req);
 
     ESP_LOGI(TAG, "Requesting scan page");
 
-    esp_err_t ret = httpd_resp_send(req, scan_start, HTTPD_RESP_USE_STRLEN);
+    esp_err_t ret = httpd_resp_send(req, scan_page, HTTPD_RESP_USE_STRLEN);
     fillNodes();
     return ret;
 }
