@@ -45,6 +45,13 @@ extern "C"
    esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
    esp_err_t del_portmap(u8_t proto, u16_t mport);
 
+   char *getDefaultIPByNetmask();
+   char *getNetmask();
+
+#define DEFAULT_NETMASK_CLASS_A "255.0.0.0"
+#define DEFAULT_NETMASK_CLASS_B "255.255.0.0"
+#define DEFAULT_NETMASK_CLASS_C "255.255.255.0"
+
 #define DEFAULT_AP_IP_CLASS_A "10.0.4.1"
 #define DEFAULT_AP_IP_CLASS_B "172.16.4.1"
 #define DEFAULT_AP_IP_CLASS_C "192.168.4.1"

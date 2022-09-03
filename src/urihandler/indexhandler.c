@@ -8,10 +8,10 @@ char *appliedSSID = NULL;
 
 bool isWrongHost(httpd_req_t *req)
 {
-    size_t buf_len = strlen(DEFAULT_AP_IP_CLASS_C) + 1;
+    size_t buf_len = strlen(getDefaultIPByNetmask()) + 1;
     char *host = malloc(buf_len);
     httpd_req_get_hdr_value_str(req, "Host", host, buf_len);
-    bool out = strcmp(host, DEFAULT_AP_IP_CLASS_C) != 0;
+    bool out = strcmp(host, getDefaultIPByNetmask()) != 0;
     free(host);
     return out;
 }

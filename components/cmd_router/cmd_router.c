@@ -44,7 +44,7 @@ static void register_set_ap_ip(void);
 static void register_show(void);
 static void register_portmap(void);
 
-void /*  */preprocess_string(char* str)
+void /*  */ preprocess_string(char *str)
 {
     char *p, *q;
 
@@ -67,72 +67,113 @@ void /*  */preprocess_string(char* str)
                 a += toupper((unsigned char)*p) - 'A' + 10;
             *q++ = a;
         }
-        else if (*(p) == '+') {
+        else if (*(p) == '+')
+        {
             *q++ = ' ';
-        } else {
+        }
+        else
+        {
             *q++ = *p;
         }
     }
     *q = '\0';
 }
 
-esp_err_t get_config_param_str(char* name, char** param)
+esp_err_t get_config_param_str(char *name, char **param)
 {
     nvs_handle_t nvs;
 
     esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READONLY, &nvs);
-    if (err == ESP_OK) {
+    if (err == ESP_OK)
+    {
         size_t len;
-        if ( (err = nvs_get_str(nvs, name, NULL, &len)) == ESP_OK) {
+        if ((err = nvs_get_str(nvs, name, NULL, &len)) == ESP_OK)
+        {
             *param = (char *)malloc(len);
             err = nvs_get_str(nvs, name, *param, &len);
             ESP_LOGI(TAG, "%s %s", name, *param);
-        } else {
+        }
+        else
+        {
             return err;
         }
         nvs_close(nvs);
-    } else {
+    }
+    else
+    {
         return err;
     }
     return ESP_OK;
 }
 
-esp_err_t get_config_param_int(char* name, int* param)
+esp_err_t get_config_param_int(char *name, int *param)
 {
     nvs_handle_t nvs;
 
     esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READONLY, &nvs);
-    if (err == ESP_OK) {
-        if ( (err = nvs_get_i32(nvs, name, param)) == ESP_OK) {
+    if (err == ESP_OK)
+    {
+        if ((err = nvs_get_i32(nvs, name, param)) == ESP_OK)
+        {
             ESP_LOGI(TAG, "%s %d", name, *param);
-        } else {
+        }
+        else
+        {
             return err;
         }
         nvs_close(nvs);
-    } else {
+    }
+    else
+    {
         return err;
     }
     return ESP_OK;
 }
 
-esp_err_t get_config_param_blob(char* name, uint8_t* blob,  size_t blob_len)
+char *getDefaultIPByNetmask()
+{
+    char *netmask = getNetmask();
+    if (strcmp(netmask, DEFAULT_NETMASK_CLASS_A) == 0)
+    {
+        return DEFAULT_AP_IP_CLASS_A;
+    }
+    else if (strcmp(netmask, DEFAULT_NETMASK_CLASS_B) == 0)
+    {
+        return DEFAULT_AP_IP_CLASS_B;
+    }
+    return DEFAULT_AP_IP_CLASS_C;
+}
+
+char *getNetmask()
+{
+    return DEFAULT_NETMASK_CLASS_C;
+}
+
+esp_err_t get_config_param_blob(char *name, uint8_t *blob, size_t blob_len)
 {
     nvs_handle_t nvs;
 
     esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READONLY, &nvs);
-    if (err == ESP_OK) {
+    if (err == ESP_OK)
+    {
         size_t len;
-        if ( (err = nvs_get_blob(nvs, name, NULL, &len)) == ESP_OK) {
-            if (len != blob_len) {
+        if ((err = nvs_get_blob(nvs, name, NULL, &len)) == ESP_OK)
+        {
+            if (len != blob_len)
+            {
                 return ESP_ERR_NVS_INVALID_LENGTH;
             }
             err = nvs_get_blob(nvs, name, blob, &len);
             ESP_LOGI(TAG, "%s: %d", name, len);
-        } else {
+        }
+        else
+        {
             return err;
         }
         nvs_close(nvs);
-    } else {
+    }
+    else
+    {
         return err;
     }
     return ESP_OK;
@@ -149,7 +190,8 @@ void register_router(void)
 }
 
 /** Arguments used by 'set_sta' function */
-static struct {
+static struct
+{
     struct arg_str *ssid;
     struct arg_str *password;
     struct arg_end *end;
@@ -161,26 +203,31 @@ int set_sta(int argc, char **argv)
     esp_err_t err;
     nvs_handle_t nvs;
 
-    int nerrors = arg_parse(argc, argv, (void **) &set_sta_arg);
-    if (nerrors != 0) {
+    int nerrors = arg_parse(argc, argv, (void **)&set_sta_arg);
+    if (nerrors != 0)
+    {
         arg_print_errors(stderr, set_sta_arg.end, argv[0]);
         return 1;
     }
 
-    preprocess_string((char*)set_sta_arg.ssid->sval[0]);
-    preprocess_string((char*)set_sta_arg.password->sval[0]);
+    preprocess_string((char *)set_sta_arg.ssid->sval[0]);
+    preprocess_string((char *)set_sta_arg.password->sval[0]);
 
     err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    if (err != ESP_OK) {
+    if (err != ESP_OK)
+    {
         return err;
     }
 
     err = nvs_set_str(nvs, "ssid", set_sta_arg.ssid->sval[0]);
-    if (err == ESP_OK) {
+    if (err == ESP_OK)
+    {
         err = nvs_set_str(nvs, "passwd", set_sta_arg.password->sval[0]);
-        if (err == ESP_OK) {
+        if (err == ESP_OK)
+        {
             err = nvs_commit(nvs);
-            if (err == ESP_OK) {
+            if (err == ESP_OK)
+            {
                 ESP_LOGI(TAG, "STA settings %s/%s stored.", set_sta_arg.ssid->sval[0], set_sta_arg.password->sval[0]);
             }
         }
@@ -200,14 +247,13 @@ static void register_set_sta(void)
         .help = "Set SSID and password of the STA interface",
         .hint = NULL,
         .func = &set_sta,
-        .argtable = &set_sta_arg
-    };
-    ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+        .argtable = &set_sta_arg};
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
 
-
 /** Arguments used by 'set_sta_static' function */
-static struct {
+static struct
+{
     struct arg_str *static_ip;
     struct arg_str *subnet_mask;
     struct arg_str *gateway_addr;
@@ -220,29 +266,35 @@ int set_sta_static(int argc, char **argv)
     esp_err_t err;
     nvs_handle_t nvs;
 
-    int nerrors = arg_parse(argc, argv, (void **) &set_sta_static_arg);
-    if (nerrors != 0) {
+    int nerrors = arg_parse(argc, argv, (void **)&set_sta_static_arg);
+    if (nerrors != 0)
+    {
         arg_print_errors(stderr, set_sta_static_arg.end, argv[0]);
         return 1;
     }
 
-    preprocess_string((char*)set_sta_static_arg.static_ip->sval[0]);
-    preprocess_string((char*)set_sta_static_arg.subnet_mask->sval[0]);
-    preprocess_string((char*)set_sta_static_arg.gateway_addr->sval[0]);
+    preprocess_string((char *)set_sta_static_arg.static_ip->sval[0]);
+    preprocess_string((char *)set_sta_static_arg.subnet_mask->sval[0]);
+    preprocess_string((char *)set_sta_static_arg.gateway_addr->sval[0]);
 
     err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    if (err != ESP_OK) {
+    if (err != ESP_OK)
+    {
         return err;
     }
 
     err = nvs_set_str(nvs, "static_ip", set_sta_static_arg.static_ip->sval[0]);
-    if (err == ESP_OK) {
+    if (err == ESP_OK)
+    {
         err = nvs_set_str(nvs, "subnet_mask", set_sta_static_arg.subnet_mask->sval[0]);
-        if (err == ESP_OK) {
+        if (err == ESP_OK)
+        {
             err = nvs_set_str(nvs, "gateway_addr", set_sta_static_arg.gateway_addr->sval[0]);
-            if (err == ESP_OK) {
-              err = nvs_commit(nvs);
-                if (err == ESP_OK) {
+            if (err == ESP_OK)
+            {
+                err = nvs_commit(nvs);
+                if (err == ESP_OK)
+                {
                     ESP_LOGI(TAG, "STA Static IP settings %s/%s/%s stored.", set_sta_static_arg.static_ip->sval[0], set_sta_static_arg.subnet_mask->sval[0], set_sta_static_arg.gateway_addr->sval[0]);
                 }
             }
@@ -264,13 +316,13 @@ static void register_set_sta_static(void)
         .help = "Set Static IP for the STA interface",
         .hint = NULL,
         .func = &set_sta_static,
-        .argtable = &set_sta_static_arg
-    };
-    ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+        .argtable = &set_sta_static_arg};
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
 
 /** Arguments used by 'set_ap' function */
-static struct {
+static struct
+{
     struct arg_str *ssid;
     struct arg_str *password;
     struct arg_end *end;
@@ -282,30 +334,36 @@ int set_ap(int argc, char **argv)
     esp_err_t err;
     nvs_handle_t nvs;
 
-    int nerrors = arg_parse(argc, argv, (void **) &set_ap_args);
-    if (nerrors != 0) {
+    int nerrors = arg_parse(argc, argv, (void **)&set_ap_args);
+    if (nerrors != 0)
+    {
         arg_print_errors(stderr, set_ap_args.end, argv[0]);
         return 1;
     }
 
-    preprocess_string((char*)set_ap_args.ssid->sval[0]);
-    preprocess_string((char*)set_ap_args.password->sval[0]);
+    preprocess_string((char *)set_ap_args.ssid->sval[0]);
+    preprocess_string((char *)set_ap_args.password->sval[0]);
 
-    if (strlen(set_ap_args.password->sval[0]) < 8) {
+    if (strlen(set_ap_args.password->sval[0]) < 8)
+    {
         printf("AP will be open (no passwd needed).\n");
     }
 
     err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    if (err != ESP_OK) {
+    if (err != ESP_OK)
+    {
         return err;
     }
 
     err = nvs_set_str(nvs, "ap_ssid", set_ap_args.ssid->sval[0]);
-    if (err == ESP_OK) {
+    if (err == ESP_OK)
+    {
         err = nvs_set_str(nvs, "ap_passwd", set_ap_args.password->sval[0]);
-        if (err == ESP_OK) {
+        if (err == ESP_OK)
+        {
             err = nvs_commit(nvs);
-            if (err == ESP_OK) {
+            if (err == ESP_OK)
+            {
                 ESP_LOGI(TAG, "AP settings %s/%s stored.", set_ap_args.ssid->sval[0], set_ap_args.password->sval[0]);
             }
         }
@@ -325,17 +383,16 @@ static void register_set_ap(void)
         .help = "Set SSID and password of the SoftAP",
         .hint = NULL,
         .func = &set_ap,
-        .argtable = &set_ap_args
-    };
-    ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+        .argtable = &set_ap_args};
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
 
 /** Arguments used by 'set_ap_ip' function */
-static struct {
+static struct
+{
     struct arg_str *ap_ip_str;
     struct arg_end *end;
 } set_ap_ip_arg;
-
 
 /* 'set_ap_ip' command */
 int set_ap_ip(int argc, char **argv)
@@ -343,21 +400,24 @@ int set_ap_ip(int argc, char **argv)
     esp_err_t err;
     nvs_handle_t nvs;
 
-    int nerrors = arg_parse(argc, argv, (void **) &set_ap_ip_arg);
-    if (nerrors != 0) {
+    int nerrors = arg_parse(argc, argv, (void **)&set_ap_ip_arg);
+    if (nerrors != 0)
+    {
         arg_print_errors(stderr, set_ap_ip_arg.end, argv[0]);
         return 1;
     }
 
-    preprocess_string((char*)set_ap_ip_arg.ap_ip_str->sval[0]);
+    preprocess_string((char *)set_ap_ip_arg.ap_ip_str->sval[0]);
 
     err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    if (err != ESP_OK) {
+    if (err != ESP_OK)
+    {
         return err;
     }
 
     err = nvs_set_str(nvs, "ap_ip", set_ap_ip_arg.ap_ip_str->sval[0]);
-    if (err == ESP_OK) {
+    if (err == ESP_OK)
+    {
         ESP_LOGI(TAG, "AP IP address %s stored.", set_ap_ip_arg.ap_ip_str->sval[0]);
     }
     nvs_close(nvs);
@@ -374,13 +434,13 @@ static void register_set_ap_ip(void)
         .help = "Set IP for the AP interface",
         .hint = NULL,
         .func = &set_ap_ip,
-        .argtable = &set_ap_ip_arg
-    };
-    ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+        .argtable = &set_ap_ip_arg};
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
 
 /** Arguments used by 'portmap' function */
-static struct {
+static struct
+{
     struct arg_str *add_del;
     struct arg_str *TCP_UDP;
     struct arg_int *ext_port;
@@ -392,28 +452,39 @@ static struct {
 /* 'portmap' command */
 int portmap(int argc, char **argv)
 {
-    int nerrors = arg_parse(argc, argv, (void **) &portmap_args);
-    if (nerrors != 0) {
+    int nerrors = arg_parse(argc, argv, (void **)&portmap_args);
+    if (nerrors != 0)
+    {
         arg_print_errors(stderr, portmap_args.end, argv[0]);
         return 1;
     }
 
-    bool add ;
-    if (strcmp((char *)portmap_args.add_del->sval[0], "add")== 0) {
+    bool add;
+    if (strcmp((char *)portmap_args.add_del->sval[0], "add") == 0)
+    {
         add = true;
-    } else if (strcmp((char *)portmap_args.add_del->sval[0], "del")== 0) {
+    }
+    else if (strcmp((char *)portmap_args.add_del->sval[0], "del") == 0)
+    {
         add = false;
-    } else {
+    }
+    else
+    {
         printf("Must be 'add' or 'del'\n");
         return 1;
     }
 
     uint8_t tcp_udp;
-    if (strcmp((char *)portmap_args.TCP_UDP->sval[0], "TCP")== 0) {
+    if (strcmp((char *)portmap_args.TCP_UDP->sval[0], "TCP") == 0)
+    {
         tcp_udp = PROTO_TCP;
-    } else if (strcmp((char *)portmap_args.TCP_UDP->sval[0], "UDP")== 0) {
+    }
+    else if (strcmp((char *)portmap_args.TCP_UDP->sval[0], "UDP") == 0)
+    {
         tcp_udp = PROTO_UDP;
-    } else {
+    }
+    else
+    {
         printf("Must be 'TCP' or 'UDP'\n");
         return 1;
     }
@@ -422,11 +493,14 @@ int portmap(int argc, char **argv)
     uint32_t int_ip = ipaddr_addr((char *)portmap_args.int_ip->sval[0]);
     uint16_t int_port = portmap_args.int_port->ival[0];
 
-    //printf("portmap %d %d %x %d %x %d\n", add, tcp_udp, my_ip, ext_port, int_ip, int_port);
+    // printf("portmap %d %d %x %d %x %d\n", add, tcp_udp, my_ip, ext_port, int_ip, int_port);
 
-    if (add) {
+    if (add)
+    {
         add_portmap(tcp_udp, ext_port, int_ip, int_port);
-    } else {
+    }
+    else
+    {
         del_portmap(tcp_udp, ext_port);
     }
 
@@ -447,21 +521,20 @@ static void register_portmap(void)
         .help = "Add or delete a portmapping to the router",
         .hint = NULL,
         .func = &portmap,
-        .argtable = &portmap_args
-    };
-    ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+        .argtable = &portmap_args};
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
 
 /* 'show' command */
 static int show(int argc, char **argv)
 {
-    char* ssid = NULL;
-    char* passwd = NULL;
-    char* static_ip = NULL;
-    char* subnet_mask = NULL;
-    char* gateway_addr = NULL;
-    char* ap_ssid = NULL;
-    char* ap_passwd = NULL;
+    char *ssid = NULL;
+    char *passwd = NULL;
+    char *static_ip = NULL;
+    char *subnet_mask = NULL;
+    char *gateway_addr = NULL;
+    char *ap_ssid = NULL;
+    char *ap_passwd = NULL;
 
     get_config_param_str("ssid", &ssid);
     get_config_param_str("passwd", &passwd);
@@ -471,26 +544,34 @@ static int show(int argc, char **argv)
     get_config_param_str("ap_ssid", &ap_ssid);
     get_config_param_str("ap_passwd", &ap_passwd);
 
-    printf("STA SSID: %s Password: %s\n", ssid != NULL?ssid:"<undef>",
-        passwd != NULL?passwd:"<undef>");
-    printf("AP SSID: %s Password: %s\n", ap_ssid != NULL?ap_ssid:"<undef>",
-        ap_passwd != NULL?ap_passwd:"<undef>");
+    printf("STA SSID: %s Password: %s\n", ssid != NULL ? ssid : "<undef>",
+           passwd != NULL ? passwd : "<undef>");
+    printf("AP SSID: %s Password: %s\n", ap_ssid != NULL ? ap_ssid : "<undef>",
+           ap_passwd != NULL ? ap_passwd : "<undef>");
     ip4_addr_t addr;
     addr.addr = my_ap_ip;
     printf("AP IP address: " IPSTR "\n", IP2STR(&addr));
 
-    if (ssid != NULL) free (ssid);
-    if (passwd != NULL) free (passwd);
-    if (static_ip != NULL) free (static_ip);
-    if (subnet_mask != NULL) free (subnet_mask);
-    if (gateway_addr != NULL) free (gateway_addr);
-    if (ap_ssid != NULL) free (ap_ssid);
-    if (ap_passwd != NULL) free (ap_passwd);
+    if (ssid != NULL)
+        free(ssid);
+    if (passwd != NULL)
+        free(passwd);
+    if (static_ip != NULL)
+        free(static_ip);
+    if (subnet_mask != NULL)
+        free(subnet_mask);
+    if (gateway_addr != NULL)
+        free(gateway_addr);
+    if (ap_ssid != NULL)
+        free(ap_ssid);
+    if (ap_passwd != NULL)
+        free(ap_passwd);
 
-    printf("Uplink AP %sconnected\n", ap_connect?"":"not ");
-    if (ap_connect) {
+    printf("Uplink AP %sconnected\n", ap_connect ? "" : "not ");
+    if (ap_connect)
+    {
         addr.addr = my_ip;
-        printf ("IP: " IPSTR "\n", IP2STR(&addr));
+        printf("IP: " IPSTR "\n", IP2STR(&addr));
     }
     printf("%d Stations connected\n", connect_count);
 
@@ -507,6 +588,5 @@ static void register_show(void)
         .hint = NULL,
         .func = &show,
     };
-    ESP_ERROR_CHECK( esp_console_cmd_register(&cmd) );
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
-
