@@ -54,9 +54,9 @@ esp_err_t redirectToRoot(httpd_req_t *req)
 {
     httpd_resp_set_type(req, HTTPD_TYPE_TEXT);
     httpd_resp_set_status(req, "301 Moved Permanently");
-    char str[strlen("http://") + strlen(DEFAULT_AP_IP)];
+    char str[strlen("http://") + strlen(DEFAULT_AP_IP_CLASS_C)];
     strcpy(str, "http://");
-    strcat(str, DEFAULT_AP_IP);
+    strcat(str, DEFAULT_AP_IP_CLASS_C);
     httpd_resp_set_hdr(req, "Location", str);
     httpd_resp_send(req, NULL, 0);
     return ESP_OK;

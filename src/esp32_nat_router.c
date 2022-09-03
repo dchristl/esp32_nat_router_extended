@@ -351,7 +351,7 @@ void fillDNS(ip_addr_t *dnsserver)
         // If can't get DNS server, uses default one
         if (dnsserver->u_addr.ip4.addr == IPADDR_ANY)
         {
-            dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_AP_IP);
+            dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_AP_IP_CLASS_C);
         }
     }
     else
@@ -528,7 +528,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     dhcps_set_option_info(6, &dhcps_dns_value, sizeof(dhcps_dns_value));
 
     // Set custom dns server address for dhcp server
-    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_AP_IP);
+    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_AP_IP_CLASS_C);
     dnsserver.type = IPADDR_TYPE_V4;
     dhcps_dns_setserver(&dnsserver);
 
@@ -680,7 +680,7 @@ void app_main(void)
     get_config_param_str("ap_ip", &ap_ip);
     if (ap_ip == NULL)
     {
-        ap_ip = param_set_default(DEFAULT_AP_IP);
+        ap_ip = param_set_default(DEFAULT_AP_IP_CLASS_C);
     }
 
     get_config_param_str("lock_pass", &lock_pass);
