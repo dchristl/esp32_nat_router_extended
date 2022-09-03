@@ -82,18 +82,19 @@
             <h2>Netmask override</h2> <span class=text-info>Your current netmask is: <span
                     style="text-transform: uppercase;">%s</span></span>
             <div class="form-group row mt-2">
-                <div class=form-check> <input class=form-check-input type=radio id=classc name=defaultnm value=classc
-                        %s>
-                    <label class=form-check-label for=defaultnm> Class C (255.255.255.0). ESP 32 NAT Router address is
+                <div class=form-check> <input class=form-check-input type=radio id=classc name=netmask value=classc %s>
+                    <label class=form-check-label for=classc> Class C (255.255.255.0). ESP 32 NAT Router address is
                         192.168.4.1.</label>
                 </div>
-                <div class=form-check> <input class=form-check-input type=radio id=classb name=classbnm value=classb %s>
-                    <label class=form-check-label for=classbnm> Class B (255.255.0.0). ESP 32 NAT Router address is
+                <div class="form-check mt-2"> <input class=form-check-input type=radio id=classb name=netmask
+                        value=classb %s>
+                    <label class=form-check-label for=classb> Class B (255.255.0.0). ESP 32 NAT Router address is
                         172.16.4.1.</label>
                 </div>
 
-                <div class=form-check> <input class=form-check-input type=radio id=classa name=classanm value=classa %s>
-                    <label class=form-check-label for=classanm> Class A (255.0.0.0). ESP 32 NAT Router address is
+                <div class="form-check mt-2"> <input class=form-check-input type=radio id=classa name=netmask
+                        value=classa %s>
+                    <label class=form-check-label for=classa> Class A (255.0.0.0). ESP 32 NAT Router address is
                         10.0.4.1.</label>
                 </div>
                 <div class="alert alert-warning mt-2" role=alert>This overrides the netmask of the device and can be

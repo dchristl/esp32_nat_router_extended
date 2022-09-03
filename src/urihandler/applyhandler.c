@@ -108,7 +108,7 @@ void applyAdvancedConfig(char *buf)
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
 
-    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)], dnsParam[strlen(buf)], customDnsParam[strlen(buf)], macaddress[strlen(buf)], custommac[strlen(buf)];
+    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)], dnsParam[strlen(buf)], customDnsParam[strlen(buf)], macaddress[strlen(buf)], custommac[strlen(buf)], netmask[strlen(buf)];
     if (httpd_query_key_value(buf, "keepalive", keepAliveParam, sizeof(keepAliveParam)) == ESP_OK)
     {
         preprocess_string(keepAliveParam);
@@ -206,6 +206,26 @@ void applyAdvancedConfig(char *buf)
     else
     {
         setDNSToDefault(&nvs);
+    }
+
+    if (httpd_query_key_value(buf, "netmask", netmask, sizeof(netmask)) == ESP_OK)
+    {
+        preprocess_string(netmask);
+        if (strcmp("classa", netmask) == 0)
+        {
+            ESP_LOGI(TAG, "Netmask set to Class A");
+            nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_A);
+        }
+        else if (strcmp("classb", netmask) == 0)
+        {
+            ESP_LOGI(TAG, "Netmask set to Class B");
+            nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_B);
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Netmask set to Class C");
+            nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_C);
+        }
     }
 
     nvs_commit(nvs);
