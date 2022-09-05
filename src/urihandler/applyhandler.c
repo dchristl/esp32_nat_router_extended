@@ -102,6 +102,28 @@ bool str2mac(const char *mac)
     }
 }
 
+char *getRedirectUrl(httpd_req_t *req)
+{
+
+    size_t buf_len = 16;
+    char *host = malloc(buf_len);
+    httpd_req_get_hdr_value_str(req, "Host", host, buf_len);
+    ESP_LOGI(TAG, "Host of request is '%s'", host);
+    char *str = malloc(strlen("http://") + buf_len);
+    strcpy(str, "http://");
+    if (strcmp(host, DEFAULT_AP_IP_CLASS_A) == 0 || strcmp(host, DEFAULT_AP_IP_CLASS_B) == 0 || strcmp(host, DEFAULT_AP_IP_CLASS_C) == 0)
+    {
+        strcat(str, getDefaultIPByNetmask());
+    }
+    else
+    {
+        strcat(str, host);
+    }
+    free(host);
+
+    return str;
+}
+
 void applyAdvancedConfig(char *buf)
 {
     ESP_LOGI(TAG, "Applying advanced config");
@@ -240,9 +262,18 @@ esp_err_t apply_get_handler(httpd_req_t *req)
         return unlock_handler(req);
     }
     extern const char apply_start[] asm("_binary_apply_html_start");
+    extern const char apply_end[] asm("_binary_apply_html_end");
     ESP_LOGI(TAG, "Requesting apply page");
     closeHeader(req);
-    return httpd_resp_send(req, apply_start, HTTPD_RESP_USE_STRLEN);
+
+    char *redirectUrl = getRedirectUrl(req);
+    char *apply_page = malloc(apply_end - apply_start + strlen(redirectUrl) - 2);
+
+    ESP_LOGI(TAG, "Redirecting after apply to '%s'", redirectUrl);
+    sprintf(apply_page, apply_start, redirectUrl);
+    free(redirectUrl);
+
+    return httpd_resp_send(req, apply_page, HTTPD_RESP_USE_STRLEN);
 }
 esp_err_t apply_post_handler(httpd_req_t *req)
 {
