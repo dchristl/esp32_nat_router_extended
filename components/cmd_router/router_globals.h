@@ -21,8 +21,6 @@ extern "C"
 
    extern char *ssid;
    extern char *passwd;
-   extern char *static_ip;
-   extern char *subnet_mask;
    extern char *gateway_addr;
    extern char *ap_ssid;
    extern char *ap_passwd;
@@ -45,7 +43,16 @@ extern "C"
    esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
    esp_err_t del_portmap(u8_t proto, u16_t mport);
 
-#define DEFAULT_AP_IP "192.168.4.1"
+   char *getDefaultIPByNetmask();
+   char *getNetmask();
+
+#define DEFAULT_NETMASK_CLASS_A "255.0.0.0"
+#define DEFAULT_NETMASK_CLASS_B "255.255.0.0"
+#define DEFAULT_NETMASK_CLASS_C "255.255.255.0"
+
+#define DEFAULT_AP_IP_CLASS_A "10.0.4.1"
+#define DEFAULT_AP_IP_CLASS_B "172.16.4.1"
+#define DEFAULT_AP_IP_CLASS_C "192.168.4.1"
 
    /**
     * @brief Set ups and starts a simple DNS server that will respond to all queries

@@ -54,7 +54,6 @@ const int WIFI_CONNECTED_BIT = BIT0;
 /* Global vars */
 uint16_t connect_count = 0;
 bool ap_connect = false;
-bool has_static_ip = false;
 
 uint32_t my_ip;
 uint32_t my_ap_ip;
@@ -351,7 +350,7 @@ void fillDNS(ip_addr_t *dnsserver)
         // If can't get DNS server, uses default one
         if (dnsserver->u_addr.ip4.addr == IPADDR_ANY)
         {
-            dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_AP_IP);
+            dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
         }
     }
     else
@@ -439,7 +438,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
 const int CONNECTED_BIT = BIT0;
 #define JOIN_TIMEOUT_MS (2000)
 
-void wifi_init(const char *ssid, const char *passwd, const char *static_ip, const char *subnet_mask, const char *gateway_addr, const char *ap_ssid, const char *ap_passwd, const char *ap_ip)
+void wifi_init(const char *ssid, const char *passwd,  const char *ap_ssid, const char *ap_passwd, const char *ap_ip)
 {
     ip_addr_t dnsserver;
     // tcpip_adapter_dns_info_t dnsinfo;
@@ -451,24 +450,19 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     wifiAP = esp_netif_create_default_wifi_ap();
     wifiSTA = esp_netif_create_default_wifi_sta();
 
-    tcpip_adapter_ip_info_t ipInfo_sta;
-    if ((strlen(ssid) > 0) && (strlen(static_ip) > 0) && (strlen(subnet_mask) > 0) && (strlen(gateway_addr) > 0))
-    {
-        has_static_ip = true;
-        my_ip = ipInfo_sta.ip.addr = ipaddr_addr(static_ip);
-        ipInfo_sta.gw.addr = ipaddr_addr(gateway_addr);
-        ipInfo_sta.netmask.addr = ipaddr_addr(subnet_mask);
-        tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA); // Don't run a DHCP client
-        tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo_sta);
-        apply_portmap_tab();
-    }
-
+ 
     my_ap_ip = ipaddr_addr(ap_ip);
 
     esp_netif_ip_info_t ipInfo_ap;
     ipInfo_ap.ip.addr = my_ap_ip;
     ipInfo_ap.gw.addr = my_ap_ip;
-    IP4_ADDR(&ipInfo_ap.netmask, 255, 255, 255, 0);
+
+    char *netmask = getNetmask();
+
+    ipInfo_ap.netmask.addr = ipaddr_addr(netmask);
+
+    ESP_LOGI(TAG, "Netmask is set to %s, therefore private IP is %s", netmask, ap_ip);
+
     esp_netif_dhcps_stop(wifiAP); // stop before setting ip WifiAP
     esp_netif_set_ip_info(wifiAP, &ipInfo_ap);
     esp_netif_dhcps_start(wifiAP);
@@ -528,12 +522,9 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     dhcps_set_option_info(6, &dhcps_dns_value, sizeof(dhcps_dns_value));
 
     // Set custom dns server address for dhcp server
-    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(DEFAULT_AP_IP);
+    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
     dnsserver.type = IPADDR_TYPE_V4;
     dhcps_dns_setserver(&dnsserver);
-
-    //    tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_AP, TCPIP_ADAPTER_DNS_MAIN, &dnsinfo);
-    //    ESP_LOGI(TAG, "DNS IP:" IPSTR, IP2STR(&dnsinfo.ip.u_addr.ip4));
 
     xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
                         pdFALSE, pdTRUE, JOIN_TIMEOUT_MS / portTICK_PERIOD_MS);
@@ -553,9 +544,6 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
 
 char *ssid = NULL;
 char *passwd = NULL;
-char *static_ip = NULL;
-char *subnet_mask = NULL;
-char *gateway_addr = NULL;
 char *ap_ssid = NULL;
 char *lock_pass = NULL;
 int led_disabled = 0;
@@ -652,21 +640,6 @@ void app_main(void)
     {
         passwd = param_set_default("");
     }
-    get_config_param_str("static_ip", &static_ip);
-    if (static_ip == NULL)
-    {
-        static_ip = param_set_default("");
-    }
-    get_config_param_str("subnet_mask", &subnet_mask);
-    if (subnet_mask == NULL)
-    {
-        subnet_mask = param_set_default("");
-    }
-    get_config_param_str("gateway_addr", &gateway_addr);
-    if (gateway_addr == NULL)
-    {
-        gateway_addr = param_set_default("");
-    }
     get_config_param_str("ap_ssid", &ap_ssid);
     if (ap_ssid == NULL)
     {
@@ -680,7 +653,7 @@ void app_main(void)
     get_config_param_str("ap_ip", &ap_ip);
     if (ap_ip == NULL)
     {
-        ap_ip = param_set_default(DEFAULT_AP_IP);
+        ap_ip = param_set_default(getDefaultIPByNetmask());
     }
 
     get_config_param_str("lock_pass", &lock_pass);
@@ -698,7 +671,7 @@ void app_main(void)
     get_portmap_tab();
 
     // Setup WIFI
-    wifi_init(ssid, passwd, static_ip, subnet_mask, gateway_addr, ap_ssid, ap_passwd, ap_ip);
+    wifi_init(ssid, passwd, ap_ssid, ap_passwd, ap_ip);
 
     pthread_t t1;
     get_config_param_int("led_disabled", &led_disabled);

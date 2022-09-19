@@ -1,6 +1,6 @@
 build/**
 .pio/**
-.vscode/**
+**/.vscode/**
 __pycache__/**
 release/**
 commands.txt

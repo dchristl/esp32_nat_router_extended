@@ -102,13 +102,35 @@ bool str2mac(const char *mac)
     }
 }
 
+char *getRedirectUrl(httpd_req_t *req)
+{
+
+    size_t buf_len = 16;
+    char *host = malloc(buf_len);
+    httpd_req_get_hdr_value_str(req, "Host", host, buf_len);
+    ESP_LOGI(TAG, "Host of request is '%s'", host);
+    char *str = malloc(strlen("http://") + buf_len);
+    strcpy(str, "http://");
+    if (strcmp(host, DEFAULT_AP_IP_CLASS_A) == 0 || strcmp(host, DEFAULT_AP_IP_CLASS_B) == 0 || strcmp(host, DEFAULT_AP_IP_CLASS_C) == 0)
+    {
+        strcat(str, getDefaultIPByNetmask());
+    }
+    else
+    {
+        strcat(str, host);
+    }
+    free(host);
+
+    return str;
+}
+
 void applyAdvancedConfig(char *buf)
 {
     ESP_LOGI(TAG, "Applying advanced config");
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
 
-    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)], dnsParam[strlen(buf)], customDnsParam[strlen(buf)], macaddress[strlen(buf)], custommac[strlen(buf)];
+    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)], dnsParam[strlen(buf)], customDnsParam[strlen(buf)], macaddress[strlen(buf)], custommac[strlen(buf)], netmask[strlen(buf)];
     if (httpd_query_key_value(buf, "keepalive", keepAliveParam, sizeof(keepAliveParam)) == ESP_OK)
     {
         preprocess_string(keepAliveParam);
@@ -208,6 +230,26 @@ void applyAdvancedConfig(char *buf)
         setDNSToDefault(&nvs);
     }
 
+    if (httpd_query_key_value(buf, "netmask", netmask, sizeof(netmask)) == ESP_OK)
+    {
+        preprocess_string(netmask);
+        if (strcmp("classa", netmask) == 0)
+        {
+            ESP_LOGI(TAG, "Netmask set to Class A");
+            nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_A);
+        }
+        else if (strcmp("classb", netmask) == 0)
+        {
+            ESP_LOGI(TAG, "Netmask set to Class B");
+            nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_B);
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Netmask set to Class C");
+            nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_C);
+        }
+    }
+
     nvs_commit(nvs);
     nvs_close(nvs);
 }
@@ -220,9 +262,18 @@ esp_err_t apply_get_handler(httpd_req_t *req)
         return unlock_handler(req);
     }
     extern const char apply_start[] asm("_binary_apply_html_start");
+    extern const char apply_end[] asm("_binary_apply_html_end");
     ESP_LOGI(TAG, "Requesting apply page");
     closeHeader(req);
-    return httpd_resp_send(req, apply_start, HTTPD_RESP_USE_STRLEN);
+
+    char *redirectUrl = getRedirectUrl(req);
+    char *apply_page = malloc(apply_end - apply_start + strlen(redirectUrl) - 2);
+
+    ESP_LOGI(TAG, "Redirecting after apply to '%s'", redirectUrl);
+    sprintf(apply_page, apply_start, redirectUrl);
+    free(redirectUrl);
+
+    return httpd_resp_send(req, apply_page, HTTPD_RESP_USE_STRLEN);
 }
 esp_err_t apply_post_handler(httpd_req_t *req)
 {
