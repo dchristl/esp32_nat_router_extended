@@ -52,27 +52,20 @@ esp_err_t favicon_get_handler(httpd_req_t *req)
 
 esp_err_t redirectToRoot(httpd_req_t *req)
 {
-    httpd_resp_set_type(req, HTTPD_TYPE_TEXT);
-    httpd_resp_set_status(req, "301 Moved Permanently");
+    httpd_resp_set_status(req, "302 Temporary Redirect");
     char *currentIP = getDefaultIPByNetmask();
     char str[strlen("http://") + strlen(currentIP)];
     strcpy(str, "http://");
     strcat(str, currentIP);
     httpd_resp_set_hdr(req, "Location", str);
-    httpd_resp_send(req, NULL, 0);
+    httpd_resp_set_hdr(req, "Connection", "Close");
+    httpd_resp_send(req, "", HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
 }
 
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 {
-    if (isDnsStarted())
-    {
-        return redirectToRoot(req);
-    }
-    else
-    {
-        return httpd_resp_send_404(req);
-    }
+    return httpd_resp_send_404(req);
 }
 
 esp_err_t reset_get_handler(httpd_req_t *req)
