@@ -65,7 +65,7 @@ esp_err_t redirectToRoot(httpd_req_t *req)
 
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 {
-    return httpd_resp_send_404(req);
+    return redirectToRoot(req);
 }
 
 esp_err_t reset_get_handler(httpd_req_t *req)
