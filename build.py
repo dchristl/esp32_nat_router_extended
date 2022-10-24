@@ -87,12 +87,19 @@ def copyAndRenameBinaries(version):
             print("Error while deleting file : ", filePath)
 
 
+def buildOneBin(version):
+    os.system('esptool.py --chip esp32 merge_bin -o release/esp32_nat_extended_full_v' + version + '.bin --flash_freq 40m --flash_size keep 0x1000 ' + 
+    'release/bootloader.bin 0x10000 release/esp32nat_extended_v'+ version + '.bin 0x8000 partitions.bin')
+    # esptool.py --chip esp32 merge_bin -o flash_image.bin --flash_mode dio --flash_freq 40m --flash_size keep 0x1000 bootloader.bin 0x10000 esp32nat_extended_v3.0.1.bin 0x8000 partitions.bin
+
+    
 def buildRelease(version):
     shrinkHtml()
     commitAndPush(version)
     updateAbout(version)
     cleanAndBuild()
     copyAndRenameBinaries(version)
+    buildOneBin(version)
 
 
 def main(argv):
