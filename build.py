@@ -69,27 +69,12 @@ def copyAndRenameBinaries(version):
                     'release/bootloader.bin')
     shutil.copyfile('.pio/build/esp32dev/partitions.bin',
                     'release/partitions.bin')
-    shutil.make_archive('tmp/esp32nat_extended_full_v' +
-                        version, 'zip', 'release')
-    shutil.copyfile('tmp/esp32nat_extended_full_v' +
-                    version + '.zip', 'release/esp32nat_extended_full_v' +
-                    version + '.zip')
-    shutil.copyfile('tmp/esp32nat_extended_v' +
-                    version + '.zip', 'release/esp32nat_extended_v' +
-                    version + '.zip')
-    fileList = glob.glob('release/*.bin')
     shutil.rmtree("tmp")
-    # Iterate over the list of filepaths & remove each file.
-    for filePath in fileList:
-        try:
-            os.remove(filePath)
-        except:
-            print("Error while deleting file : ", filePath)
 
 
 def buildOneBin(version):
     os.system('esptool.py --chip esp32 merge_bin -o release/esp32_nat_extended_full_v' + version + '.bin --flash_freq 40m --flash_size keep 0x1000 ' + 
-    'release/bootloader.bin 0x10000 release/esp32nat_extended_v'+ version + '.bin 0x8000 partitions.bin')
+    'release/bootloader.bin 0x10000 release/esp32nat_extended_v'+ version + '.bin 0x8000 release/partitions.bin')
     # esptool.py --chip esp32 merge_bin -o flash_image.bin --flash_mode dio --flash_freq 40m --flash_size keep 0x1000 bootloader.bin 0x10000 esp32nat_extended_v3.0.1.bin 0x8000 partitions.bin
 
     
