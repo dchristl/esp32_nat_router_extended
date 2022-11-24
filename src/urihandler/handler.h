@@ -38,3 +38,6 @@ esp_err_t rest_handler(httpd_req_t *req);
 
 /* advanced handler */
 esp_err_t advanced_download_get_handler(httpd_req_t *req);
+
+/* clients handler*/
+esp_err_t clients_download_get_handler(httpd_req_t *req);

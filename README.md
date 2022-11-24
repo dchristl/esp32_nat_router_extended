@@ -75,7 +75,7 @@ As an alternative you might use [Espressif's Flash Download Tools](https://www.e
 
 Check the marked parameters and files like below (ckeck the COM-Port for your environment). 
 
-Check the adresses like below: 
+Check the addresses like below: 
 
 ### First install/ Reset 
 
