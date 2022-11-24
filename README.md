@@ -38,6 +38,7 @@ Now you can reconnect and reload the page and change the "Soft AP Settings". Cli
 ![image](docs/reset.png)
 ![image](docs/lock.png)
 ![image](docs/unlock.png)
+![image](docs/connected_clients.png)
 
 
 ## Flashing the prebuild binaries
