@@ -43,7 +43,7 @@ Now you can reconnect and reload the page and change the "Soft AP Settings". Cli
 ## Flashing the prebuild binaries
 - Download [latest release](https://github.com/dchristl/esp32_nat_router_extended/releases/latest)
   * Download esp32nat_extended_full_vX.X.X.zip for fresh install
-  * Download esp32nat_extended_vX.X.X.zip for update
+  * Download esp32nat_extended_update_vX.X.X.zip for update
 - Install [esptool](https://github.com/espressif/esptool)
  
 
@@ -53,7 +53,7 @@ If your device was used before for other projects or you want to reset all setti
 Unpack archive first and then execute:
 
 ```
-esptool.py  --baud 115200 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 40m --flash_size detect 0x1000 bootloader.bin 0x10000 esp32nat_extended_vX.X.X.bin 0x8000 partitions.bin
+esptool.py write_flash 0x0 esp32nat_extended_full_vX.X.X.bin 
 
 ```
 
