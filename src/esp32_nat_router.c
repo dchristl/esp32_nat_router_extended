@@ -427,6 +427,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED)
     {
         connect_count++;
+
         ESP_LOGI(TAG, "%d. station connected", connect_count);
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED)
@@ -460,7 +461,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
         tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo_sta);
         apply_portmap_tab();
     }
- 
+
     my_ap_ip = ipaddr_addr(ap_ip);
 
     esp_netif_ip_info_t ipInfo_ap;
