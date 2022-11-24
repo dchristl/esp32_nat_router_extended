@@ -17,9 +17,9 @@
                     data-bs-toggle="modal" title="About" type="button">?</button></h1>
         </div>
         <form action="apply" method="POST"> <input name="func" type="hidden" value="config" />
-            <h2>AP Settings (the new network)</h2><a href="/clients"><span class="text-info"><span
-                    id="clients">%d</span> client(s)
-                connected</span></a>
+            <h2>AP Settings (the new network)</h2>
+            <a href="/clients"><span class="text-info btn btn-link"><span id="clients">%d</span> client(s)
+                    connected</span></a>
             <div class="form-group row"> <label class="col-3" for="ap_ssid">SSID</label>
                 <div class="col-9"> <input class="form-control" id="ap_ssid" maxlength="32" name="ap_ssid"
                         placeholder="SSID of the new network" type="text" value="%s" /> </div>
@@ -34,8 +34,8 @@
             </div>
             <div class="form-group row col-9 offset-3"> <small class="form-text text-muted">Password less than 8 chars =
                     open</small> </div>
-            <h2 class="mt-2">STA Settings (uplink WiFi network)</h2> <span class="text-%s" id="sta"><span
-                    id="symbol">%s</span> (signal strength: <span id="db">%s</span> db)</span>
+            <h2 class="mt-2">STA Settings (uplink WiFi network)</h2> <span class="btn" style="cursor: default;"><span class="text-%s"
+                    id="sta"><span id="symbol">%s</span> (signal strength: <span id="db">%s</span> db)</span></span>
             <div class="form-group row"> <label class="col-3" for="ssid">SSID</label>
                 <div class="col-9"> <input class="form-control" id="ssid" maxlength="32" name="ssid"
                         placeholder="SSID of the existing network" type="text" value="%s" /> </div>
