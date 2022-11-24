@@ -18,6 +18,7 @@
 #include "lwip/sys.h"
 #include "lwip/netdb.h"
 #include "router_globals.h"
+#include "esp_wifi.h"
 
 #define DNS_PORT (53)
 #define DNS_MAX_LEN (256)
@@ -269,6 +270,20 @@ void dns_server_task(void *pvParameters)
 bool isDnsStarted()
 {
     return task != NULL;
+}
+
+uint16_t getConnectCount()
+{
+
+    wifi_sta_list_t wifi_sta_list;
+    memset(&wifi_sta_list, 0, sizeof(wifi_sta_list));
+
+    esp_err_t err = esp_wifi_ap_get_sta_list(&wifi_sta_list);
+    if (err == ESP_OK)
+    {
+        return wifi_sta_list.num;
+    }
+    return 0;
 }
 
 void start_dns_server()

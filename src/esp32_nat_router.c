@@ -51,8 +51,6 @@ static EventGroupHandle_t wifi_event_group;
  * - are we connected to the AP with an IP? */
 const int WIFI_CONNECTED_BIT = BIT0;
 
-/* Global vars */
-uint16_t connect_count = 0;
 bool ap_connect = false;
 
 uint32_t my_ip;
@@ -324,6 +322,8 @@ void *led_status_thread(void *p)
     gpio_reset_pin(BLINK_GPIO);
     gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
 
+    uint16_t connect_count = getConnectCount();
+
     while (true)
     {
         gpio_set_level(BLINK_GPIO, ap_connect);
@@ -426,14 +426,11 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED)
     {
-        connect_count++;
-
-        ESP_LOGI(TAG, "%d. station connected", connect_count);
+        ESP_LOGI(TAG, "Station connected");
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STADISCONNECTED)
     {
-        connect_count--;
-        ESP_LOGI(TAG, "station disconnected - %d remain", connect_count);
+        ESP_LOGI(TAG, "Station disconnected");
     }
 }
 const int CONNECTED_BIT = BIT0;
