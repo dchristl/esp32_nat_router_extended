@@ -497,7 +497,8 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
         .ap = {
             .authmode = WIFI_AUTH_WPA2_PSK,
             .ssid_hidden = 0,
-            .max_connection = 8,
+            // .channel =
+            .max_connection = 10,
             .beacon_interval = 100,
             .pairwise_cipher = WIFI_CIPHER_TYPE_CCMP}};
 

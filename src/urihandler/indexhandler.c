@@ -91,6 +91,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
     free(config_page);
     free(appliedSSID);
     free(db);
+
     return ret;
 }
 
