@@ -25,7 +25,6 @@ extern "C"
    extern char *ap_ssid;
    extern char *ap_passwd;
 
-   extern uint16_t connect_count;
    extern bool ap_connect;
 
    extern uint32_t my_ip;
@@ -62,6 +61,7 @@ extern "C"
    void start_dns_server();
    void stop_dns_server();
    bool isDnsStarted();
+   uint16_t getConnectCount();
 
 #define DEFAULT_SCAN_LIST_SIZE 15
 

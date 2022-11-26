@@ -9,6 +9,8 @@ import subprocess
 import glob
 from bs4 import BeautifulSoup
 from datetime import date
+import zipfile
+from os.path import basename
 
 
 def shrinkHtml():
@@ -63,28 +65,28 @@ def copyAndRenameBinaries(version):
     os.mkdir('release')
     shutil.copyfile('.pio/build/esp32dev/firmware.bin',
                     'release/esp32nat_extended_v' + version + '.bin')
-    shutil.make_archive('tmp/esp32nat_extended_v' +
-                        version, 'zip', 'release')
     shutil.copyfile('.pio/build/esp32dev/bootloader.bin',
                     'release/bootloader.bin')
     shutil.copyfile('.pio/build/esp32dev/partitions.bin',
                     'release/partitions.bin')
-    shutil.make_archive('tmp/esp32nat_extended_full_v' +
-                        version, 'zip', 'release')
-    shutil.copyfile('tmp/esp32nat_extended_full_v' +
-                    version + '.zip', 'release/esp32nat_extended_full_v' +
-                    version + '.zip')
-    shutil.copyfile('tmp/esp32nat_extended_v' +
-                    version + '.zip', 'release/esp32nat_extended_v' +
-                    version + '.zip')
-    fileList = glob.glob('release/*.bin')
-    shutil.rmtree("tmp")
-    # Iterate over the list of filepaths & remove each file.
-    for filePath in fileList:
-        try:
-            os.remove(filePath)
-        except:
-            print("Error while deleting file : ", filePath)
+
+
+def buildOneBin(version):
+    os.system('esptool.py --chip esp32 merge_bin -o release/esp32nat_extended_full_v' + version + '.bin --flash_freq 40m --flash_size keep 0x1000 ' +
+              'release/bootloader.bin 0x10000 release/esp32nat_extended_v' + version + '.bin 0x8000 release/partitions.bin')
+
+
+def makeArchives(version):
+    zipObj = zipfile.ZipFile('release/esp32nat_extended_update_v' +
+                             version + '.zip', 'w', zipfile.ZIP_DEFLATED)
+    zipObj.write('release/esp32nat_extended_v' + version +
+                 '.bin', 'esp32nat_extended_v' + version + '.bin')
+    zipObj.close()
+    zipObj = zipfile.ZipFile('release/esp32nat_extended_full_v' +
+                             version + '.zip', 'w', zipfile.ZIP_DEFLATED)
+    zipObj.write('release/esp32nat_extended_full_v' + version +
+                 '.bin', 'esp32nat_extended_full_v' + version + '.bin')
+    zipObj.close()
 
 
 def buildRelease(version):
@@ -93,6 +95,8 @@ def buildRelease(version):
     updateAbout(version)
     cleanAndBuild()
     copyAndRenameBinaries(version)
+    buildOneBin(version)
+    makeArchives(version)
 
 
 def main(argv):

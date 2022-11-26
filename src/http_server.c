@@ -74,6 +74,12 @@ httpd_uri_t result_page_download = {
     .handler = result_download_get_handler,
     .user_ctx = NULL};
 
+httpd_uri_t clients_page_download = {
+    .uri = "/clients",
+    .method = HTTP_GET,
+    .handler = clients_download_get_handler,
+    .user_ctx = NULL};
+
 httpd_uri_t advanced_page_download = {
     .uri = "/advanced",
     .method = HTTP_GET,
@@ -157,6 +163,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &styles_handler);
         httpd_register_uri_handler(server, &apig);
         httpd_register_uri_handler(server, &advanced_page_download);
+        httpd_register_uri_handler(server, &clients_page_download);
         httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
         return server;
     }

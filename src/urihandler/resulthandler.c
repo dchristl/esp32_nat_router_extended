@@ -28,6 +28,7 @@ char *findTextColorForSSID(int8_t rssi)
     return color;
 }
 
+
 esp_err_t result_download_get_handler(httpd_req_t *req)
 {
     if (isLocked())
@@ -42,7 +43,7 @@ esp_err_t result_download_get_handler(httpd_req_t *req)
     const size_t result_html_size = (result_end - result_start);
 
     char *result_param = NULL;
-    int allocatedSize = (strlen(ROW_TEMPLATE) + 100) * DEFAULT_SCAN_LIST_SIZE ;
+    int allocatedSize = (strlen(ROW_TEMPLATE) + 100) * DEFAULT_SCAN_LIST_SIZE;
 
     char result[allocatedSize];
     strcpy(result, "");

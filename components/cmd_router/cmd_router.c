@@ -584,7 +584,7 @@ static int show(int argc, char **argv)
         addr.addr = my_ip;
         printf("IP: " IPSTR "\n", IP2STR(&addr));
     }
-    printf("%d Stations connected\n", connect_count);
+    printf("%d Stations connected\n", getConnectCount());
 
     print_portmap_tab();
 

@@ -74,6 +74,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
     size = size + strlen(symbol) + strlen(textColor) + 5 /* Länge der clients */ + strlen(db);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
     char *config_page = malloc(config_html_size + size);
+    uint16_t connect_count = getConnectCount();
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
@@ -90,6 +91,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
     free(config_page);
     free(appliedSSID);
     free(db);
+
     return ret;
 }
 
