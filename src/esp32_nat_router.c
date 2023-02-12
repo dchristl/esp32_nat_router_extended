@@ -24,13 +24,15 @@
 #include "freertos/event_groups.h"
 #include "esp_wifi.h"
 
-#include "lwip/opt.h"
+// #include "lwip/opt.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
 #include "cmd_decl.h"
 #include <esp_http_server.h>
 #include "driver/gpio.h"
+#include "lwip/dns.h"
+#include "esp_mac.h"
 
 #if !IP_NAPT
 #error "IP_NAPT must be defined"
@@ -139,7 +141,7 @@ void print_portmap_tab()
         if (portmap_tab[i].valid)
         {
             printf("%s", portmap_tab[i].proto == PROTO_TCP ? "TCP " : "UDP ");
-            ip4_addr_t addr;
+            esp_ip4_addr_t addr;
             addr.addr = my_ip;
             printf(IPSTR ":%d -> ", IP2STR(&addr), portmap_tab[i].mport);
             addr.addr = portmap_tab[i].daddr;
@@ -348,7 +350,7 @@ void fillDNS(ip_addr_t *dnsserver)
     if (customDNS == NULL)
     {
         // If can't get DNS server, uses default one
-        if (dnsserver->u_addr.ip4.addr == IPADDR_ANY)
+        if (dnsserver->type == IPADDR_ANY)
         {
             dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
         }
@@ -416,11 +418,12 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         stop_dns_server();
         if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
         {
+            
             dnsserver.type = IPADDR_TYPE_V4;
             dnsserver.u_addr.ip4.addr = dns.ip.u_addr.ip4.addr;
             fillDNS(&dnsserver);
-            dhcps_dns_setserver(&dnsserver);
-            ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dnsserver.u_addr.ip4)));
+            dns_setserver(0, &dnsserver);
+            // ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dnsserver.u_addr.ip4.addr))); FIXME
         }
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }
@@ -438,7 +441,7 @@ const int CONNECTED_BIT = BIT0;
 
 void wifi_init(const char *ssid, const char *passwd, const char *static_ip, const char *subnet_mask, const char *gateway_addr, const char *ap_ssid, const char *ap_passwd, const char *ap_ip)
 {
-    ip_addr_t dnsserver;
+    esp_ip4_addr_t dnsserver;
     // tcpip_adapter_dns_info_t dnsinfo;
 
     wifi_event_group = xEventGroupCreate();
@@ -448,14 +451,14 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     wifiAP = esp_netif_create_default_wifi_ap();
     wifiSTA = esp_netif_create_default_wifi_sta();
 
-    tcpip_adapter_ip_info_t ipInfo_sta;
+    esp_netif_ip_info_t ipInfo_sta;
     if ((strlen(ssid) > 0) && (strlen(static_ip) > 0) && (strlen(subnet_mask) > 0) && (strlen(gateway_addr) > 0))
     {
         my_ip = ipInfo_sta.ip.addr = ipaddr_addr(static_ip);
         ipInfo_sta.gw.addr = ipaddr_addr(gateway_addr);
         ipInfo_sta.netmask.addr = ipaddr_addr(subnet_mask);
-        tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA); // Don't run a DHCP client
-        tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_STA, &ipInfo_sta);
+        esp_netif_dhcpc_stop(wifiSTA); // Don't run a DHCP client
+        esp_netif_set_ip_info(wifiSTA, &ipInfo_sta);
         apply_portmap_tab();
     }
 
@@ -527,13 +530,13 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     }
 
     // Enable DNS (offer) for dhcp server
-    dhcps_offer_t dhcps_dns_value = OFFER_DNS;
-    dhcps_set_option_info(6, &dhcps_dns_value, sizeof(dhcps_dns_value));
+    // dhcps_offer_t dhcps_dns_value = OFFER_DNS;
+    // dhcps_set_option_info(6, &dhcps_dns_value, sizeof(dhcps_dns_value));
 
     // Set custom dns server address for dhcp server
-    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
-    dnsserver.type = IPADDR_TYPE_V4;
-    dhcps_dns_setserver(&dnsserver);
+    dnsserver.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
+    // dnsserver.type = IPADDR_TYPE_V4;
+    dns_setserver(0, &dnsserver);
 
     xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
                         pdFALSE, pdTRUE, JOIN_TIMEOUT_MS / portTICK_PERIOD_MS);
@@ -549,6 +552,10 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
         ESP_LOGI(TAG, "wifi_init_ap with default finished.");
     }
     start_dns_server();
+    // ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(80));
+    // int8_t j;
+    // ESP_ERROR_CHECK(esp_wifi_get_max_tx_power(&j));
+    // ESP_LOGI(TAG, "\t\t\tWifi power get is %d.", j);
 }
 
 char *ssid = NULL;

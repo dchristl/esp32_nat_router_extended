@@ -1,7 +1,9 @@
 #include "handler.h"
 #include <sys/param.h>
+#include "dhcpserver/dhcpserver.h"
 #include "router_globals.h"
 #include "esp_wifi.h"
+#include "esp_mac.h"
 
 static const char *TAG = "Advancedhandler";
 
@@ -49,7 +51,8 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     {
         ledCB = "checked";
     }
-    ip4_addr_t usedDNS = dhcps_dns_getserver();
+    ip4_addr_t usedDNS;
+    dhcps_dns_getserver(NULL, &usedDNS);
     currentDNS = ip4addr_ntoa(&usedDNS);
 
     char *customDNS = NULL;

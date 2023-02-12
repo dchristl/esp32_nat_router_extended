@@ -14,7 +14,7 @@
 #include "esp_console.h"
 #include "esp_system.h"
 #include "esp_sleep.h"
-#include "esp_spi_flash.h"
+#include "spi_flash_mmap.h"
 #include "driver/rtc_io.h"
 #include "driver/uart.h"
 #include "argtable3/argtable3.h"
@@ -22,6 +22,7 @@
 #include "freertos/task.h"
 #include "cmd_system.h"
 #include "sdkconfig.h"
+#include "esp_chip_info.h"
 
 #ifdef CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
 #define WITH_TASKS_INFO 1
@@ -61,12 +62,12 @@ static int get_version(int argc, char **argv)
     printf("Chip info:\r\n");
     printf("\tmodel:%s\r\n", info.model == CHIP_ESP32 ? "ESP32" : "Unknow");
     printf("\tcores:%d\r\n", info.cores);
-    printf("\tfeature:%s%s%s%s%d%s\r\n",
-           info.features & CHIP_FEATURE_WIFI_BGN ? "/802.11bgn" : "",
-           info.features & CHIP_FEATURE_BLE ? "/BLE" : "",
-           info.features & CHIP_FEATURE_BT ? "/BT" : "",
-           info.features & CHIP_FEATURE_EMB_FLASH ? "/Embedded-Flash:" : "/External-Flash:",
-           spi_flash_get_chip_size() / (1024 * 1024), " MB");
+    // printf("\tfeature:%s%s%s%s%d%s\r\n",
+    //        info.features & CHIP_FEATURE_WIFI_BGN ? "/802.11bgn" : "",
+    //        info.features & CHIP_FEATURE_BLE ? "/BLE" : "",
+    //        info.features & CHIP_FEATURE_BT ? "/BT" : "",
+    //        info.features & CHIP_FEATURE_EMB_FLASH ? "/Embedded-Flash:" : "/External-Flash:",
+    //        spi_flash_get_chip_size() / (1024 * 1024), " MB"); FIXME
     printf("\trevision number:%d\r\n", info.revision);
     return 0;
 }
@@ -105,7 +106,7 @@ static void register_restart(void)
 
 static int free_mem(int argc, char **argv)
 {
-    printf("%d\n", esp_get_free_heap_size());
+    // printf("%d\n", esp_get_free_heap_size()); FIXME
     return 0;
 }
 
@@ -123,8 +124,8 @@ static void register_free(void)
 /* 'heap' command prints minumum heap size */
 static int heap_size(int argc, char **argv)
 {
-    uint32_t heap_size = heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
-    ESP_LOGI(TAG, "min heap size: %u", heap_size);
+    // uint32_t heap_size = heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
+    // ESP_LOGI(TAG, "min heap size: %u", heap_size); FIXME
     return 0;
 }
 

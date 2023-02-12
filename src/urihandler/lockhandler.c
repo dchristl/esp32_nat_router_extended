@@ -87,12 +87,12 @@ esp_err_t lock_handler(httpd_req_t *req)
         {
             if (ret == HTTPD_SOCK_ERR_TIMEOUT)
             {
-                continue;
+                  continue;
             }
             ESP_LOGE(TAG, "Timeout occured");
             return ESP_FAIL;
         }
-
+    
         remaining -= ret;
         ESP_LOGI(TAG, "Found parameter query => %s", buf);
         char passParam[req->content_len], pass2Param[req->content_len];
