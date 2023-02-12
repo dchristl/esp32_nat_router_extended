@@ -423,7 +423,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
             dnsserver.u_addr.ip4.addr = dns.ip.u_addr.ip4.addr;
             fillDNS(&dnsserver);
             dns_setserver(0, &dnsserver);
-            // ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dnsserver.u_addr.ip4.addr))); FIXME
+            ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dnsserver.u_addr.ip4)));
         }
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }
