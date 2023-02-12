@@ -418,7 +418,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         stop_dns_server();
         if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
         {
-            
+
             dnsserver.type = IPADDR_TYPE_V4;
             dnsserver.u_addr.ip4.addr = dns.ip.u_addr.ip4.addr;
             fillDNS(&dnsserver);
@@ -441,7 +441,7 @@ const int CONNECTED_BIT = BIT0;
 
 void wifi_init(const char *ssid, const char *passwd, const char *static_ip, const char *subnet_mask, const char *gateway_addr, const char *ap_ssid, const char *ap_passwd, const char *ap_ip)
 {
-    esp_ip4_addr_t dnsserver;
+    ip_addr_t dnsserver;
     // tcpip_adapter_dns_info_t dnsinfo;
 
     wifi_event_group = xEventGroupCreate();
@@ -534,8 +534,8 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     // dhcps_set_option_info(6, &dhcps_dns_value, sizeof(dhcps_dns_value));
 
     // Set custom dns server address for dhcp server
-    dnsserver.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
-    // dnsserver.type = IPADDR_TYPE_V4;
+    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
+    dnsserver.type = IPADDR_TYPE_V4;
     dns_setserver(0, &dnsserver);
 
     xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
@@ -565,7 +565,7 @@ char *subnet_mask = NULL;
 char *gateway_addr = NULL;
 char *ap_ssid = NULL;
 char *lock_pass = NULL;
-int led_disabled = 0;
+int32_t led_disabled = 0;
 char *scan_result = NULL;
 char *ap_passwd = NULL;
 char *ap_ip = NULL;
@@ -722,7 +722,7 @@ void app_main(void)
     ip_napt_enable(my_ap_ip, 1);
     ESP_LOGI(TAG, "NAT is enabled");
 
-    int lock = 0;
+    int32_t lock = 0;
     get_config_param_int("lock", &lock);
     if (lock == 0)
     {

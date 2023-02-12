@@ -106,7 +106,7 @@ esp_err_t get_config_param_str(char *name, char **param)
     return ESP_OK;
 }
 
-esp_err_t get_config_param_int(char *name, int *param)
+esp_err_t get_config_param_int(char *name, int32_t *param)
 {
     nvs_handle_t nvs;
 
@@ -115,7 +115,7 @@ esp_err_t get_config_param_int(char *name, int *param)
     {
         if ((err = nvs_get_i32(nvs, name, param)) == ESP_OK)
         {
-            ESP_LOGI(TAG, "%s %d", name, *param);
+            // ESP_LOGI(TAG, "%s %d", name, *param); FIXME
         }
         else
         {

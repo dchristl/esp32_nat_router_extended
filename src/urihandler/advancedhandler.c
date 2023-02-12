@@ -19,8 +19,8 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     extern const char advanced_end[] asm("_binary_advanced_html_end");
     const size_t advanced_html_size = (advanced_end - advanced_start);
 
-    int keepAlive = 0;
-    int ledDisabled = 0;
+    int32_t keepAlive = 0;
+    int32_t ledDisabled = 0;
     char *aliveCB = "";
     char *ledCB = "";
     char *currentDNS = "";
