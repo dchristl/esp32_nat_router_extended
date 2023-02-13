@@ -343,14 +343,15 @@ void *led_status_thread(void *p)
     }
 }
 
-void fillDNS(esp_ip_addr_t *dnsserver)
+void fillDNS(esp_ip_addr_t *dnsserver, esp_ip_addr_t *fallback)
 {
     char *customDNS = NULL;
     get_config_param_str("custom_dns", &customDNS);
 
     if (customDNS == NULL)
     {
-        dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
+        ESP_LOGI(TAG, "Setting DNS server to upstream DNS");
+        dnsserver->u_addr.ip4.addr = fallback->u_addr.ip4.addr;
     }
     else
     {
@@ -431,7 +432,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
         {
             esp_ip_addr_t newDns;
-            fillDNS(&newDns);
+            fillDNS(&newDns, &dns.ip);
             setDnsServer(wifiAP, &newDns); // Set the correct DNS server for the AP clients
         }
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
