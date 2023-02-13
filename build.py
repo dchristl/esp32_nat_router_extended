@@ -105,7 +105,7 @@ def main(argv):
     os.chdir(dname)
     version = ''
     try:
-        opts, args = getopt.getopt(argv, "hi:version:", ["version="])
+        opts, args = getopt.getopt(argv, "version:", ["version="])
     except getopt.GetoptError:
         print('build.py -v <version>')
         sys.exit(2)
