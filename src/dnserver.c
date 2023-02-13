@@ -161,8 +161,8 @@ static int parse_dns_request(char *req, size_t req_len, char *dns_reply, size_t 
 
             esp_netif_ip_info_t ip_info;
             esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"), &ip_info);
-            ESP_LOGD(TAG, "Answer with PTR offset: 0x%X and IP 0x%X", ntohs(answer->ptr_offset), ip_info.ip.addr);
-
+            
+            // ESP_LOGD(TAG, "Answer with PTR offset: 0x%X and IP 0x%X", ntohs(answer->ptr_offset), ip_info.ip.addr);
             answer->addr_len = htons(sizeof(ip_info.ip.addr));
             answer->ip_addr = ip_info.ip.addr;
         }

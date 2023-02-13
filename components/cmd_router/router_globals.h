@@ -35,7 +35,7 @@ extern "C"
    int set_sta_static(int argc, char **argv);
    int set_ap(int argc, char **argv);
 
-   esp_err_t get_config_param_int(char *name, int *param);
+   esp_err_t get_config_param_int(char *name, int32_t *param);
    esp_err_t get_config_param_str(char *name, char **param);
 
    void print_portmap_tab();

@@ -1,6 +1,7 @@
 #include <esp_log.h>
 #include <esp_http_server.h>
 #include "router_globals.h"
+#include "lwip/ip4_addr.h"
 
 /* Static */
 void closeHeader(httpd_req_t *req);

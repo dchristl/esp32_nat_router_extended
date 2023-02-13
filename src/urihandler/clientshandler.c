@@ -8,6 +8,7 @@
 #include "cmd_nvs.h"
 #include "router_globals.h"
 #include "esp_wifi.h"
+#include "esp_wifi_ap_get_sta_list.h"
 
 static const char *TAG = "ClientsHandler";
 
@@ -21,12 +22,12 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
     }
 
     wifi_sta_list_t wifi_sta_list;
-    tcpip_adapter_sta_list_t adapter_sta_list;
+    wifi_sta_mac_ip_list_t adapter_sta_list;
     memset(&wifi_sta_list, 0, sizeof(wifi_sta_list));
     memset(&adapter_sta_list, 0, sizeof(adapter_sta_list));
     esp_wifi_ap_get_sta_list(&wifi_sta_list);
 
-    tcpip_adapter_get_sta_list(&wifi_sta_list, &adapter_sta_list);
+    esp_wifi_ap_get_sta_list_with_ip(&wifi_sta_list, &adapter_sta_list);
 
     char result[1000];
     strcpy(result, "");
@@ -36,7 +37,7 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
         {
 
             char *template = malloc(strlen(CLIENT_TEMPLATE) + 100);
-            tcpip_adapter_sta_info_t station = adapter_sta_list.sta[i];
+            esp_netif_pair_mac_ip_t station = adapter_sta_list.sta[i];
 
             char str_ip[16];
             esp_ip4addr_ntoa(&(station.ip), str_ip, IP4ADDR_STRLEN_MAX);
