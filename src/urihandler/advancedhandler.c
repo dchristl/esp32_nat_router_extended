@@ -51,9 +51,14 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
     {
         ledCB = "checked";
     }
-    ip4_addr_t usedDNS;
-    dhcps_dns_getserver(NULL, &usedDNS);
-    currentDNS = ip4addr_ntoa(&usedDNS);
+    esp_netif_dns_info_t dns;
+    esp_netif_t *wifiSTA = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
+    {
+        currentDNS = malloc(16);
+        sprintf(currentDNS, IPSTR, IP2STR(&(dns.ip.u_addr.ip4)));
+        ESP_LOGI(TAG, "Current DNS is: %s", currentDNS);
+    }
 
     char *customDNS = NULL;
     get_config_param_str("custom_dns", &customDNS);
@@ -133,6 +138,7 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
 
     free(advanced_page);
     free(subMac);
+    free(currentDNS);
 
     return ret;
 }
