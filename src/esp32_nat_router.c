@@ -23,6 +23,7 @@
 
 #include "freertos/event_groups.h"
 #include "esp_wifi.h"
+#include "dhcpserver/dhcpserver.h"
 
 // #include "lwip/opt.h"
 #include "lwip/err.h"
@@ -342,18 +343,14 @@ void *led_status_thread(void *p)
     }
 }
 
-void fillDNS(ip_addr_t *dnsserver)
+void fillDNS(esp_ip_addr_t *dnsserver)
 {
     char *customDNS = NULL;
     get_config_param_str("custom_dns", &customDNS);
 
     if (customDNS == NULL)
     {
-        // If can't get DNS server, uses default one
-        if (dnsserver->type == IPADDR_ANY)
-        {
-            dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
-        }
+        dnsserver->u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
     }
     else
     {
@@ -393,11 +390,25 @@ void fillMac()
     }
 }
 
+void setDnsServer(esp_netif_t *network, esp_ip_addr_t *dnsIP)
+{
+
+    esp_netif_dns_info_t dns_info = {0};
+    memset(&dns_info, 8, sizeof(dns_info));
+    dns_info.ip = *dnsIP;
+    dns_info.ip.type = IPADDR_TYPE_V4;
+
+    esp_netif_dhcps_stop(network);
+    ESP_ERROR_CHECK(esp_netif_set_dns_info(wifiAP, ESP_NETIF_DNS_MAIN, &dns_info));
+    dhcps_offer_t opt_val = OFFER_DNS; // supply a dns server via dhcps
+    esp_netif_dhcps_option(network, ESP_NETIF_OP_SET, ESP_NETIF_DOMAIN_NAME_SERVER, &opt_val, sizeof(opt_val));
+    esp_netif_dhcps_start(network);
+    ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dns_info.ip.u_addr.ip4)));
+}
+
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data)
 {
-    esp_netif_dns_info_t dns;
-    ip_addr_t dnsserver;
 
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
@@ -416,14 +427,12 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
         stop_dns_server();
+        esp_netif_dns_info_t dns;
         if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
         {
-
-            dnsserver.type = IPADDR_TYPE_V4;
-            dnsserver.u_addr.ip4.addr = dns.ip.u_addr.ip4.addr;
-            fillDNS(&dnsserver);
-            dns_setserver(0, &dnsserver);
-            ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dnsserver.u_addr.ip4)));
+            esp_ip_addr_t newDns;
+            fillDNS(&newDns);
+            setDnsServer(wifiAP, &newDns); // Set the correct DNS server for the AP clients
         }
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }
@@ -441,8 +450,6 @@ const int CONNECTED_BIT = BIT0;
 
 void wifi_init(const char *ssid, const char *passwd, const char *static_ip, const char *subnet_mask, const char *gateway_addr, const char *ap_ssid, const char *ap_passwd, const char *ap_ip)
 {
-    ip_addr_t dnsserver;
-    // tcpip_adapter_dns_info_t dnsinfo;
 
     wifi_event_group = xEventGroupCreate();
 
@@ -528,15 +535,9 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
         ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &ap_config));
     }
-
-    // Enable DNS (offer) for dhcp server
-    // dhcps_offer_t dhcps_dns_value = OFFER_DNS;
-    // dhcps_set_option_info(6, &dhcps_dns_value, sizeof(dhcps_dns_value));
-
-    // Set custom dns server address for dhcp server
+    esp_ip_addr_t dnsserver;
     dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
-    dnsserver.type = IPADDR_TYPE_V4;
-    dns_setserver(0, &dnsserver);
+    setDnsServer(wifiAP, &dnsserver);
 
     xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
                         pdFALSE, pdTRUE, JOIN_TIMEOUT_MS / portTICK_PERIOD_MS);
