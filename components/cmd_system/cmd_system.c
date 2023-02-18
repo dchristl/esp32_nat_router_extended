@@ -24,6 +24,7 @@
 #include "sdkconfig.h"
 #include "esp_chip_info.h"
 #include "esp_flash.h" 
+#include "soc/soc_caps.h" 
 
 #ifdef CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
 #define WITH_TASKS_INFO 1
@@ -225,7 +226,9 @@ static int deep_sleep(int argc, char **argv)
                  io_num, level ? "HIGH" : "LOW");
         ESP_ERROR_CHECK(esp_sleep_enable_wifi_wakeup());
     }
+#if SOC_RTCIO_HOLD_SUPPORTED
     rtc_gpio_isolate(GPIO_NUM_12);
+#endif // WITH_TASKS_INFO
     esp_deep_sleep_start();
 }
 
