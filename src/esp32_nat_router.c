@@ -18,6 +18,7 @@
 #include "esp_vfs_fat.h"
 #include "nvs.h"
 #include "nvs_flash.h"
+#include "lwip/inet.h"
 
 #include "esp_event.h"
 
@@ -203,7 +204,6 @@ esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
             portmap_tab[i].daddr = daddr;
             portmap_tab[i].dport = dport;
             portmap_tab[i].valid = 1;
-
             err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
             if (err != ESP_OK)
             {
@@ -432,8 +432,10 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        ESP_LOGI(TAG, "Got IP: " IPSTR, IP2STR(&event->ip_info.ip));
         stop_dns_server();
+        ap_connect = true;
+        my_ip = event->ip_info.ip.addr;
         esp_netif_dns_info_t dns;
         if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
         {
