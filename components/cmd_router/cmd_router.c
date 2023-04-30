@@ -504,8 +504,6 @@ int portmap(int argc, char **argv)
     uint32_t int_ip = ipaddr_addr((char *)portmap_args.int_ip->sval[0]);
     uint16_t int_port = portmap_args.int_port->ival[0];
 
-    // printf("portmap %d %d %x %d %x %d\n", add, tcp_udp, my_ip, ext_port, int_ip, int_port);
-
     if (add)
     {
         add_portmap(tcp_udp, ext_port, int_ip, int_port);
