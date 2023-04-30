@@ -126,11 +126,11 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "version:", ["version="])
     except getopt.GetoptError:
-        print('build.py -v <version>')
+        print('build.py --version <version>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('build.py -v <version>')
+            print('build.py --version <version>')
             sys.exit()
         elif opt in ("--version"):
             version = arg
