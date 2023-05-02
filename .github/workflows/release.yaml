@@ -19,7 +19,12 @@ jobs:
           python-version: '3.9'
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
-
+      - name: Minify Action
+        uses: anthonyftwang/minify-action@v1.0.1
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Minify source code
+          branch: ${{ github.ref }}
       - name: Build ESP32 firmware
         run: platformio run -e esp32dev
       - name: Upload firmware
@@ -27,6 +32,6 @@ jobs:
         with:
           name: esp32-firmware-bins
           path: |
-            firmware/ESP32/.pio/build/esp32dev/firmware.bin
-            firmware/ESP32/.pio/build/esp32dev/partitions.bin
-            firmware/ESP32/.pio/build/esp32dev/bootloader.bin
+            .pio/build/esp32dev/firmware.bin
+            .pio/build/esp32dev/partitions.bin
+            .pio/build/esp32dev/bootloader.bin
