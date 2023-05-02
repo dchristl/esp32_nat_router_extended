@@ -16,6 +16,7 @@ jobs:
           key: ${{ runner.os }}-pio
       - uses: actions/setup-python@v4
         with:
+        
           python-version: '3.9'
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
