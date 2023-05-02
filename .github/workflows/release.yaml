@@ -19,11 +19,15 @@ jobs:
           python-version: '3.9'
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
-      - name: Minify Action
-        uses: anthonyftwang/minify-action@v1.0.1
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Auto Minify
+        uses: nizarmah/auto-minify@v2.1
         with:
-          commit_message: Minify source code
+          overwrite: true
+          directory: 'src/pages/'
+      - name: Auto committing minified files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Github Action: Auto Minified JS and CSS files"
           branch: ${{ github.ref }}
       - name: Build ESP32 firmware
         run: platformio run -e esp32dev
