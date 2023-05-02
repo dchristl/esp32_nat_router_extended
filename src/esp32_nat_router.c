@@ -435,6 +435,8 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         stop_dns_server();
         ap_connect = true;
         my_ip = event->ip_info.ip.addr;
+        delete_portmap_tab();
+        apply_portmap_tab();
         esp_netif_dns_info_t dns;
         if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
         {
