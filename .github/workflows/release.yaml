@@ -23,7 +23,7 @@ jobs:
         run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
       - name: Update version number in About
         run: |
-          sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v${{ env.VERSION }}"'</td>|g'  src/pages/config.html
+          sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v${{ env.VERSION }}"'</td>|g'  src/pages/config.html 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -38,7 +38,7 @@ jobs:
           folder=.pio/build/esp32dev
           chip=esp32
           echo ${{ env.VERSION }}
-          esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep x1000 $folder/bootloader.bin 0x10000 $folder/firmware.bin 0x8000 $folder/partitions.bin
+          esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/firmware.bin 0x8000 $folder/partitions.bin
 
       - name: Upload full firmware
         uses: actions/upload-artifact@v3
@@ -54,6 +54,9 @@ jobs:
           path: |
             folder=.pio/build/esp32dev
             $folder/firmware.bin
+            
+
+
 
 #  os.system('esptool.py --chip esp32 merge_bin -o release/esp32nat_extended_full_v' + version + '.bin --flash_freq keep --flash_size keep 0x1000 ' +
 #               'release/bootloader.bin 0x10000 release/esp32nat_extended_v' + version + '.bin 0x8000 release/partitions.bin')
