@@ -79,9 +79,9 @@ def copyAndRenameBinaries(version):
 
 
 def buildOneBin(version):
-    os.system('esptool.py --chip esp32 merge_bin -o release/esp32nat_extended_full_v' + version + '.bin --flash_freq 40m --flash_size keep 0x1000 ' +
+    os.system('esptool.py --chip esp32 merge_bin -o release/esp32nat_extended_full_v' + version + '.bin --flash_freq keep --flash_size keep 0x1000 ' +
               'release/bootloader.bin 0x10000 release/esp32nat_extended_v' + version + '.bin 0x8000 release/partitions.bin')
-    os.system('esptool.py --chip esp32c3 merge_bin -o release/esp32nat_extended_full_C3_v' + version + '.bin --flash_freq 40m --flash_size keep 0x1000 ' +
+    os.system('esptool.py --chip esp32c3 merge_bin -o release/esp32nat_extended_full_C3_v' + version + '.bin --flash_freq keep --flash_size keep 0x1000 ' +
               'release/bootloaderC3.bin 0x10000 release/esp32nat_extended_C3_v' + version + '.bin 0x8000 release/partitionsC3.bin')
 
 
