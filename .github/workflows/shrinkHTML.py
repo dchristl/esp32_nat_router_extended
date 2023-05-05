@@ -6,7 +6,7 @@ import os, htmlmin, sys
 def shrinkHtml():
     cwd = os.getcwd()
     print(cwd)
-    directory = os.fsencode('/src/pages/')
+    directory = os.fsencode('src/pages/')
 
     for f in os.listdir(directory):
         filename = os.fsdecode(f)
