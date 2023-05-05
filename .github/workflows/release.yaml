@@ -19,7 +19,7 @@ jobs:
           python-version: "3.9"
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
-      - name: Update version number in HTML
+      - name: Update version number in About
         run: |
           version=$(cat version)
           sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v$version"'</td>|g'  src/pages/config.html 
@@ -30,14 +30,26 @@ jobs:
       - name: Minify HTML files
         run: python .github/workflows/shrinkHTML.py
         shell: sh
+      - name: Build ESP32 firmware
+        run: platformio run -e esp32dev
+      - name: Build one binary for ESP32
+        run: |
+          version=$(cat version)
+          folder=.pio/build/esp32dev
+          chip=esp32
+          esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v' + $version + '.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000$folder/firmware.bin 0x8000 $folder/partitions.bin
 
-      # - name: Build ESP32 firmware
-      #   run: platformio run -e esp32dev
-      # - name: Upload firmware
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: esp32-firmware-bins
-      #     path: |
-      #       .pio/build/esp32dev/firmware.bin
-      #       .pio/build/esp32dev/partitions.bin
-      #       .pio/build/esp32dev/bootloader.bin
+      - name: Upload firmware
+        uses: actions/upload-artifact@v3
+        with:
+          name: esp32-firmware-bins
+          path: |
+            .pio/build/esp32dev/firmware.bin
+            .pio/build/esp32dev/partitions.bin
+            .pio/build/esp32dev/bootloader.bin
+            .pio/build/esp32dev/esp32nat_extended_full*.bin
+
+
+
+#  os.system('esptool.py --chip esp32 merge_bin -o release/esp32nat_extended_full_v' + version + '.bin --flash_freq keep --flash_size keep 0x1000 ' +
+#               'release/bootloader.bin 0x10000 release/esp32nat_extended_v' + version + '.bin 0x8000 release/partitions.bin')
