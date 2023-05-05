@@ -16,26 +16,20 @@ jobs:
           key: ${{ runner.os }}-pio
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
-      # - name: Auto Minify
-      #   uses: nizarmah/auto-minify@v2.1
+      - name: Minify HTML files
+        run: python .github/workflows/shrinkHTML.py
+        shell: sh
+
+      # - name: Build ESP32 firmware
+      #   run: platformio run -e esp32dev
+      # - name: Upload firmware
+      #   uses: actions/upload-artifact@v3
       #   with:
-      #     overwrite: true
-      #     directory: 'src/pages/'
-      # - name: Auto committing minified files
-      #   uses: stefanzweifel/git-auto-commit-action@v4
-      #   with:
-      #     commit_message: "Github Action: Auto Minified JS and CSS files"
-      #     branch: ${{ github.ref }}
-      - name: Build ESP32 firmware
-        run: platformio run -e esp32dev
-      - name: Upload firmware
-        uses: actions/upload-artifact@v3
-        with:
-          name: esp32-firmware-bins
-          path: |
-            .pio/build/esp32dev/firmware.bin
-            .pio/build/esp32dev/partitions.bin
-            .pio/build/esp32dev/bootloader.bin
+      #     name: esp32-firmware-bins
+      #     path: |
+      #       .pio/build/esp32dev/firmware.bin
+      #       .pio/build/esp32dev/partitions.bin
+      #       .pio/build/esp32dev/bootloader.bin
