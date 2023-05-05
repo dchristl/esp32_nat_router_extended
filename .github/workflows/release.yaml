@@ -19,10 +19,11 @@ jobs:
           python-version: "3.9"
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
+      - name: Set environment variables
+        run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
       - name: Update version number in About
         run: |
-          version=$(cat version)
-          sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v$version"'</td>|g'  src/pages/config.html 
+          sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v${{ env.VERSION }}"'</td>|g'  src/pages/config.html 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -34,17 +35,15 @@ jobs:
         run: platformio run -e esp32dev
       - name: Build one binary for ESP32
         run: |
-          version=$(cat version)
           folder=.pio/build/esp32dev
           chip=esp32
-          echo $version
-          echo $chip
-          esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v + "$version" + .bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/firmware.bin 0x8000 $folder/partitions.bin
+          echo ${{ env.VERSION }}
+          esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v + "${{ env.VERSION }}" + .bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/firmware.bin 0x8000 $folder/partitions.bin
 
       - name: Upload firmware
         uses: actions/upload-artifact@v3
         with:
-          name: esp32-firmware-bins
+          name: esp32-firmware-bins_v${{ env.VERSION }}
           path: |
             .pio/build/esp32dev/firmware.bin
             .pio/build/esp32dev/partitions.bin
