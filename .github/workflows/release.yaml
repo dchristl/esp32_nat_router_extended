@@ -53,4 +53,22 @@ jobs:
           name: esp32nat_extended_update_v${{ env.VERSION }}
           path: |            
             .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
-            
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          draft: true
+          prerelease: false      
+      - name: Upload Binaries
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
+          asset_name: esp32nat_extended_v${{ env.VERSION }}.bin
+          asset_content_type: application/octet-stream            
