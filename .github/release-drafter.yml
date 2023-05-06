@@ -1,6 +1,6 @@
 # https://github.com/marketplace/actions/release-drafter#configuration
-name-template: '$RESOLVED_VERSION xxx Update [Alpha|Beta]'
-tag-template: 'v$RESOLVED_VERSION'
+name-template: 'v${{ env.VERSION }} xxx Update [Alpha|Beta]'
+tag-template: 'v${{ env.VERSION }}'
 version-resolver:
   major:
     labels:
@@ -18,9 +18,7 @@ prerelease: true
 template: |
   ## Changes from $PREVIOUS_TAG (Recently merged first)
   $CHANGES
-  
-  ## Contributors
-  $CONTRIBUTORS
+
 categories:
   - title: '🌈 New Platform!'
     labels:
