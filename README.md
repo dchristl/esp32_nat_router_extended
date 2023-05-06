@@ -88,8 +88,9 @@ Check the addresses like below:
 
 ## Building the Binaries
 
-see [How to setup environment and build](docs/BUILD.md)
-
+see 
+- [How to setup environment and build with Platformio](docs/BUILD.md)
+- [How to setup environmetn and build with Eclipse](docs/BUILD-with-Eclipse.md)
 
 ## Wifi scanning limitation
 Because of technical limitations, a client can not be simultaneously connected to device and scan for Wifis. Before the scan started all the clients will be disconnected. After that the scan will start, saved in nvs and the device will reboot. After reconnecting to the device you will be able to see the scanned networks. The scan result will be deleted afterwards, but it is always possible to retry the scanning. 
