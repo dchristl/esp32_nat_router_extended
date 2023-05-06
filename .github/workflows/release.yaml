@@ -66,5 +66,5 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file:  .pio/build/esp32dev/*${{ env.VERSION }}*
+          file:  .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
           tag: ${{ env.VERSION }}        
