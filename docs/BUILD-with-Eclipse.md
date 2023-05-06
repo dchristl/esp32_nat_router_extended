@@ -1,4 +1,4 @@
-# How to set up environment and build binary with Eclipse for Winddows
+# How to set up environment and build binary with Eclipse for Windows
 
 ## Prerequisites
 
