@@ -53,7 +53,7 @@ jobs:
           name: esp32nat_extended_update_v${{ env.VERSION }}
           path: |            
             .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
-      - id: release_drafter
+      - name: Draft Release
         uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
