@@ -53,18 +53,15 @@ jobs:
           name: esp32nat_extended_update_v${{ env.VERSION }}
           path: |            
             .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
-      - name: Create Release
-        uses: actions/create-release@v1
+      - id: release_drafter
+        uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.VERSION }}
-          release_name: Release ${{ env.VERSION }}
-          draft: true
-          prerelease: false      
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file:  .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
-          tag: ${{ env.VERSION }}        
+          tag: ${{ steps.release_drafter.outputs.tag_name }}
+          file:  .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin    
+          file_glob: true
+          overwrite: true
