@@ -1,0 +1,68 @@
+name: Build Releases
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+      - name: Set environment variables
+        run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
+      - name: Update version number in About
+        run: |
+          sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v${{ env.VERSION }}"'</td>|g'  src/pages/config.html 
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install htmlmin esptool
+      - name: Minify HTML files
+        run: python .github/workflows/shrinkHTML.py
+        shell: sh
+      # - name: Build ESP32 firmware
+      #   run: platformio run -e esp32dev
+      # - name: Build one binary for ESP32
+      #   run: |
+      #     folder=.pio/build/esp32dev
+      #     chip=esp32
+      #     echo ${{ env.VERSION }}
+      #     mv $folder/firmware.bin $folder/esp32nat_extended_v${{ env.VERSION }}.bin
+      #     esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/esp32nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+
+      # - name: Upload full firmware
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: esp32nat_extended_full_v${{ env.VERSION }}
+      #     path: |
+      #       .pio/build/esp32dev/esp32nat_extended_full*.bin
+      # - name: Upload update firmware
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: esp32nat_extended_update_v${{ env.VERSION }}
+      #     path: |            
+      #       .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
+      - name: Draft Release
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.release_drafter.outputs.tag_name }}
+          # file:  .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin    
+          file:  src/scan.c    
+          file_glob: true
+          overwrite: true
