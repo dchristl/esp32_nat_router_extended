@@ -38,8 +38,8 @@ jobs:
           folder=.pio/build/esp32dev
           chip=esp32
           echo ${{ env.VERSION }}
-          mv $folder/firmware.bin $folder/firmware.bin/esp32nat_extended_v${{ env.VERSION }}.bin
-          esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/firmware.bin/esp32nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+          mv $folder/firmware.bin $folder/esp32nat_extended_v${{ env.VERSION }}.bin
+          esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/esp32nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
 
       - name: Upload full firmware
         uses: actions/upload-artifact@v3
