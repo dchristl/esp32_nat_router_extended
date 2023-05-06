@@ -1,6 +1,6 @@
 # https://github.com/marketplace/actions/release-drafter#configuration
 name-template: 'v${{ env.VERSION }} xxx Update [Alpha|Beta]'
-tag-template: 'v${{ env.VERSION }}'
+tag-template: 'v4.1.2'
 version-resolver:
   major:
     labels:
