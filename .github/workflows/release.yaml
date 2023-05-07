@@ -37,7 +37,6 @@ jobs:
         run: |
           folder=.pio/build/esp32dev
           chip=esp32
-          echo ${{ env.VERSION }}
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
           mkdir -p release
@@ -50,7 +49,6 @@ jobs:
         run: |
           folder=.pio/build/esp32-c3-devkitm-1
           chip=esp32c3
-          echo ${{ env.VERSION }}
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
           mkdir -p release
@@ -62,7 +60,6 @@ jobs:
         run: |
           folder=.pio/build/featheresp32-s2
           chip=esp32s2
-          echo ${{ env.VERSION }}
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
           mkdir -p release
