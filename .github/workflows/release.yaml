@@ -23,7 +23,7 @@ jobs:
         run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
       - name: Update version number in About
         run: |
-          sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v${{ env.VERSION }}"'</td>|g'  src/pages/config.html 
+          sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v${{ env.VERSION }}"'</td>|g'  src/pages/config.html
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -51,21 +51,26 @@ jobs:
       #   uses: actions/upload-artifact@v3
       #   with:
       #     name: esp32nat_extended_update_v${{ env.VERSION }}
-      #     path: |            
+      #     path: |
       #       .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
-      - id: release_drafter
-        uses: release-drafter/release-drafter@v5
-        # with:
-        # # (Optional) specify config name to use, relative to .github/. Default: release-drafter.yml
-        #   config-name: my-config.yml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Create Release
+        uses: actions/create-release@v1
+        id: create_release
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: v${{ env.VERSION }}
-          # file:  .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin    
-          file:  src/scan.c    
-          file_glob: true
-          overwrite: true
+          draft: true
+          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ env.VERSION }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: upload linux artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: src/scan.c
+          asset_name: scan.c
+          asset_content_type: application/octet-stream
