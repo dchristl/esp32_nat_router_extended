@@ -53,24 +53,13 @@ jobs:
       #     name: esp32nat_extended_update_v${{ env.VERSION }}
       #     path: |
       #       .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
-      - name: Create Release
-        uses: actions/create-release@v1
-        id: create_release
+      - uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          draft: true
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-          release_name: ${{ steps.version.outputs.version }}
-          tag_name: ${{ env.VERSION }}
-          body_path: README.md
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-      - name: upload linux artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: src/scan.c
-          asset_name: scan.c
-          asset_content_type: application/octet-stream
+          draft: true
+          automatic_release_tag: v${{ env.VERSION }}
+          title: v${{ env.VERSION }}
+          files: |
+            README.md
+            src/scan.c
