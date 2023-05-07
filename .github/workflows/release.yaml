@@ -31,28 +31,28 @@ jobs:
       - name: Minify HTML files
         run: python .github/workflows/shrinkHTML.py
         shell: sh
-      # - name: Build ESP32 firmware
-      #   run: platformio run -e esp32dev
-      # - name: Build one binary for ESP32
-      #   run: |
-      #     folder=.pio/build/esp32dev
-      #     chip=esp32
-      #     echo ${{ env.VERSION }}
-      #     mv $folder/firmware.bin $folder/esp32nat_extended_v${{ env.VERSION }}.bin
-      #     esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/esp32nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+      - name: Build ESP32 firmware
+        run: platformio run -e esp32dev
+      - name: Build one binary for ESP32
+        run: |
+          folder=.pio/build/esp32dev
+          chip=esp32
+          echo ${{ env.VERSION }}
+          mv $folder/firmware.bin $folder/esp32nat_extended_v${{ env.VERSION }}.bin
+          esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/esp32nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
 
-      # - name: Upload full firmware
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: esp32nat_extended_full_v${{ env.VERSION }}
-      #     path: |
-      #       .pio/build/esp32dev/esp32nat_extended_full*.bin
-      # - name: Upload update firmware
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: esp32nat_extended_update_v${{ env.VERSION }}
-      #     path: |
-      #       .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
+      - name: Upload full firmware
+        uses: actions/upload-artifact@v3
+        with:
+          name: esp32nat_extended_full_v${{ env.VERSION }}
+          path: |
+            .pio/build/esp32dev/esp32nat_extended_full*.bin
+      - name: Upload update firmware
+        uses: actions/upload-artifact@v3
+        with:
+          name: esp32nat_extended_update_v${{ env.VERSION }}
+          path: |
+            .pio/build/esp32dev/esp32nat_extended_v${{ env.VERSION }}.bin
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -61,5 +61,4 @@ jobs:
           automatic_release_tag: v${{ env.VERSION }}
           title: v${{ env.VERSION }}
           files: |
-            README.md
-            src/scan.c
+            .pio/build/esp32dev/esp32nat_extended*.bin
