@@ -52,6 +52,7 @@ jobs:
           chip=esp32c3
           echo ${{ env.VERSION }}
           mv $folder/firmware.bin $folder/$chipnat_extended_v${{ env.VERSION }}.bin
+          ls -al $folder
           esptool.py --chip $chip merge_bin -o $folder/$chipnat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/$chipnat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
           mkdir -p release
           zip -j release/$chipnat_extended_update_v${{ env.VERSION }}.zip $folder/$chipnat_extended_v${{ env.VERSION }}.bin
