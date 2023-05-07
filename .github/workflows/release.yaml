@@ -31,19 +31,31 @@ jobs:
       - name: Minify HTML files
         run: python .github/workflows/shrinkHTML.py
         shell: sh
-      - name: Build ESP32 firmware
-        run: platformio run -e esp32dev
-      - name: Build one binary for ESP32
-        run: |
-          folder=.pio/build/esp32dev
-          chip=esp32
-          echo ${{ env.VERSION }}
-          mv $folder/firmware.bin $folder/esp32nat_extended_v${{ env.VERSION }}.bin
-          esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/esp32nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
-          mkdir -p release
-          zip -j release/esp32nat_extended_update_v${{ env.VERSION }}.zip $folder/esp32nat_extended_v${{ env.VERSION }}.bin
-          zip -j release/esp32nat_extended_full_v${{ env.VERSION }}.zip $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin
+      # - name: Build ESP32 firmware
+      #   run: platformio run -e esp32dev
+      # - name: Build one binary for ESP32
+      #   run: |
+      #     folder=.pio/build/esp32dev
+      #     chip=esp32
+      #     echo ${{ env.VERSION }}
+      #     mv $folder/firmware.bin $folder/esp32nat_extended_v${{ env.VERSION }}.bin
+      #     esptool.py --chip $chip merge_bin -o $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/esp32nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+      #     mkdir -p release
+      #     zip -j release/esp32nat_extended_update_v${{ env.VERSION }}.zip $folder/esp32nat_extended_v${{ env.VERSION }}.bin
+      #     zip -j release/esp32nat_extended_full_v${{ env.VERSION }}.zip $folder/esp32nat_extended_full_v${{ env.VERSION }}.bin
 
+      - name: Build ESP32 C3 firmware
+        run: platformio run -e esp32-c3-devkitm-1
+      - name: Build one binary for ESP32 C3
+        run: |
+          folder=.pio/build/esp32-c3-devkitm-1
+          chip=esp32c3
+          echo ${{ env.VERSION }}
+          mv $folder/firmware.bin $folder/$chipnat_extended_v${{ env.VERSION }}.bin
+          esptool.py --chip $chip merge_bin -o $folder/$chipnat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/$chipnat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+          mkdir -p release
+          zip -j release/$chipnat_extended_update_v${{ env.VERSION }}.zip $folder/$chipnat_extended_v${{ env.VERSION }}.bin
+          zip -j release/$chipnat_extended_full_v${{ env.VERSION }}.zip $folder/$chipnat_extended_full_v${{ env.VERSION }}.bin
       - name: Upload full firmware
         uses: actions/upload-artifact@v3
         with:
