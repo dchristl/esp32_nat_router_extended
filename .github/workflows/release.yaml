@@ -74,13 +74,13 @@ jobs:
         with:
           name: esp32nat_extended_full_v${{ env.VERSION }}
           path: release/*.zip
-
       - name: Delete old drafts
         uses: hugo19941994/delete-draft-releases@v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Create draft release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        if: github.ref == 'refs/heads/master'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
