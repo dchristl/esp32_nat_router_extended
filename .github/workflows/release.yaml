@@ -7,6 +7,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Remove old artifacts
+        uses: c-hive/gha-remove-artifacts@v1
+        with:
+          age: '90 seconds'       
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
         with:
@@ -66,11 +70,6 @@ jobs:
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
 
-      - name: Upload firmwares
-        uses: actions/upload-artifact@v3
-        with:
-          name: esp32nat_extended_full_v${{ env.VERSION }}
-          path: release/*.zip
       - name: Delete old drafts
         uses: hugo19941994/delete-draft-releases@v1.0.0
         env:
