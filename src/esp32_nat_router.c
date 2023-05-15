@@ -458,7 +458,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
 const int CONNECTED_BIT = BIT0;
 #define JOIN_TIMEOUT_MS (2000)
 
-void wifi_init(const char *ssid, const char *passwd, const char *static_ip, const char *subnet_mask, const char *gateway_addr, const char *ap_ssid, const char *ap_passwd, const char *ap_ip)
+void wifi_init(const char *ssid, const char *passwd, const char *static_ip, const char *subnet_mask, const char *gateway_addr, const char *ap_ssid, const char *ap_passwd, const char *ap_ip, const char *ap_user, const char *ap_identity)
 {
 
     wifi_event_group = xEventGroupCreate();
@@ -581,6 +581,10 @@ char *scan_result = NULL;
 char *ap_passwd = NULL;
 char *ap_ip = NULL;
 
+/* WPA2 settings */
+char *ap_identity = NULL;
+char *ap_user = NULL;
+
 char *param_set_default(const char *def_val)
 {
     char *retval = malloc(strlen(def_val) + 1);
@@ -700,6 +704,10 @@ void app_main(void)
         ap_ip = param_set_default(getDefaultIPByNetmask());
     }
 
+    get_config_param_str("ap_user", &ap_user);
+    get_config_param_str("ap_identity", &ap_identity);
+    // get_config_param_str("sta_channel", &channel);//TODO
+
     get_config_param_str("lock_pass", &lock_pass);
     if (lock_pass == NULL)
     {
@@ -715,7 +723,7 @@ void app_main(void)
     get_portmap_tab();
 
     // Setup WIFI
-    wifi_init(ssid, passwd, static_ip, subnet_mask, gateway_addr, ap_ssid, ap_passwd, ap_ip);
+    wifi_init(ssid, passwd, static_ip, subnet_mask, gateway_addr, ap_ssid, ap_passwd, ap_ip, ap_user, ap_identity);
 
     pthread_t t1;
     get_config_param_int("led_disabled", &led_disabled);
@@ -769,18 +777,18 @@ void app_main(void)
     //   ESP_ERROR_CHECK( esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EXAMPLE_EAP_PASSWORD, strlen(EXAMPLE_EAP_PASSWORD)) );
     //   ESP_ERROR_CHECK( esp_wifi_sta_wpa2_ent_enable(&config) );
 
-        //     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-        // if(strlen(ent_username) != 0 && strlen(ent_identity) != 0) {
-        //     ESP_LOGI(TAG, "STA enterprise connection");
-        //     if(strlen(ent_username) != 0 && strlen(ent_identity) != 0) {
-        //         esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)ent_identity, strlen(ent_identity)); //provide identity
-        //     } else {
-        //         esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)ent_username, strlen(ent_username));
-        //     }
-        //     esp_wifi_sta_wpa2_ent_set_username((uint8_t *)ent_username, strlen(ent_username)); //provide username
-        //     esp_wifi_sta_wpa2_ent_set_password((uint8_t *)passwd, strlen(passwd)); //provide password
-        //     esp_wifi_sta_wpa2_ent_enable();
-        // }
+    //     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
+    // if(strlen(ent_username) != 0 && strlen(ent_identity) != 0) {
+    //     ESP_LOGI(TAG, "STA enterprise connection");
+    //     if(strlen(ent_username) != 0 && strlen(ent_identity) != 0) {
+    //         esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)ent_identity, strlen(ent_identity)); //provide identity
+    //     } else {
+    //         esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)ent_username, strlen(ent_username));
+    //     }
+    //     esp_wifi_sta_wpa2_ent_set_username((uint8_t *)ent_username, strlen(ent_username)); //provide username
+    //     esp_wifi_sta_wpa2_ent_set_password((uint8_t *)passwd, strlen(passwd)); //provide password
+    //     esp_wifi_sta_wpa2_ent_enable();
+    // }
 
     /* Figure out if the terminal supports escape sequences */
     int probe_status = linenoiseProbe();

@@ -72,17 +72,40 @@ esp_err_t index_get_handler(httpd_req_t *req)
     fillInfoData(&db, &symbol, &textColor);
 
     size = size + strlen(symbol) + strlen(textColor) + 5 /* Länge der clients */ + strlen(db);
+    /* WPA2  */
+    char *wpa2CB = NULL;
+    char *wpa2Input = NULL;
+    char *ap_identity = NULL;
+    char *ap_user = NULL;
+    get_config_param_str("ap_identity", &ap_identity);
+    get_config_param_str("ap_user", &ap_user);
+
+    if ((ap_identity != NULL && strlen(ap_identity) != 0) || (ap_user != NULL && strlen(ap_user) != 0))
+    {
+        wpa2CB = "checked";
+        wpa2Input = "block";
+    }
+    else
+    {
+        wpa2CB = "";
+        wpa2Input = "none";
+        ap_identity = "";
+        ap_user = "";
+    }
+
+    size = size + strlen(wpa2CB) + strlen(wpa2Input) + strlen(ap_identity) + strlen(ap_user);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
+
     char *config_page = malloc(config_html_size + size);
     uint16_t connect_count = getConnectCount();
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, appliedSSID, "", display);
+        sprintf(config_page, config_start, connect_count, wpa2CB, ap_ssid, wpa2Input, ap_identity, ap_user, ap_passwd, textColor, symbol, db, appliedSSID, "", display);
     }
     else
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, ssid, passwd, display);
+        sprintf(config_page, config_start, connect_count, wpa2CB, ap_ssid, wpa2Input, ap_identity, ap_user, ap_passwd, textColor, symbol, db, ssid, passwd, display);
     }
 
     closeHeader(req);
