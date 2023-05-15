@@ -53,29 +53,29 @@ void setStaByQuery(char *buf, nvs_handle_t nvs)
 }
 void setWpa2(char *buf, nvs_handle_t nvs)
 {
-    char ap_identity[strlen(buf)], ap_user[strlen(buf)];
-    if (httpd_query_key_value(buf, "ap_identity", ap_identity, sizeof(ap_identity)) == ESP_OK)
+    char sta_identity[strlen(buf)], sta_user[strlen(buf)];
+    if (httpd_query_key_value(buf, "sta_identity", sta_identity, sizeof(sta_identity)) == ESP_OK)
     {
-        preprocess_string(ap_identity);
-        ESP_LOGI(TAG, "WPA2 Identity set to '%s'", ap_identity);
-        nvs_set_str(nvs, "ap_identity", ap_identity);
+        preprocess_string(sta_identity);
+        ESP_LOGI(TAG, "WPA2 Identity set to '%s'", sta_identity);
+        nvs_set_str(nvs, "sta_identity", sta_identity);
     }
     else
     {
         ESP_LOGI(TAG, "WPA2 Identity will be deleted");
-        nvs_erase_key(nvs, "ap_identity");
+        nvs_erase_key(nvs, "sta_identity");
     }
 
-    if (httpd_query_key_value(buf, "ap_user", ap_user, sizeof(ap_user)) == ESP_OK)
+    if (httpd_query_key_value(buf, "sta_user", sta_user, sizeof(sta_user)) == ESP_OK)
     {
-        preprocess_string(ap_user);
-        ESP_LOGI(TAG, "WPA2 user set to '%s'", ap_user);
-        nvs_set_str(nvs, "ap_user", ap_user);
+        preprocess_string(sta_user);
+        ESP_LOGI(TAG, "WPA2 user set to '%s'", sta_user);
+        nvs_set_str(nvs, "sta_user", sta_user);
     }
     else
     {
         ESP_LOGI(TAG, "WPA2 user will be deleted");
-        nvs_erase_key(nvs, "ap_user");
+        nvs_erase_key(nvs, "sta_user");
     }
 }
 
