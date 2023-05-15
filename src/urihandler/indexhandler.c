@@ -84,6 +84,14 @@ esp_err_t index_get_handler(httpd_req_t *req)
     {
         wpa2CB = "checked";
         wpa2Input = "block";
+        if (ap_identity == NULL)
+        {
+            ap_identity = "";
+        }
+        if (ap_user == NULL)
+        {
+            ap_user = "";
+        }
     }
     else
     {
@@ -101,11 +109,11 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, connect_count, wpa2CB, ap_ssid, wpa2Input, ap_identity, ap_user, ap_passwd, textColor, symbol, db, appliedSSID, "", display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, appliedSSID, wpa2Input, ap_identity, ap_user, "", display);
     }
     else
     {
-        sprintf(config_page, config_start, connect_count, wpa2CB, ap_ssid, wpa2Input, ap_identity, ap_user, ap_passwd, textColor, symbol, db, ssid, passwd, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, ssid, wpa2Input, ap_identity, ap_user, passwd, display);
     }
 
     closeHeader(req);

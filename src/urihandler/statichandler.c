@@ -32,7 +32,7 @@ esp_err_t bootstrap_get_handler(httpd_req_t *req)
 
 esp_err_t jquery_get_handler(httpd_req_t *req)
 {
-    extern const unsigned char jquery_js_start[] asm("_binary_jquery_js_start");
+    extern const unsigned char jquery_js_start[] asm("_binary_jquery_8a1045d9cbf50b52a0805c111ba08e94_js_start");
     httpd_resp_set_type(req, "text/javascript");
     ESP_LOGI(TAG_HANDLER, "Requesting jquery");
     return download(req, (const char *)jquery_js_start);

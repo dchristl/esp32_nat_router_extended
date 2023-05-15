@@ -21,25 +21,12 @@
             <h2>AP Settings (the new network)</h2> <a class="btn" href="/clients"><span class="text-info"><span
                         id="clients">%d</span> client(s) connected</span></a>
 
-            <div class="form-check form-switch mt-4">
-                <input class="form-check-input" type="checkbox" id="wpa2enabled" %s>
-                <label class="form-check-label" for="wpa2enabled">WPA2 Enterprise</label>
-            </div>
 
-            <div class="form-group row mt-4"> <label class="col-3" for="ap_ssid">SSID</label>
+
+            <div class="form-group row"> <label class="col-3" for="ap_ssid">SSID</label>
                 <div class="col-9"> <input class="form-control" id="ap_ssid" maxlength="32" name="ap_ssid"
                         placeholder="SSID of the new network" type="text" value="%s" /> </div>
             </div>
-            <span style="display: %s;" id="wpa2-container">
-                <div class="form-group row mt-2"> <label class="col-3" for="ap_identity">Identity</label>
-                    <div class="col-9"> <input class="form-control" id="ap_identity" maxlength="32" name="ap_identity"
-                            placeholder="WPA2 Enterprise identity" type="text" value="%s" /> </div>
-                </div>
-                <div class="form-group row mt-2"> <label class="col-3" for="ap_user">Username</label>
-                    <div class="col-9"> <input class="form-control" id="ap_user" maxlength="32" name="ap_user"
-                            placeholder="WPA2 Enterprise username" type="text" value="%s" /> </div>
-                </div>
-            </span>
             <div class="form-group row mt-2"> <label class="col-3" for="ap_password">Password</label>
                 <div class="col-9">
                     <div class="input-group"> <input class="form-control col-9" id="ap_password" maxlength="64"
@@ -53,10 +40,24 @@
             <h2 class="mt-2">STA Settings (uplink WiFi network)</h2> <span class="btn"
                 style="cursor: default; box-shadow: none; -webkit-box-shadow:none;"><span class="text-%s" id="sta"><span
                         id="symbol">%s</span> (signal strength: <span id="db">%s</span> db)</span></span>
-            <div class="form-group row"> <label class="col-3" for="ssid">SSID</label>
+            <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" id="wpa2enabled" %s>
+                <label class="form-check-label" for="wpa2enabled">WPA2 Enterprise</label>
+            </div>
+            <div class="form-group row mt-4"> <label class="col-3" for="ssid">SSID</label>
                 <div class="col-9"> <input class="form-control" id="ssid" maxlength="32" name="ssid"
                         placeholder="SSID of the existing network" type="text" value="%s" /> </div>
             </div>
+            <span style="display: %s;" id="wpa2-container">
+                <div class="form-group row mt-2"> <label class="col-3" for="ap_identity">Identity</label>
+                    <div class="col-9"> <input class="form-control" id="ap_identity" maxlength="32" name="ap_identity"
+                            placeholder="WPA2 Enterprise identity" type="text" value="%s" /> </div>
+                </div>
+                <div class="form-group row mt-2"> <label class="col-3" for="ap_user">Username</label>
+                    <div class="col-9"> <input class="form-control" id="ap_user" maxlength="32" name="ap_user"
+                            placeholder="WPA2 Enterprise username" type="text" value="%s" /> </div>
+                </div>
+            </span>
             <div class="form-group row mt-2"> <label class="col-3" for="password">Password</label>
                 <div class="col-9">
                     <div class="input-group"> <input class="form-control" id="password" maxlength="64" name="password"
@@ -137,16 +138,18 @@
             </div>
         </div>
     </div>
-    <script src="jquery.js"></script>
+    <script src="jquery-8a1045d9cbf50b52a0805c111ba08e94.js"></script>
     <script src="bootstrap.js"></script>
     <script>     $('.password').on('mousedown mouseup mouseout touchstart touchend', function mouseState(e) { var field = $(this).parent().find('input'); if (e.type == "mousedown" || e.type == "touchstart") { field.get(0).type = 'text'; } else { field.get(0).type = 'password'; } });</script>
     <script>     (function poll() { $.ajax({ url: "/api", type: "GET", success: function (data) { console.log(data); $('#clients').text(data.clients); $('#db').text(data.strength); $('#sta').removeClass(); $('#sta').addClass('text-' + data.text); $('#symbol').html(data.symbol); }, dataType: "json", complete: setTimeout(function () { poll(); }, 3000), timeout: 3000 }) })();</script>
     <script>     $('.password').on('mousedown mouseup mouseout touchstart touchend', function mouseState(e) { var field = $(this).parent().find('input'); if (e.type == "mousedown" || e.type == "touchstart") { field.get(0).type = 'text'; } else { field.get(0).type = 'password'; } });</script>
     <script>$('#wpa2enabled').change(function () {
             if ($(this).prop('checked')) {
-                $('#wpa2-container').show()
+                $('#wpa2-container').show();
+                $('#wpa2-container input').prop('disabled', false);
             } else {
                 $('#wpa2-container').hide();
+                $('#wpa2-container input').prop('disabled', true);
             }
         })</script>
 </body>

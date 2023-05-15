@@ -94,7 +94,7 @@ httpd_uri_t favicon_handler = {
     .user_ctx = NULL};
 
 httpd_uri_t jquery_handler = {
-    .uri = "/jquery.js",
+    .uri = "/jquery-8a1045d9cbf50b52a0805c111ba08e94.js",
     .method = HTTP_GET,
     .handler = jquery_get_handler,
     .user_ctx = NULL};

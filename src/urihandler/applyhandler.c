@@ -51,6 +51,33 @@ void setStaByQuery(char *buf, nvs_handle_t nvs)
     ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", argv[1]));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "passwd", argv[2]));
 }
+void setWpa2(char *buf, nvs_handle_t nvs)
+{
+    char ap_identity[strlen(buf)], ap_user[strlen(buf)];
+    if (httpd_query_key_value(buf, "ap_identity", ap_identity, sizeof(ap_identity)) == ESP_OK)
+    {
+        preprocess_string(ap_identity);
+        ESP_LOGI(TAG, "WPA2 Identity set to '%s'", ap_identity);
+        nvs_set_str(nvs, "ap_identity", ap_identity);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "WPA2 Identity will be deleted");
+        nvs_erase_key(nvs, "ap_identity");
+    }
+
+    if (httpd_query_key_value(buf, "ap_user", ap_user, sizeof(ap_user)) == ESP_OK)
+    {
+        preprocess_string(ap_user);
+        ESP_LOGI(TAG, "WPA2 user set to '%s'", ap_user);
+        nvs_set_str(nvs, "ap_user", ap_user);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "WPA2 user will be deleted");
+        nvs_erase_key(nvs, "ap_user");
+    }
+}
 
 void applyApStaConfig(char *buf)
 {
@@ -62,6 +89,7 @@ void applyApStaConfig(char *buf)
     ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
     setApByQuery(postCopy, nvs);
     setStaByQuery(postCopy, nvs);
+    setWpa2(postCopy, nvs);
     ESP_ERROR_CHECK(nvs_commit(nvs));
     nvs_close(nvs);
     free(postCopy);
