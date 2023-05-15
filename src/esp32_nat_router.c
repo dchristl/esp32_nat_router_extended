@@ -764,6 +764,24 @@ void app_main(void)
                "Configure using 'set_sta' and 'set_ap' and restart.\n");
     }
 
+    //   ESP_ERROR_CHECK( esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EXAMPLE_EAP_ID, strlen(EXAMPLE_EAP_ID)) );
+    //   ESP_ERROR_CHECK( esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EXAMPLE_EAP_USERNAME, strlen(EXAMPLE_EAP_USERNAME)) );
+    //   ESP_ERROR_CHECK( esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EXAMPLE_EAP_PASSWORD, strlen(EXAMPLE_EAP_PASSWORD)) );
+    //   ESP_ERROR_CHECK( esp_wifi_sta_wpa2_ent_enable(&config) );
+
+        //     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
+        // if(strlen(ent_username) != 0 && strlen(ent_identity) != 0) {
+        //     ESP_LOGI(TAG, "STA enterprise connection");
+        //     if(strlen(ent_username) != 0 && strlen(ent_identity) != 0) {
+        //         esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)ent_identity, strlen(ent_identity)); //provide identity
+        //     } else {
+        //         esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)ent_username, strlen(ent_username));
+        //     }
+        //     esp_wifi_sta_wpa2_ent_set_username((uint8_t *)ent_username, strlen(ent_username)); //provide username
+        //     esp_wifi_sta_wpa2_ent_set_password((uint8_t *)passwd, strlen(passwd)); //provide password
+        //     esp_wifi_sta_wpa2_ent_enable();
+        // }
+
     /* Figure out if the terminal supports escape sequences */
     int probe_status = linenoiseProbe();
     if (probe_status)
