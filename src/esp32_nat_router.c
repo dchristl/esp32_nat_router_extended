@@ -531,7 +531,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     wifi_config_t wifi_config = {0};
     wifi_config_t ap_config = {
         .ap = {
-            .authmode = WIFI_AUTH_WPA2_PSK, // Check WIFI_AUTH_WPA2_WPA3_PSK
+            .authmode = WIFI_AUTH_WPA2_PSK, // Check WIFI_AUTH_WPA2_WPA3_PSK with ESP-IDF 5.1
             .ssid_hidden = 0,
             // .channel =
             .max_connection = 10,

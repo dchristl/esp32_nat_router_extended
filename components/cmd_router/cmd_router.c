@@ -37,6 +37,7 @@
 static const char *TAG = "cmd_router";
 
 static void register_set_sta(void);
+static void register_set_sta_ent(void);
 static void register_set_sta_static(void);
 static void register_set_ap(void);
 static void register_set_ap_ip(void);
@@ -221,6 +222,7 @@ void register_router(void)
     register_set_sta();
     register_set_sta_static();
     register_set_ap();
+    register_set_sta_ent();
     register_set_ap_ip();
     register_portmap();
     register_show();
@@ -233,6 +235,16 @@ static struct
     struct arg_str *password;
     struct arg_end *end;
 } set_sta_arg;
+
+/** Arguments used by 'set_sta_ent' function */
+static struct
+{
+    struct arg_str *ssid;
+    struct arg_str *identity;
+    struct arg_str *user;
+    struct arg_str *password;
+    struct arg_end *end;
+} set_sta_ent_arg;
 
 /* 'set_sta' command */
 int set_sta(int argc, char **argv)
@@ -265,6 +277,36 @@ int set_sta(int argc, char **argv)
     return ESP_OK;
 }
 
+int set_sta_ent(int argc, char **argv)
+{
+    nvs_handle_t nvs;
+
+    int nerrors = arg_parse(argc, argv, (void **)&set_sta_ent_arg);
+    if (nerrors != 0)
+    {
+        arg_print_errors(stderr, set_sta_ent_arg.end, argv[0]);
+        ESP_LOGE(TAG, "Error");
+        return ESP_FAIL;
+    }
+
+    cleanConsoleString((char *)set_sta_ent_arg.ssid->sval[0]);
+    cleanConsoleString((char *)set_sta_ent_arg.identity -> sval[0]);
+    cleanConsoleString((char *)set_sta_ent_arg.user->sval[0]);
+    cleanConsoleString((char *)set_sta_ent_arg.password->sval[0]);
+
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", set_sta_ent_arg.ssid->sval[0]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "passwd", set_sta_ent_arg.password->sval[0]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "sta_user", set_sta_ent_arg.user->sval[0]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "sta_identity", set_sta_ent_arg.identity -> sval[0]));
+
+    ESP_ERROR_CHECK(nvs_commit(nvs));
+    ESP_LOGI(TAG, "WPA Enterprise settings SSID: '%s', User: %s, Identity: %s, Password: %s stored.", set_sta_ent_arg.ssid->sval[0], set_sta_ent_arg.user->sval[0], set_sta_ent_arg.identity->sval[0], set_sta_ent_arg.password->sval[0]);
+
+    nvs_close(nvs);
+    return ESP_OK;
+}
+
 static void register_set_sta(void)
 {
     set_sta_arg.ssid = arg_str1(NULL, NULL, "<ssid>", "SSID");
@@ -277,6 +319,23 @@ static void register_set_sta(void)
         .hint = NULL,
         .func = &set_sta,
         .argtable = &set_sta_arg};
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+
+static void register_set_sta_ent(void)
+{
+    set_sta_ent_arg.ssid = arg_str1(NULL, NULL, "<ssid>", "SSID");
+    set_sta_ent_arg.identity = arg_str1(NULL, NULL, "<identity>", "Identity");
+    set_sta_ent_arg.user = arg_str1(NULL, NULL, "<user>", "User");
+    set_sta_ent_arg.password = arg_str1(NULL, NULL, "<passwd>", "Password");
+    set_sta_ent_arg.end = arg_end(4);
+
+    const esp_console_cmd_t cmd = {
+        .command = "set_sta_ent",
+        .help = "Set up WPA Enterprise in STA mode",
+        .hint = NULL,
+        .func = &set_sta_ent,
+        .argtable = &set_sta_ent_arg};
     ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
 
