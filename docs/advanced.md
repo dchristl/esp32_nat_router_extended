@@ -122,6 +122,13 @@ set_ap  <ssid> <passwd>
         <ssid>  SSID of AP
       <passwd>  Password of AP
 
+set_sta_ent  <ssid> <identity> <user> <passwd>
+  Set up WPA Enterprise in STA mode
+        <ssid>  SSID
+    <identity>  Identity
+        <user>  User
+      <passwd>  Password      
+
 set_ap_ip  <ip>
   Set IP for the AP interface
           <ip>  IP
