@@ -311,7 +311,8 @@ esp_err_t apply_post_handler(httpd_req_t *req)
     }
     httpd_req_to_sockfd(req);
 
-    int ret, remaining = req->content_len;
+    int remaining = req->content_len;
+    int ret = 0;
     int bufferLength = req->content_len;
     ESP_LOGI(TAG, "Content length  => %d", req->content_len);
     char buf[1000]; // 1000 byte chunk
@@ -327,19 +328,21 @@ esp_err_t apply_post_handler(httpd_req_t *req)
             {
                 continue;
             }
-            ESP_LOGE(TAG, "Timeout occured");
+            ESP_LOGE(TAG, "Timeout occured %d", ret);
             return ESP_FAIL;
         }
         buf[sizeof(buf) + 1] = '\0'; // add end of string
         strcat(content, buf);
-
         remaining -= ret;
+        ESP_LOGI(TAG, "############## %d -> %d (%d) ##############\n", sizeof(buf), remaining, ret);
     }
     char funcParam[9];
 
+    ESP_LOGI(TAG, "getting content %s", content);
+
     readUrlParameterIntoBuffer(content, "func", funcParam, 9);
 
-    ESP_LOGI(TAG, "Function => %s (%s)", funcParam, content);
+    ESP_LOGI(TAG, "Function => %s", funcParam);
 
     if (strcmp(funcParam, "config") == 0)
     {
