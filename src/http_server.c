@@ -115,7 +115,7 @@ httpd_handle_t start_webserver(void)
 {
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.stack_size = 20000;
+    config.stack_size = 999999999;
     config.max_uri_handlers = 20;
 
     initializeRestartTimer();

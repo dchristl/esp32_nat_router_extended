@@ -1,5 +1,6 @@
 #include "handler.h"
 #include "timer.h"
+#include "helper.h"
 
 #include <sys/param.h>
 #include <timer.h>
@@ -11,54 +12,42 @@
 
 static const char *TAG = "ApplyHandler";
 
-void fillParamArray(char *buf, char *argv[], char *ssidKey, char *passKey)
+void setApByQuery(char *urlContent, nvs_handle_t nvs)
 {
-    char ssidParam[32];
-    char passParam[64];
-
-    if (httpd_query_key_value(buf, ssidKey, ssidParam, 32) == ESP_OK)
+    size_t contentLength = 64;
+    char param[contentLength];
+    readUrlParameterIntoBuffer(urlContent, "ap_ssid", param, contentLength);
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_ssid", param));
+    readUrlParameterIntoBuffer(urlContent, "ap_password", param, contentLength);
+    if (strlen(param) < 8)
     {
-        preprocess_string(ssidParam);
-        ESP_LOGI(TAG, "Found URL query parameter => %s=%s", ssidKey, ssidParam);
-
-        httpd_query_key_value(buf, passKey, passParam, 64);
-        preprocess_string(passParam);
-        ESP_LOGI(TAG, "Found URL query parameter => %s=%s", passKey, passParam);
-        argv[1] = (char *)malloc(sizeof(char) * (strlen(ssidParam) + 1));
-        argv[2] = (char *)malloc(sizeof(char) * (strlen(passParam) + 1));
-        strcpy(argv[1], ssidParam);
-        strcpy(argv[2], passParam);
+        nvs_erase_key(nvs, "ap_passwd");
+    }
+    else
+    {
+        ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_passwd", param));
     }
 }
 
-void setApByQuery(char *buf, nvs_handle_t nvs)
+void setStaByQuery(char *urlContent, nvs_handle_t nvs)
 {
-    int argc = 3;
-    char *argv[argc];
-    argv[0] = "set_ap";
-    fillParamArray(buf, argv, "ap_ssid", "ap_password");
-    ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_ssid", argv[1]));
-    ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_passwd", argv[2]));
-}
 
-void setStaByQuery(char *buf, nvs_handle_t nvs)
-{
-    int argc = 3;
-    char *argv[argc];
-    argv[0] = "set_sta";
-    fillParamArray(buf, argv, "ssid", "password");
-
-    ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", argv[1]));
-    ESP_ERROR_CHECK(nvs_set_str(nvs, "passwd", argv[2]));
+    size_t contentLength = 64;
+    char param[contentLength];
+    readUrlParameterIntoBuffer(urlContent, "ssid", param, contentLength);
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", param));
+    readUrlParameterIntoBuffer(urlContent, "password", param, contentLength);
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "passwd", param));
 }
-void setWpa2(char *buf, nvs_handle_t nvs)
+void setWpa2(char *urlContent, nvs_handle_t nvs)
 {
-    char sta_identity[strlen(buf)], sta_user[strlen(buf)];
-    if (httpd_query_key_value(buf, "sta_identity", sta_identity, sizeof(sta_identity)) == ESP_OK)
+    size_t contentLength = strlen(urlContent);
+    char param[contentLength];
+    readUrlParameterIntoBuffer(urlContent, "sta_identity", param, contentLength);
+    if (strlen(param) > 0)
     {
-        preprocess_string(sta_identity);
-        ESP_LOGI(TAG, "WPA2 Identity set to '%s'", sta_identity);
-        nvs_set_str(nvs, "sta_identity", sta_identity);
+        ESP_LOGI(TAG, "WPA2 Identity set to '%s'", param);
+        ESP_ERROR_CHECK(nvs_set_str(nvs, "sta_identity", param));
     }
     else
     {
@@ -66,33 +55,42 @@ void setWpa2(char *buf, nvs_handle_t nvs)
         nvs_erase_key(nvs, "sta_identity");
     }
 
-    if (httpd_query_key_value(buf, "sta_user", sta_user, sizeof(sta_user)) == ESP_OK)
+    readUrlParameterIntoBuffer(urlContent, "sta_user", param, contentLength);
+
+    if (strlen(param) > 0)
     {
-        preprocess_string(sta_user);
-        ESP_LOGI(TAG, "WPA2 user set to '%s'", sta_user);
-        nvs_set_str(nvs, "sta_user", sta_user);
+        ESP_LOGI(TAG, "WPA2 user set to '%s'", param);
+        ESP_ERROR_CHECK(nvs_set_str(nvs, "sta_user", param));
     }
     else
     {
         ESP_LOGI(TAG, "WPA2 user will be deleted");
         nvs_erase_key(nvs, "sta_user");
     }
+    readUrlParameterIntoBuffer(urlContent, "cer", param, contentLength);
+
+    if (strlen(param) > 0)
+    {
+        nvs_erase_key(nvs, "cer"); // do not double size in nvs
+        ESP_LOGI(TAG, "Certificate with size %d set", strlen(param));
+        ESP_ERROR_CHECK(nvs_set_blob(nvs, "cer", param, contentLength));
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Certificate will be deleted");
+        nvs_erase_key(nvs, "cer");
+    }
 }
 
 void applyApStaConfig(char *buf)
 {
-
-    char *postCopy;
-    postCopy = malloc(sizeof(char) * (strlen(buf) + 1));
-    strcpy(postCopy, buf);
     nvs_handle_t nvs;
     ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
-    setApByQuery(postCopy, nvs);
-    setStaByQuery(postCopy, nvs);
-    setWpa2(postCopy, nvs);
+    setApByQuery(buf, nvs);
+    setStaByQuery(buf, nvs);
+    setWpa2(buf, nvs);
     ESP_ERROR_CHECK(nvs_commit(nvs));
     nvs_close(nvs);
-    free(postCopy);
 }
 
 void eraseNvs()
@@ -158,10 +156,12 @@ void applyAdvancedConfig(char *buf)
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
 
-    char keepAliveParam[strlen(buf)], ledParam[strlen(buf)], lockParam[strlen(buf)], dnsParam[strlen(buf)], customDnsParam[strlen(buf)], macaddress[strlen(buf)], custommac[strlen(buf)], netmask[strlen(buf)];
-    if (httpd_query_key_value(buf, "keepalive", keepAliveParam, sizeof(keepAliveParam)) == ESP_OK)
+    size_t contentLength = 64;
+    char param[contentLength];
+    readUrlParameterIntoBuffer(buf, "keepalive", param, contentLength);
+
+    if (strlen(param) > 0)
     {
-        preprocess_string(keepAliveParam);
         ESP_LOGI(TAG, "keep alive will be enabled");
         nvs_set_i32(nvs, "keep_alive", 1);
     }
@@ -171,9 +171,9 @@ void applyAdvancedConfig(char *buf)
         nvs_set_i32(nvs, "keep_alive", 0);
     }
 
-    if (httpd_query_key_value(buf, "ledenabled", ledParam, sizeof(ledParam)) == ESP_OK)
+    readUrlParameterIntoBuffer(buf, "ledenabled", param, contentLength);
+    if (strlen(param) > 0)
     {
-        preprocess_string(ledParam);
         ESP_LOGI(TAG, "ON Board LED will be enabled");
         nvs_set_i32(nvs, "led_disabled", 0);
     }
@@ -182,22 +182,26 @@ void applyAdvancedConfig(char *buf)
         ESP_LOGI(TAG, "ON Board LED will be disabled");
         nvs_set_i32(nvs, "led_disabled", 1);
     }
-    if (httpd_query_key_value(buf, "wsenabled", lockParam, sizeof(lockParam)) != ESP_OK)
+
+    readUrlParameterIntoBuffer(buf, "wsenabled", param, contentLength);
+    if (strlen(param) == 0)
     {
         ESP_LOGI(TAG, "Webserver will be disabled");
         nvs_set_i32(nvs, "lock", 1);
     }
-    if (httpd_query_key_value(buf, "custommac", custommac, sizeof(custommac)) == ESP_OK)
+
+    readUrlParameterIntoBuffer(buf, "custommac", param, contentLength);
+    if (strlen(param) > 0)
     {
-        preprocess_string(custommac);
-        if (strcmp("random", custommac) == 0)
+        char macaddress[contentLength];
+        readUrlParameterIntoBuffer(buf, "macaddress", macaddress, contentLength);
+        if (strcmp("random", param) == 0)
         {
             ESP_LOGI(TAG, "MAC address set to random");
-            nvs_set_str(nvs, "custom_mac", custommac);
+            nvs_set_str(nvs, "custom_mac", param);
         }
-        else if (httpd_query_key_value(buf, "macaddress", macaddress, sizeof(macaddress)) == ESP_OK)
+        else if (strlen(macaddress) > 0)
         {
-            preprocess_string(macaddress);
             int success = str2mac(macaddress);
             if (success)
             {
@@ -215,17 +219,14 @@ void applyAdvancedConfig(char *buf)
             setMACToDefault(&nvs);
         }
     }
-
-    if (httpd_query_key_value(buf, "dns", dnsParam, sizeof(dnsParam)) == ESP_OK)
+    readUrlParameterIntoBuffer(buf, "dns", param, contentLength);
+    if (strlen(param) > 0)
     {
-        preprocess_string(dnsParam);
-        if (strlen(dnsParam) == 0)
+        if (strcmp(param, "custom") == 0)
         {
-            setDNSToDefault(&nvs);
-        }
-        else if (strcmp(dnsParam, "custom") == 0)
-        {
-            if (httpd_query_key_value(buf, "dnsip", customDnsParam, sizeof(customDnsParam)) == ESP_OK)
+            char customDnsParam[contentLength];
+            readUrlParameterIntoBuffer(buf, "dnsip", customDnsParam, contentLength);
+            if (strlen(customDnsParam) > 0)
             {
                 uint32_t ipasInt = esp_ip4addr_aton(customDnsParam);
                 if (ipasInt == UINT32_MAX || ipasInt == 0)
@@ -249,24 +250,23 @@ void applyAdvancedConfig(char *buf)
         }
         else
         {
-            ESP_LOGI(TAG, "DNS set to: %s", dnsParam);
-            nvs_set_str(nvs, "custom_dns", dnsParam);
+            ESP_LOGI(TAG, "DNS set to: %s", param);
+            nvs_set_str(nvs, "custom_dns", param);
         }
     }
     else
     {
         setDNSToDefault(&nvs);
     }
-
-    if (httpd_query_key_value(buf, "netmask", netmask, sizeof(netmask)) == ESP_OK)
+    readUrlParameterIntoBuffer(buf, "netmask", param, contentLength);
+    if (strlen(param) > 0)
     {
-        preprocess_string(netmask);
-        if (strcmp("classa", netmask) == 0)
+        if (strcmp("classa", param) == 0)
         {
             ESP_LOGI(TAG, "Netmask set to Class A");
             nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_A);
         }
-        else if (strcmp("classb", netmask) == 0)
+        else if (strcmp("classb", param) == 0)
         {
             ESP_LOGI(TAG, "Netmask set to Class B");
             nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_B);
@@ -312,7 +312,11 @@ esp_err_t apply_post_handler(httpd_req_t *req)
     httpd_req_to_sockfd(req);
 
     int ret, remaining = req->content_len;
-    char buf[req->content_len];
+    int bufferLength = req->content_len;
+    ESP_LOGI(TAG, "Content length  => %d", req->content_len);
+    char buf[1000]; // 1000 byte chunk
+    char content[bufferLength];
+    strcpy(content, ""); // Fill initial
 
     while (remaining > 0)
     {
@@ -326,29 +330,30 @@ esp_err_t apply_post_handler(httpd_req_t *req)
             ESP_LOGE(TAG, "Timeout occured");
             return ESP_FAIL;
         }
+        buf[sizeof(buf) + 1] = '\0'; // add end of string
+        strcat(content, buf);
 
         remaining -= ret;
-        ESP_LOGI(TAG, "Found parameter query => %s", buf);
-        char funcParam[req->content_len];
-        if (httpd_query_key_value(buf, "func", funcParam, sizeof(funcParam)) == ESP_OK)
-        {
-            ESP_LOGI(TAG, "Found function parameter => %s", funcParam);
-            preprocess_string(funcParam);
-
-            if (strcmp(funcParam, "config") == 0)
-            {
-                applyApStaConfig(buf);
-            }
-            if (strcmp(funcParam, "erase") == 0)
-            {
-                eraseNvs();
-            }
-            if (strcmp(funcParam, "advanced") == 0)
-            {
-                applyAdvancedConfig(buf);
-            }
-            restartByTimer();
-        }
     }
+    char funcParam[9];
+
+    readUrlParameterIntoBuffer(content, "func", funcParam, 9);
+
+    ESP_LOGI(TAG, "Function => %s (%s)", funcParam, content);
+
+    if (strcmp(funcParam, "config") == 0)
+    {
+        applyApStaConfig(content);
+    }
+    if (strcmp(funcParam, "erase") == 0)
+    {
+        eraseNvs();
+    }
+    if (strcmp(funcParam, "advanced") == 0)
+    {
+        applyAdvancedConfig(content);
+    }
+    restartByTimer();
+
     return apply_get_handler(req);
 }

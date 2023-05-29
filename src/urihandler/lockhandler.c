@@ -39,26 +39,22 @@ esp_err_t unlock_handler(httpd_req_t *req)
         }
 
         remaining -= ret;
-        ESP_LOGI(TAG, "Found parameter query => %s", buf);
-        char unlockParam[req->content_len];
-        if (httpd_query_key_value(buf, "unlock", unlockParam, sizeof(unlockParam)) == ESP_OK)
+    }
+
+    char unlockParam[req->content_len];
+    readUrlParameterIntoBuffer(buf, "unlock", unlockParam, req->content_len);
+
+    if (strlen(unlockParam) > 0)
+    {
+        char *lock;
+        get_config_param_str("lock_pass", &lock);
+        if (strcmp(lock, unlockParam) == 0)
         {
-
-            preprocess_string(unlockParam);
-            ESP_LOGI(TAG, "Found unlock parameter => %s (%d)", unlockParam, strlen(unlockParam));
-
-            if (strlen(unlockParam) > 0)
-            {
-                char *lock;
-                get_config_param_str("lock_pass", &lock);
-                if (strcmp(lock, unlockParam) == 0)
-                {
-                    locked = false;
-                    return index_get_handler(req);
-                }
-            }
+            locked = false;
+            return index_get_handler(req);
         }
     }
+
     if (req->method == HTTP_GET) // Relock if called
     {
         locked = true;
@@ -77,53 +73,53 @@ esp_err_t lock_handler(httpd_req_t *req)
     }
     httpd_req_to_sockfd(req);
 
-    int ret, remaining = req->content_len;
-    char buf[req->content_len];
-
-    while (remaining > 0)
+    if (req->method == HTTP_POST) // Relock if called
     {
-        /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+        int ret, remaining = req->content_len;
+        char buf[req->content_len];
+
+        while (remaining > 0)
         {
-            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            /* Read the data for the request */
+            if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
             {
-                  continue;
-            }
-            ESP_LOGE(TAG, "Timeout occured");
-            return ESP_FAIL;
-        }
-    
-        remaining -= ret;
-        ESP_LOGI(TAG, "Found parameter query => %s", buf);
-        char passParam[req->content_len], pass2Param[req->content_len];
-        if (httpd_query_key_value(buf, "lockpass", passParam, sizeof(passParam)) == ESP_OK)
-        {
-            preprocess_string(passParam);
-            ESP_LOGI(TAG, "Found pass parameter => %s (%d)", passParam, strlen(passParam));
-            httpd_query_key_value(buf, "lockpass2", pass2Param, sizeof(pass2Param));
-            preprocess_string(pass2Param);
-            ESP_LOGI(TAG, "Found pass2 parameter => %s (%d)", pass2Param, strlen(pass2Param));
-            if (strlen(passParam) == strlen(pass2Param) && strcmp(passParam, pass2Param) == 0)
-            {
-                ESP_LOGI(TAG, "Passes are equal. Password will be changed.");
-                if (strlen(passParam) == 0)
+                if (ret == HTTPD_SOCK_ERR_TIMEOUT)
                 {
-                    ESP_LOGI(TAG, "Pass will be removed");
+                    continue;
                 }
-                nvs_handle_t nvs;
-                nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-                nvs_set_str(nvs, "lock_pass", passParam);
-                nvs_commit(nvs);
-                nvs_close(nvs);
-                restartByTimer();
-                return apply_get_handler(req);
+                ESP_LOGE(TAG, "Timeout occured");
+                return ESP_FAIL;
             }
-            else
+
+            remaining -= ret;
+        }
+
+        char passParam[req->content_len], pass2Param[req->content_len];
+
+        readUrlParameterIntoBuffer(buf, "lockpass", passParam, req->content_len);
+        readUrlParameterIntoBuffer(buf, "lockpass2", pass2Param, req->content_len);
+        ESP_LOGI(TAG, "Found pass2 parameter => %s", pass2Param);
+        if (strlen(passParam) == strlen(pass2Param) && strcmp(passParam, pass2Param) == 0)
+        {
+            ESP_LOGI(TAG, "Passes are equal. Password will be changed.");
+            if (strlen(passParam) == 0)
             {
-                ESP_LOGI(TAG, "Passes are not equal.");
+                ESP_LOGI(TAG, "Pass will be removed");
             }
+            nvs_handle_t nvs;
+            nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
+            nvs_set_str(nvs, "lock_pass", passParam);
+            nvs_commit(nvs);
+            nvs_close(nvs);
+            restartByTimer();
+            return apply_get_handler(req);
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Passes are not equal.");
         }
     }
+
     extern const char l_start[] asm("_binary_lock_html_start");
     extern const char l_end[] asm("_binary_lock_html_end");
     const size_t l_html_size = (l_end - l_start);

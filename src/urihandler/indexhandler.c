@@ -77,9 +77,19 @@ esp_err_t index_get_handler(httpd_req_t *req)
     char *wpa2Input = NULL;
     char *sta_identity = NULL;
     char *sta_user = NULL;
+    size_t len = 0;
+
+    char *cert = NULL;
     get_config_param_str("sta_identity", &sta_identity);
     get_config_param_str("sta_user", &sta_user);
 
+    get_config_param_blob("cer", &cert, &len);
+    char *cer = NULL;
+    if (len > 0)
+    {
+        cer = (char *)malloc(len + 1 * sizeof(char));
+        strncpy(cer, cert, len + 1);
+    }
     if ((sta_identity != NULL && strlen(sta_identity) != 0) || (sta_user != NULL && strlen(sta_user) != 0))
     {
         wpa2CB = "checked";
@@ -92,6 +102,10 @@ esp_err_t index_get_handler(httpd_req_t *req)
         {
             sta_user = "";
         }
+        if (cer == NULL)
+        {
+            cer = "";
+        }
     }
     else
     {
@@ -99,9 +113,10 @@ esp_err_t index_get_handler(httpd_req_t *req)
         wpa2Input = "none";
         sta_identity = "";
         sta_user = "";
+        cer = "";
     }
 
-    size = size + strlen(wpa2CB) + strlen(wpa2Input) + strlen(sta_identity) + strlen(sta_user);
+    size = size + strlen(wpa2CB) + strlen(wpa2Input) + strlen(sta_identity) + strlen(sta_user) + strlen(cer);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
 
     char *config_page = malloc(config_html_size + size);
@@ -109,11 +124,11 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, "", display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", display);
     }
     else
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, passwd, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, display);
     }
 
     closeHeader(req);
@@ -122,6 +137,10 @@ esp_err_t index_get_handler(httpd_req_t *req)
     free(config_page);
     free(appliedSSID);
     free(db);
+    if (strlen(cer) > 0) // Error on C3
+    {
+        free(cer);
+    }
 
     return ret;
 }
@@ -152,18 +171,15 @@ esp_err_t index_post_handler(httpd_req_t *req)
         }
 
         remaining -= ret;
-        ESP_LOGI(TAG, "Found parameter query => %s", buf);
-        char ssidParam[req->content_len];
-        if (httpd_query_key_value(buf, "ssid", ssidParam, sizeof(ssidParam)) == ESP_OK)
-        {
-            preprocess_string(ssidParam);
-            ESP_LOGI(TAG, "Found SSID parameter => %s (%d)", ssidParam, strlen(ssidParam));
-            if (strlen(ssidParam) > 0)
-            {
-                appliedSSID = malloc(strlen(ssidParam) + 1);
-                strcpy(appliedSSID, ssidParam);
-            }
-        }
+    }
+    char ssidParam[req->content_len];
+    readUrlParameterIntoBuffer(buf, "ssid", ssidParam, req->content_len);
+
+    if (strlen(ssidParam) > 0)
+    {
+        ESP_LOGI(TAG, "Found SSID parameter => %s", ssidParam);
+        appliedSSID = malloc(strlen(ssidParam) + 1);
+        strcpy(appliedSSID, ssidParam);
     }
 
     return index_get_handler(req);

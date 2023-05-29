@@ -4,6 +4,7 @@
 #include "router_globals.h"
 #include "esp_wifi.h"
 #include "esp_mac.h"
+#include "esp_err.h"
 
 static const char *TAG = "Advancedhandler";
 
@@ -52,7 +53,7 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
         ledCB = "checked";
     }
     esp_netif_dns_info_t dns;
-    esp_netif_t *wifiSTA = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    esp_netif_t *wifiSTA = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
     if (esp_netif_get_dns_info(wifiSTA, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
     {
         currentDNS = malloc(16);

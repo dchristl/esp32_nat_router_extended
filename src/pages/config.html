@@ -57,6 +57,13 @@
                     <div class="col-9"> <input class="form-control" id="sta_user" maxlength="32" name="sta_user"
                             placeholder="WPA2 Enterprise username" type="text" value="%s" /> </div>
                 </div>
+                <div class="form-group row mt-2"> <label class="col-3" for="cer">Certificate</label>
+                    <div class="col-9">
+                        <textarea class="form-control" id="cer" name="cer" rows="4" maxlength="5000"
+                            placeholder="The enterprise certificate. Usually: &#10;-----BEGIN CERTIFICATE-----&#10;XXXXXXXXXXXXXXXXXXXXXXXXXXX&#10;-----END CERTIFICATE-----">%s</textarea>
+                    </div>
+                </div>
+
             </span>
             <div class="form-group row mt-2"> <label class="col-3" for="password">Password</label>
                 <div class="col-9">

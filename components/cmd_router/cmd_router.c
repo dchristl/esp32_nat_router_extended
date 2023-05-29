@@ -21,7 +21,6 @@
 #include "sdkconfig.h"
 #include "nvs.h"
 #include "esp_wifi.h"
-
 #include "lwip/ip4_addr.h"
 #if !IP_NAPT
 #error "IP_NAPT must be defined"
@@ -44,41 +43,6 @@ static void register_set_ap_ip(void);
 static void register_show(void);
 static void register_portmap(void);
 
-void /*  */ preprocess_string(char *str)
-{
-    char *p, *q;
-
-    for (p = q = str; *p != 0; p++)
-    {
-        if (*(p) == '%' && *(p + 1) != 0 && *(p + 2) != 0)
-        {
-            // quoted hex
-            uint8_t a;
-            p++;
-            if (*p <= '9')
-                a = *p - '0';
-            else
-                a = toupper((unsigned char)*p) - 'A' + 10;
-            a <<= 4;
-            p++;
-            if (*p <= '9')
-                a += *p - '0';
-            else
-                a += toupper((unsigned char)*p) - 'A' + 10;
-            *q++ = a;
-        }
-        else if (*(p) == '+')
-        {
-            *q++ = ' ';
-        }
-        else
-        {
-            *q++ = *p;
-        }
-    }
-    *q = '\0';
-}
-
 esp_err_t get_config_param_str(char *name, char **param)
 {
     nvs_handle_t nvs;
@@ -92,6 +56,64 @@ esp_err_t get_config_param_str(char *name, char **param)
             *param = (char *)malloc(len);
             err = nvs_get_str(nvs, name, *param, &len);
             ESP_LOGI(TAG, "%s %s", name, *param);
+        }
+        else
+        {
+            return err;
+        }
+        nvs_close(nvs);
+    }
+    else
+    {
+        return err;
+    }
+    return ESP_OK;
+}
+
+esp_err_t get_config_param_blob(char *name, char **param, size_t *blob_len)
+{
+    nvs_handle_t nvs;
+
+    esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READONLY, &nvs);
+    if (err == ESP_OK)
+    {
+        size_t len;
+        if ((err = nvs_get_blob(nvs, name, NULL, &len)) == ESP_OK)
+        {
+            *param = (char *)malloc(len);
+            *blob_len = len;
+
+            err = nvs_get_blob(nvs, name, *param, &len);
+        }
+        else
+        {
+            return err;
+        }
+        nvs_close(nvs);
+    }
+    else
+    {
+        return err;
+    }
+    return ESP_OK;
+}
+
+esp_err_t get_config_param_blob2(char *name, uint8_t *blob, size_t blob_len)
+{
+    nvs_handle_t nvs;
+
+    esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READONLY, &nvs);
+    if (err == ESP_OK)
+    {
+        size_t len;
+        if ((err = nvs_get_blob(nvs, name, NULL, &len)) == ESP_OK)
+        {
+            if (len != blob_len)
+            {
+                return ESP_ERR_NVS_INVALID_LENGTH;
+            }
+            err = nvs_get_blob(nvs, name, blob, &len);
+            ESP_LOGI(TAG, "%s: %d", name, len);
         }
         else
         {
@@ -160,36 +182,6 @@ char *getNetmask()
     }
 }
 
-esp_err_t get_config_param_blob(char *name, uint8_t *blob, size_t blob_len)
-{
-    nvs_handle_t nvs;
-
-    esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READONLY, &nvs);
-    if (err == ESP_OK)
-    {
-        size_t len;
-        if ((err = nvs_get_blob(nvs, name, NULL, &len)) == ESP_OK)
-        {
-            if (len != blob_len)
-            {
-                return ESP_ERR_NVS_INVALID_LENGTH;
-            }
-            err = nvs_get_blob(nvs, name, blob, &len);
-            ESP_LOGI(TAG, "%s: %d", name, len);
-        }
-        else
-        {
-            return err;
-        }
-        nvs_close(nvs);
-    }
-    else
-    {
-        return err;
-    }
-    return ESP_OK;
-}
-
 void register_router(void)
 {
     register_set_sta();
@@ -221,8 +213,8 @@ int set_sta(int argc, char **argv)
         return 1;
     }
 
-    preprocess_string((char *)set_sta_arg.ssid->sval[0]);
-    preprocess_string((char *)set_sta_arg.password->sval[0]);
+    // preprocess_string((char *)set_sta_arg.ssid->sval[0]); //FIXME
+    // preprocess_string((char *)set_sta_arg.password->sval[0]);  //FIXME
 
     err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
     if (err != ESP_OK)
@@ -283,10 +275,10 @@ int set_sta_static(int argc, char **argv)
         arg_print_errors(stderr, set_sta_static_arg.end, argv[0]);
         return 1;
     }
-
-    preprocess_string((char *)set_sta_static_arg.static_ip->sval[0]);
-    preprocess_string((char *)set_sta_static_arg.subnet_mask->sval[0]);
-    preprocess_string((char *)set_sta_static_arg.gateway_addr->sval[0]);
+    // FIXME
+    //  preprocess_string((char *)set_sta_static_arg.static_ip->sval[0]);
+    //  preprocess_string((char *)set_sta_static_arg.subnet_mask->sval[0]);
+    //  preprocess_string((char *)set_sta_static_arg.gateway_addr->sval[0]);
 
     err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
     if (err != ESP_OK)
@@ -351,9 +343,10 @@ int set_ap(int argc, char **argv)
         arg_print_errors(stderr, set_ap_args.end, argv[0]);
         return 1;
     }
+    // FIXME
 
-    preprocess_string((char *)set_ap_args.ssid->sval[0]);
-    preprocess_string((char *)set_ap_args.password->sval[0]);
+    // preprocess_string((char *)set_ap_args.ssid->sval[0]);
+    // preprocess_string((char *)set_ap_args.password->sval[0]);
 
     if (strlen(set_ap_args.password->sval[0]) < 8)
     {
@@ -417,8 +410,8 @@ int set_ap_ip(int argc, char **argv)
         arg_print_errors(stderr, set_ap_ip_arg.end, argv[0]);
         return 1;
     }
-
-    preprocess_string((char *)set_ap_ip_arg.ap_ip_str->sval[0]);
+    // FIXME
+    //  preprocess_string((char *)set_ap_ip_arg.ap_ip_str->sval[0]);
 
     err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
     if (err != ESP_OK)

@@ -30,13 +30,14 @@ extern "C"
    extern uint32_t my_ip;
    extern uint32_t my_ap_ip;
 
-   void preprocess_string(char *str);
    int set_sta(int argc, char **argv);
    int set_sta_static(int argc, char **argv);
    int set_ap(int argc, char **argv);
 
    esp_err_t get_config_param_int(char *name, int32_t *param);
    esp_err_t get_config_param_str(char *name, char **param);
+   esp_err_t get_config_param_blob(char *name, char **param, size_t* blob_len);
+   esp_err_t get_config_param_blob2(char *name, uint8_t *blob, size_t blob_len);
 
    void print_portmap_tab();
    esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
