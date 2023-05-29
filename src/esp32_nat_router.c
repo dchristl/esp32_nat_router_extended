@@ -147,12 +147,12 @@ void print_portmap_tab()
     {
         if (portmap_tab[i].valid)
         {
-            printf("%s", portmap_tab[i].proto == PROTO_TCP ? "TCP " : "UDP ");
+            ESP_LOGI(TAG, "%s", portmap_tab[i].proto == PROTO_TCP ? "TCP " : "UDP ");
             esp_ip4_addr_t addr;
             addr.addr = my_ip;
-            printf(IPSTR ":%d -> ", IP2STR(&addr), portmap_tab[i].mport);
+            ESP_LOGI(TAG, IPSTR ":%d -> ", IP2STR(&addr), portmap_tab[i].mport);
             addr.addr = portmap_tab[i].daddr;
-            printf(IPSTR ":%d\n", IP2STR(&addr), portmap_tab[i].dport);
+            ESP_LOGI(TAG, IPSTR ":%d\n", IP2STR(&addr), portmap_tab[i].dport);
         }
     }
 }
@@ -191,7 +191,6 @@ esp_err_t get_portmap_tab()
 
 esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
 {
-    esp_err_t err;
     nvs_handle_t nvs;
 
     for (int i = 0; i < IP_PORTMAP_MAX; i++)
@@ -203,20 +202,12 @@ esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
             portmap_tab[i].daddr = daddr;
             portmap_tab[i].dport = dport;
             portmap_tab[i].valid = 1;
-            err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-            if (err != ESP_OK)
-            {
-                return err;
-            }
-            err = nvs_set_blob(nvs, "portmap_tab", portmap_tab, sizeof(portmap_tab));
-            if (err == ESP_OK)
-            {
-                err = nvs_commit(nvs);
-                if (err == ESP_OK)
-                {
-                    ESP_LOGI(TAG, "New portmap table stored.");
-                }
-            }
+
+            ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+            ESP_ERROR_CHECK(nvs_set_blob(nvs, "portmap_tab", portmap_tab, sizeof(portmap_tab)));
+            ESP_ERROR_CHECK(nvs_commit(nvs));
+            ESP_LOGI(TAG, "New portmap table stored.");
+
             nvs_close(nvs);
 
             ip_portmap_add(proto, my_ip, mport, daddr, dport);
@@ -229,7 +220,6 @@ esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
 
 esp_err_t del_portmap(u8_t proto, u16_t mport)
 {
-    esp_err_t err;
     nvs_handle_t nvs;
 
     for (int i = 0; i < IP_PORTMAP_MAX; i++)
@@ -238,20 +228,11 @@ esp_err_t del_portmap(u8_t proto, u16_t mport)
         {
             portmap_tab[i].valid = 0;
 
-            err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-            if (err != ESP_OK)
-            {
-                return err;
-            }
-            err = nvs_set_blob(nvs, "portmap_tab", portmap_tab, sizeof(portmap_tab));
-            if (err == ESP_OK)
-            {
-                err = nvs_commit(nvs);
-                if (err == ESP_OK)
-                {
-                    ESP_LOGI(TAG, "New portmap table stored.");
-                }
-            }
+            ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+            ESP_ERROR_CHECK(nvs_set_blob(nvs, "portmap_tab", portmap_tab, sizeof(portmap_tab)));
+            ESP_ERROR_CHECK(nvs_commit(nvs));
+            ESP_LOGI(TAG, "New portmap table stored.");
+
             nvs_close(nvs);
 
             ip_portmap_remove(proto, mport);
@@ -539,7 +520,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     wifi_config_t wifi_config = {0};
     wifi_config_t ap_config = {
         .ap = {
-            .authmode = WIFI_AUTH_WPA2_PSK, //Check WIFI_AUTH_WPA2_WPA3_PSK
+            .authmode = WIFI_AUTH_WPA2_PSK, // Check WIFI_AUTH_WPA2_WPA3_PSK
             .ssid_hidden = 0,
             // .channel =
             .max_connection = 10,
@@ -561,7 +542,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     {
         strlcpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
         // bool isWpaEnterprise = (sta_identity != NULL && strlen(sta_identity) != 0) || (sta_user != NULL && strlen(sta_user) != 0);
-        bool isWpaEnterprise = false; //FIXME
+        bool isWpaEnterprise = false; // FIXME
         if (!isWpaEnterprise)
         {
             strlcpy((char *)wifi_config.sta.password, passwd, sizeof(wifi_config.sta.password));

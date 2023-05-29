@@ -182,6 +182,40 @@ char *getNetmask()
     }
 }
 
+void cleanConsoleString(char *str)
+{
+    char *p, *q;
+
+    for (p = q = str; *p != 0; p++)
+    {
+        if (*(p) == '%' && *(p + 1) != 0 && *(p + 2) != 0)
+        {
+            // quoted hex
+            uint8_t a;
+            p++;
+            if (*p <= '9')
+                a = *p - '0';
+            else
+                a = toupper((unsigned char)*p) - 'A' + 10;
+            a <<= 4;
+            p++;
+            if (*p <= '9')
+                a += *p - '0';
+            else
+                a += toupper((unsigned char)*p) - 'A' + 10;
+            *q++ = a;
+        }
+        else if (*(p) == '+')
+        {
+            *q++ = ' ';
+        }
+        else
+        {
+            *q++ = *p;
+        }
+    }
+    *q = '\0';
+}
 void register_router(void)
 {
     register_set_sta();
@@ -203,40 +237,27 @@ static struct
 /* 'set_sta' command */
 int set_sta(int argc, char **argv)
 {
-    esp_err_t err;
     nvs_handle_t nvs;
 
     int nerrors = arg_parse(argc, argv, (void **)&set_sta_arg);
     if (nerrors != 0)
     {
         arg_print_errors(stderr, set_sta_arg.end, argv[0]);
-        return 1;
+        ESP_LOGE(TAG, "Error");
+        return ESP_FAIL;
     }
 
-    // preprocess_string((char *)set_sta_arg.ssid->sval[0]); //FIXME
-    // preprocess_string((char *)set_sta_arg.password->sval[0]);  //FIXME
+    cleanConsoleString((char *)set_sta_arg.ssid->sval[0]);
+    cleanConsoleString((char *)set_sta_arg.password->sval[0]);
 
-    err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    if (err != ESP_OK)
-    {
-        return err;
-    }
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", set_sta_arg.ssid->sval[0]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "passwd", set_sta_arg.ssid->sval[0]));
+    ESP_ERROR_CHECK(nvs_commit(nvs));
+    ESP_LOGI(TAG, "STA settings %s/%s stored.", set_sta_arg.ssid->sval[0], set_sta_arg.password->sval[0]);
 
-    err = nvs_set_str(nvs, "ssid", set_sta_arg.ssid->sval[0]);
-    if (err == ESP_OK)
-    {
-        err = nvs_set_str(nvs, "passwd", set_sta_arg.password->sval[0]);
-        if (err == ESP_OK)
-        {
-            err = nvs_commit(nvs);
-            if (err == ESP_OK)
-            {
-                ESP_LOGI(TAG, "STA settings %s/%s stored.", set_sta_arg.ssid->sval[0], set_sta_arg.password->sval[0]);
-            }
-        }
-    }
     nvs_close(nvs);
-    return err;
+    return ESP_OK;
 }
 
 static void register_set_sta(void)
@@ -266,45 +287,27 @@ static struct
 /* 'set_sta_static' command */
 int set_sta_static(int argc, char **argv)
 {
-    esp_err_t err;
     nvs_handle_t nvs;
 
     int nerrors = arg_parse(argc, argv, (void **)&set_sta_static_arg);
     if (nerrors != 0)
     {
         arg_print_errors(stderr, set_sta_static_arg.end, argv[0]);
-        return 1;
+        return ESP_FAIL;
     }
-    // FIXME
-    //  preprocess_string((char *)set_sta_static_arg.static_ip->sval[0]);
-    //  preprocess_string((char *)set_sta_static_arg.subnet_mask->sval[0]);
-    //  preprocess_string((char *)set_sta_static_arg.gateway_addr->sval[0]);
+    cleanConsoleString((char *)set_sta_static_arg.static_ip->sval[0]);
+    cleanConsoleString((char *)set_sta_static_arg.subnet_mask->sval[0]);
+    cleanConsoleString((char *)set_sta_static_arg.gateway_addr->sval[0]);
 
-    err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    if (err != ESP_OK)
-    {
-        return err;
-    }
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "static_ip", set_sta_static_arg.static_ip->sval[0]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "subnet_mask", set_sta_static_arg.subnet_mask->sval[0]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "gateway_addr", set_sta_static_arg.gateway_addr->sval[0]));
+    ESP_ERROR_CHECK(nvs_commit(nvs));
+    ESP_LOGI(TAG, "STA Static IP settings %s/%s/%s stored.", set_sta_static_arg.static_ip->sval[0], set_sta_static_arg.subnet_mask->sval[0], set_sta_static_arg.gateway_addr->sval[0]);
 
-    err = nvs_set_str(nvs, "static_ip", set_sta_static_arg.static_ip->sval[0]);
-    if (err == ESP_OK)
-    {
-        err = nvs_set_str(nvs, "subnet_mask", set_sta_static_arg.subnet_mask->sval[0]);
-        if (err == ESP_OK)
-        {
-            err = nvs_set_str(nvs, "gateway_addr", set_sta_static_arg.gateway_addr->sval[0]);
-            if (err == ESP_OK)
-            {
-                err = nvs_commit(nvs);
-                if (err == ESP_OK)
-                {
-                    ESP_LOGI(TAG, "STA Static IP settings %s/%s/%s stored.", set_sta_static_arg.static_ip->sval[0], set_sta_static_arg.subnet_mask->sval[0], set_sta_static_arg.gateway_addr->sval[0]);
-                }
-            }
-        }
-    }
     nvs_close(nvs);
-    return err;
+    return ESP_OK;
 }
 
 static void register_set_sta_static(void)
@@ -334,46 +337,31 @@ static struct
 /* 'set_ap' command */
 int set_ap(int argc, char **argv)
 {
-    esp_err_t err;
     nvs_handle_t nvs;
 
     int nerrors = arg_parse(argc, argv, (void **)&set_ap_args);
     if (nerrors != 0)
     {
         arg_print_errors(stderr, set_ap_args.end, argv[0]);
-        return 1;
+        return ESP_FAIL;
     }
-    // FIXME
 
-    // preprocess_string((char *)set_ap_args.ssid->sval[0]);
-    // preprocess_string((char *)set_ap_args.password->sval[0]);
+    cleanConsoleString((char *)set_ap_args.ssid->sval[0]);
+    cleanConsoleString((char *)set_ap_args.password->sval[0]);
 
     if (strlen(set_ap_args.password->sval[0]) < 8)
     {
-        printf("AP will be open (no passwd needed).\n");
+        ESP_LOGW(TAG, "AP will be open (no passwd needed).\n");
     }
 
-    err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    if (err != ESP_OK)
-    {
-        return err;
-    }
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_ssid", set_ap_args.ssid->sval[0]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_passwd", set_ap_args.password->sval[0]));
+    ESP_ERROR_CHECK(nvs_commit(nvs));
+    ESP_LOGI(TAG, "AP settings %s/%s stored.", set_ap_args.ssid->sval[0], set_ap_args.password->sval[0]);
 
-    err = nvs_set_str(nvs, "ap_ssid", set_ap_args.ssid->sval[0]);
-    if (err == ESP_OK)
-    {
-        err = nvs_set_str(nvs, "ap_passwd", set_ap_args.password->sval[0]);
-        if (err == ESP_OK)
-        {
-            err = nvs_commit(nvs);
-            if (err == ESP_OK)
-            {
-                ESP_LOGI(TAG, "AP settings %s/%s stored.", set_ap_args.ssid->sval[0], set_ap_args.password->sval[0]);
-            }
-        }
-    }
     nvs_close(nvs);
-    return err;
+    return ESP_OK;
 }
 
 static void register_set_ap(void)
@@ -401,31 +389,21 @@ static struct
 /* 'set_ap_ip' command */
 int set_ap_ip(int argc, char **argv)
 {
-    esp_err_t err;
     nvs_handle_t nvs;
 
     int nerrors = arg_parse(argc, argv, (void **)&set_ap_ip_arg);
     if (nerrors != 0)
     {
         arg_print_errors(stderr, set_ap_ip_arg.end, argv[0]);
-        return 1;
-    }
-    // FIXME
-    //  preprocess_string((char *)set_ap_ip_arg.ap_ip_str->sval[0]);
-
-    err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    if (err != ESP_OK)
-    {
-        return err;
+        return ESP_FAIL;
     }
 
-    err = nvs_set_str(nvs, "ap_ip", set_ap_ip_arg.ap_ip_str->sval[0]);
-    if (err == ESP_OK)
-    {
-        ESP_LOGI(TAG, "AP IP address %s stored.", set_ap_ip_arg.ap_ip_str->sval[0]);
-    }
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_ip", set_ap_ip_arg.ap_ip_str->sval[0]));
+    ESP_ERROR_CHECK(nvs_commit(nvs));
+    ESP_LOGI(TAG, "AP IP address %s stored.", set_ap_ip_arg.ap_ip_str->sval[0]);
     nvs_close(nvs);
-    return err;
+    return ESP_OK;
 }
 
 static void register_set_ap_ip(void)
@@ -460,7 +438,7 @@ int portmap(int argc, char **argv)
     if (nerrors != 0)
     {
         arg_print_errors(stderr, portmap_args.end, argv[0]);
-        return 1;
+        return ESP_FAIL;
     }
 
     bool add;
@@ -474,8 +452,8 @@ int portmap(int argc, char **argv)
     }
     else
     {
-        printf("Must be 'add' or 'del'\n");
-        return 1;
+        ESP_LOGW(TAG, "Must be 'add' or 'del");
+        return ESP_FAIL;
     }
 
     uint8_t tcp_udp;
@@ -489,8 +467,8 @@ int portmap(int argc, char **argv)
     }
     else
     {
-        printf("Must be 'TCP' or 'UDP'\n");
-        return 1;
+        ESP_LOGW(TAG, "Must be 'TCP' or 'UDP'");
+        return ESP_FAIL;
     }
 
     uint16_t ext_port = portmap_args.ext_port->ival[0];
@@ -499,11 +477,11 @@ int portmap(int argc, char **argv)
 
     if (add)
     {
-        add_portmap(tcp_udp, ext_port, int_ip, int_port);
+        ESP_ERROR_CHECK(add_portmap(tcp_udp, ext_port, int_ip, int_port));
     }
     else
     {
-        del_portmap(tcp_udp, ext_port);
+        ESP_ERROR_CHECK(del_portmap(tcp_udp, ext_port);
     }
 
     return ESP_OK;
