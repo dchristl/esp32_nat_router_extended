@@ -442,7 +442,7 @@ const int CONNECTED_BIT = BIT0;
 void setWpaEnterprise(const char *sta_identity, const char *sta_user, const char *password)
 {
 
-    if (sta_identity != NULL && strlen(sta_identity) != 0)
+    if (sta_identity != NULL && strlen(sta_identity) > 0)
     {
         ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)sta_identity, strlen(sta_identity)));
     }
@@ -451,16 +451,27 @@ void setWpaEnterprise(const char *sta_identity, const char *sta_user, const char
     {
         ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_username((uint8_t *)sta_user, strlen(sta_user)));
     }
-    ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_password((uint8_t *)password, strlen(password)));
-    char *cer = NULL;
-    size_t len = NULL;
-    // get_config_param_blob("cer", &cer, len);//FIXME
-    // if (cer != NULL && strlen(cer) != 0)
-    // {
-    //     ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_ca_cert((uint8_t *)cer, strlen(cer)));
-    // }
+    if (password != NULL && strlen(password) > 0)
+    {
+        ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_password((uint8_t *)password, strlen(password)));
+    }
+    ESP_LOGI(TAG, "Reading WPA certificate");
 
-    // ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_enable()); //FIXME
+    char *cer = NULL;
+    size_t len = 0;
+
+    get_config_param_blob("cer", &cer, &len);
+    if (cer != NULL && strlen(cer) != 0)
+    {
+        ESP_LOGI(TAG, "Setting WPA certificate with length %d\n%s", len, cer);
+        ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_ca_cert((uint8_t *)cer, strlen(cer)));
+    }
+    else
+    {
+        ESP_LOGI(TAG, "No certificate used");
+    }
+
+    ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_enable());
 }
 
 void wifi_init(const char *ssid, const char *passwd, const char *static_ip, const char *subnet_mask, const char *gateway_addr, const char *ap_ssid, const char *ap_passwd, const char *ap_ip, const char *sta_user, const char *sta_identity)
@@ -541,8 +552,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     if (strlen(ssid) > 0)
     {
         strlcpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
-        // bool isWpaEnterprise = (sta_identity != NULL && strlen(sta_identity) != 0) || (sta_user != NULL && strlen(sta_user) != 0);
-        bool isWpaEnterprise = false; //FIXME
+        bool isWpaEnterprise = (sta_identity != NULL && strlen(sta_identity) != 0) || (sta_user != NULL && strlen(sta_user) != 0);
         if (!isWpaEnterprise)
         {
             strlcpy((char *)wifi_config.sta.password, passwd, sizeof(wifi_config.sta.password));
