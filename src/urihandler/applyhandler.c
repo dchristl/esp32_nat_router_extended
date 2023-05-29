@@ -331,10 +331,10 @@ esp_err_t apply_post_handler(httpd_req_t *req)
             ESP_LOGE(TAG, "Timeout occured %d", ret);
             return ESP_FAIL;
         }
-        buf[sizeof(buf) + 1] = '\0'; // add end of string
+        buf[ret + 1] = '\0'; // add NUL terminator
         strcat(content, buf);
         remaining -= ret;
-        ESP_LOGI(TAG, "############## %d -> %d (%d) ##############\n", sizeof(buf), remaining, ret);
+        ESP_LOGI(TAG, "%d bytes total received -> %d left", strlen(content),  remaining);
     }
     char funcParam[9];
 
