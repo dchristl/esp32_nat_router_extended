@@ -151,6 +151,11 @@ show
 | custom_dns   | str        | Custom DNS address|
 | lock_pass   | str        | Password for the UI lock|
 | scan_result   | str        | Temporary parameter for the last scan result|
+| netmask   | str        | Value of the network class to use (classa, classb or classc)  |
+| sta_identity   | str        | Identity for WPA enterprise |
+| sta_user   | str        | WPA Enterprise username|
+| cer   | str        | Content of the WPA Enterprise certificate |
+
 
 # DNS
 As soon as the ESP32 STA has learned a DNS IP from its upstream DNS server on first connect, it passes that to newly connected clients.

@@ -253,6 +253,11 @@ int set_sta(int argc, char **argv)
     ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", set_sta_arg.ssid->sval[0]));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "passwd", set_sta_arg.password->sval[0]));
+    // remove all WPA enterprise keys
+    nvs_erase_key(nvs, "cer");
+    nvs_erase_key(nvs, "sta_user");
+    nvs_erase_key(nvs, "sta_identity");
+
     ESP_ERROR_CHECK(nvs_commit(nvs));
     ESP_LOGI(TAG, "STA settings %s/%s stored.", set_sta_arg.ssid->sval[0], set_sta_arg.password->sval[0]);
 
