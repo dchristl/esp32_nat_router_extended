@@ -10,9 +10,7 @@ void ota_task(void *pvParameter)
 {
     esp_http_client_config_t config = {
         .url = "https://example.com/firmware.bin",
-        .skip_cert_common_name_check = true,
-        .skip_cert_date_check = true,
-        .skip_cert_issuer_check = true,
+        .skip_cert_common_name_check = true
     };
 
     esp_err_t ret = esp_https_ota(&config);
