@@ -37,6 +37,7 @@ jobs:
         run: |
           folder=.pio/build/esp32dev
           chip=esp32
+          cp $folder/firmware.bin release/${chip}_firmware.bin 
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
           mkdir -p release
@@ -80,3 +81,4 @@ jobs:
           title: v${{ env.VERSION }}
           files: |
             release/*.zip
+            release/*.bin
