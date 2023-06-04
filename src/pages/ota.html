@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang=en>
+
+<head>
+    <link rel="shortcut icon" type=image/x-icon href=favicon.ico>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <link rel=stylesheet href=styles-9ee3c4491d35b3c1d830fa9da31c7861.css>
+    <title>OTA Updates</title>
+</head>
+
+<body>
+    <div class=container>
+        <div class="row text-center">
+            <h1>OTA Updates</h1>
+        </div>
+        <table class="table table-striped">
+            <tbody class=text-center>
+                <tr>
+                    <th>Current version</th>
+                    <th>DEV</th>
+                </tr>
+                <tr>
+                    <th>Latest version</th>
+                    <th>DEV</th>
+                </tr>
+                <tr>
+                    <th>Source</th>
+                    <th>Project page</th>
+                </tr>
+            </tbody>
+        </table>
+
+        <form action=/ota method=POST>
+            <div class="form-group row col-4 offset-4 mt-2">
+                <input type=submit value="Check for latest version" class="btn btn-primary">
+            </div>
+        </form>
+        <form action=/ota method=POST>
+            <div class="form-group row col-4 offset-4 mt-2">
+                <input type=submit value="Install latest version" class="btn btn-warning">
+            </div>
+        </form>
+        <div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
+    </div>
+</body>
+
+</html>

@@ -85,5 +85,6 @@ jobs:
             release/*.zip
       - name: Deploy to Github Pages
         uses: JamesIves/github-pages-deploy-action@v4
+        if: github.ref == 'refs/heads/master'
         with:
           folder: release/ota/            

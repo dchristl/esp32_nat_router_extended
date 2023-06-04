@@ -45,3 +45,6 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req);
 
 /* clients handler*/
 esp_err_t clients_download_get_handler(httpd_req_t *req);
+
+/* OTA */
+esp_err_t ota_download_get_handler(httpd_req_t *req);
