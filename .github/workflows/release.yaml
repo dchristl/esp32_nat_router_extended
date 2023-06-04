@@ -40,6 +40,7 @@ jobs:
           chip=esp32
           mkdir -p release/ota
           cp version release/ota/
+          cp index.html release/ota/
           cp $folder/firmware.bin release/ota/${chip}_firmware.bin 
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin          
