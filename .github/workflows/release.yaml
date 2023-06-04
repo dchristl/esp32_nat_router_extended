@@ -5,7 +5,8 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:     
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
@@ -37,8 +38,9 @@ jobs:
         run: |
           folder=.pio/build/esp32dev
           chip=esp32
-          mkdir -p release
-          cp $folder/firmware.bin release/${chip}_firmware.bin 
+          mkdir -p release/ota
+          cp version release/ota/
+          cp $folder/firmware.bin release/ota/${chip}_firmware.bin 
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin          
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
@@ -50,8 +52,7 @@ jobs:
         run: |
           folder=.pio/build/esp32-c3-devkitm-1
           chip=esp32c3
-          mkdir -p release
-          cp $folder/firmware.bin release/${chip}_firmware.bin 
+          cp $folder/firmware.bin release/ota/${chip}_firmware.bin 
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
@@ -62,8 +63,7 @@ jobs:
         run: |
           folder=.pio/build/featheresp32-s2
           chip=esp32s2
-          mkdir -p release
-          cp $folder/firmware.bin release/${chip}_firmware.bin 
+          cp $folder/firmware.bin release/ota/${chip}_firmware.bin 
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
@@ -83,4 +83,7 @@ jobs:
           title: v${{ env.VERSION }}
           files: |
             release/*.zip
-            release/*.bin
+      - name: Deploy to Github Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: realease/ota/            
