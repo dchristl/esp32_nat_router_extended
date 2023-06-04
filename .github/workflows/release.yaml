@@ -40,7 +40,6 @@ jobs:
           chip=esp32
           mkdir -p release/ota
           cp version release/ota/
-          cp index.html release/ota/
           cp $folder/firmware.bin release/ota/${chip}_firmware.bin 
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin          
@@ -49,26 +48,26 @@ jobs:
 
       - name: Build ESP32 C3 firmware
         run: platformio run -e esp32-c3-devkitm-1
-      # - name: Build one binary for ESP32 C3
-      #   run: |
-      #     folder=.pio/build/esp32-c3-devkitm-1
-      #     chip=esp32c3
-      #     cp $folder/firmware.bin release/ota/${chip}_firmware.bin 
-      #     mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
-      #     esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
-      #     zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
-      #     zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
-      # - name: Build ESP32 S2 firmware
-      #   run: platformio run -e featheresp32-s2
-      # - name: Build one binary for ESP32 S2
-      #   run: |
-      #     folder=.pio/build/featheresp32-s2
-      #     chip=esp32s2
-      #     cp $folder/firmware.bin release/ota/${chip}_firmware.bin 
-      #     mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
-      #     esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
-      #     zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
-      #     zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
+      - name: Build one binary for ESP32 C3
+        run: |
+          folder=.pio/build/esp32-c3-devkitm-1
+          chip=esp32c3
+          cp $folder/firmware.bin release/ota/${chip}_firmware.bin 
+          mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+          zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
+      - name: Build ESP32 S2 firmware
+        run: platformio run -e featheresp32-s2
+      - name: Build one binary for ESP32 S2
+        run: |
+          folder=.pio/build/featheresp32-s2
+          chip=esp32s2
+          cp $folder/firmware.bin release/ota/${chip}_firmware.bin 
+          mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+          zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
 
       - name: Delete old drafts
         uses: hugo19941994/delete-draft-releases@v1.0.0
