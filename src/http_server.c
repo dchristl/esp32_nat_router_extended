@@ -62,56 +62,62 @@ static httpd_uri_t apig = {
 };
 
 // URI handler for getting "html page" file
-httpd_uri_t scan_page_download = {
+static httpd_uri_t scan_page_download = {
     .uri = "/scan",
     .method = HTTP_GET,
     .handler = scan_download_get_handler,
     .user_ctx = NULL};
 
-httpd_uri_t result_page_download = {
+static httpd_uri_t result_page_download = {
     .uri = "/result",
     .method = HTTP_GET,
     .handler = result_download_get_handler,
     .user_ctx = NULL};
 
-httpd_uri_t clients_page_download = {
+static httpd_uri_t clients_page_download = {
     .uri = "/clients",
     .method = HTTP_GET,
     .handler = clients_download_get_handler,
     .user_ctx = NULL};
     
-httpd_uri_t ota_page_download = {
+static httpd_uri_t ota_page_download = {
     .uri = "/ota",
     .method = HTTP_GET,
     .handler = ota_download_get_handler,
     .user_ctx = NULL};
 
-httpd_uri_t advanced_page_download = {
+static httpd_uri_t ota_page_post = {
+    .uri = "/ota",
+    .method = HTTP_POST,
+    .handler = ota_post_handler,
+};
+
+static httpd_uri_t advanced_page_download = {
     .uri = "/advanced",
     .method = HTTP_GET,
     .handler = advanced_download_get_handler,
     .user_ctx = NULL};
 
 // URI handler for getting favicon
-httpd_uri_t favicon_handler = {
+static httpd_uri_t favicon_handler = {
     .uri = "/favicon.ico",
     .method = HTTP_GET,
     .handler = favicon_get_handler,
     .user_ctx = NULL};
 
-httpd_uri_t jquery_handler = {
+static httpd_uri_t jquery_handler = {
     .uri = "/jquery-8a1045d9cbf50b52a0805c111ba08e94.js",
     .method = HTTP_GET,
     .handler = jquery_get_handler,
     .user_ctx = NULL};
 
-httpd_uri_t bootstrap_handler = {
+static httpd_uri_t bootstrap_handler = {
     .uri = "/bootstrap.js",
     .method = HTTP_GET,
     .handler = bootstrap_get_handler,
     .user_ctx = NULL};
 
-httpd_uri_t styles_handler = {
+static httpd_uri_t styles_handler = {
     .uri = "/styles-9ee3c4491d35b3c1d830fa9da31c7861.css",
     .method = HTTP_GET,
     .handler = styles_download_get_handler,
@@ -171,6 +177,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &advanced_page_download);
         httpd_register_uri_handler(server, &clients_page_download);
         httpd_register_uri_handler(server, &ota_page_download);
+        httpd_register_uri_handler(server, &ota_page_post);
         httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
         return server;
     }

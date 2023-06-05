@@ -162,6 +162,7 @@ show
 | sta_identity   | str        | Identity for WPA enterprise |
 | sta_user   | str        | WPA Enterprise username|
 | cer   | str        | Content of the WPA Enterprise certificate |
+| ota_url   | str        | Url to the binary for OTA-Updates |
 
 
 # DNS
