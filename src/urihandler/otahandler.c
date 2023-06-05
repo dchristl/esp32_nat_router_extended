@@ -3,6 +3,7 @@
 #include <esp_ota_ops.h>
 #include <esp_https_ota.h>
 #include <esp_log.h>
+#include <sys/param.h>
 
 static const char *TAG = "OTA";
 static const char *VERSION = "DEV";
@@ -45,6 +46,61 @@ void start_ota_update()
     xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
 }
 
+char *file_buffer = NULL;
+size_t file_size = 0;
+#define DOWNLOAD_TIMEOUT_MS 5000
+// HTTP-Client-Event-Handler
+esp_err_t http_event_handler(esp_http_client_event_t *evt)
+{
+    switch (evt->event_id)
+    {
+    case HTTP_EVENT_ON_DATA:
+        ESP_LOGI(TAG, "HTTP_EVENT_ON_DATA, len=%d\n", evt->data_len);
+        if (!esp_http_client_is_chunked_response(evt->client))
+        {
+            size_t new_size = file_size + evt->data_len;
+            file_buffer = realloc(file_buffer, new_size);
+            memcpy(file_buffer + file_size, evt->data, evt->data_len);
+            file_size = new_size;
+        }
+        break;
+    default:
+        ESP_LOGI(TAG, "Event occured %d", evt->event_id);
+        break;
+    }
+    return ESP_OK;
+}
+
+void updateVersion()
+{
+    char url[strlen(DEFAULT_URL) + 50];
+    strcpy(url, DEFAULT_URL);
+    strcat(url, "version");
+    esp_http_client_config_t config = {
+        .url = url,
+        .event_handler = http_event_handler,
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+    esp_http_client_set_timeout_ms(client, DOWNLOAD_TIMEOUT_MS);
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK)
+    {
+        strncpy(latest_version, file_buffer, file_size);
+        latest_version[file_size] = '\0';
+        ESP_LOGI(TAG, "Version download succesful. Latest version is '%s'. File size is: %d Bytes", file_buffer, file_size);
+        free(file_buffer);
+        file_buffer = NULL;
+        file_size = 0;
+    }
+    else
+    {
+        latest_version = "Error retrieving the latest version";
+        ESP_LOGD(TAG, "Fehler beim Download: %s\n", esp_err_to_name(err));
+    }
+
+    esp_http_client_cleanup(client);
+}
+
 esp_err_t ota_download_get_handler(httpd_req_t *req)
 {
 
@@ -59,10 +115,15 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     extern const char ota_end[] asm("_binary_ota_html_end");
     const size_t ota_html_size = (ota_end - ota_start);
     char *customUrl = NULL;
+
+    char *versionCheckVisibilityTable = "table-row";
+    char *versionCheckVisibility = "block";
     get_config_param_str("ota_url", &customUrl);
     if (customUrl != NULL && strlen(customUrl) > 0)
     {
         ESP_LOGI(TAG, "Custom Url found '%s'", customUrl);
+        versionCheckVisibility = "none";
+        versionCheckVisibilityTable = "none";
     }
     else
     {
@@ -72,13 +133,9 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     {
         strcpy(latest_version, LATEST_VERSION); // Initialisieren
     }
-    // if (strcmp(latest_version, LATEST_VERSION) == 0)
-    // {
-    //     latest_version = "hghg";
-    // }
 
-    char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version));
-    sprintf(ota_page, ota_start, VERSION, latest_version, customUrl);
+    char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(versionCheckVisibility) + strlen(versionCheckVisibilityTable));
+    sprintf(ota_page, ota_start, VERSION, versionCheckVisibilityTable, latest_version, customUrl, versionCheckVisibility);
 
     closeHeader(req);
 
@@ -94,24 +151,37 @@ esp_err_t ota_post_handler(httpd_req_t *req)
     {
         return unlock_handler(req);
     }
-    // FIXME Start only when function pressed
-    start_ota_update();
 
-    char funcParam[12];
+    int ret, remaining = req->content_len;
+    char buf[req->content_len];
 
-    int bufferLength = req->content_len;
-    char content[bufferLength];
-
-    ESP_LOGI(TAG, "Getting content %s", content);
-
-    readUrlParameterIntoBuffer(content, "func", funcParam, 9);
-        if (strcmp(funcParam, "config") == 0)
+    while (remaining > 0)
     {
-        applyApStaConfig(content);
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+        {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            {
+                continue;
+            }
+            ESP_LOGE(TAG, "Timeout occured");
+            return ESP_FAIL;
+        }
+
+        remaining -= ret;
     }
-    if (strcmp(funcParam, "erase") == 0)
+    buf[req->content_len] = '\0';
+    ESP_LOGI(TAG, "Getting with post: %s", buf);
+    char funcParam[13];
+    readUrlParameterIntoBuffer(buf, "func", funcParam, 13);
+
+    if (strcmp(funcParam, "versioncheck") == 0)
     {
-        eraseNvs();
+        updateVersion();
+    }
+    if (strcmp(funcParam, "update") == 0)
+    {
+        start_ota_update();
     }
     return ota_download_get_handler(req);
 }

@@ -21,7 +21,7 @@
                     <th>Current version</th>
                     <th>%s</th>
                 </tr>
-                <tr>
+                <tr style="display: %s;">
                     <th>Latest version</th>
                     <th>%s</th>
                 </tr>
@@ -32,7 +32,7 @@
             </tbody>
         </table>
 
-        <form action=/ota method=POST>
+        <form action=/ota method=POST style="display: %s;">
             <div class="form-group row col-4 offset-4 mt-2">
                 <input type="hidden" name="func" value="versioncheck">
                 <input type=submit value="Check for latest version" class="btn btn-primary">
