@@ -4,6 +4,7 @@
 #include <esp_https_ota.h>
 #include <esp_log.h>
 #include <sys/param.h>
+#include "esp_chip_info.h"
 
 static const char *TAG = "OTA";
 static const char *VERSION = "DEV";
@@ -134,8 +135,32 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
         strcpy(latest_version, LATEST_VERSION); // Initialisieren
     }
 
-    char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(versionCheckVisibility) + strlen(versionCheckVisibilityTable));
-    sprintf(ota_page, ota_start, VERSION, versionCheckVisibilityTable, latest_version, customUrl, versionCheckVisibility);
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+    char chip_type[30];
+    switch (chip_info.model)
+    {
+    case CHIP_ESP32:
+        sprintf(chip_type, "%s", "ESP32");
+        break;
+    case CHIP_ESP32S2:
+        sprintf(chip_type, "%s", "ESP32-S2");
+        break;
+    case CHIP_ESP32C3:
+        sprintf(chip_type, "%s", "ESP32-C3");
+        break;
+    default:
+        int chip_model = chip_info.model;
+        sprintf(chip_type, "%s (%d)", "Unknown/Unsupported", chip_model);
+        versionCheckVisibility = "none";
+        versionCheckVisibilityTable = "none";
+        break;
+    }
+
+    ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
+
+    char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(versionCheckVisibility) + strlen(versionCheckVisibilityTable) + strlen(chip_type));
+    sprintf(ota_page, ota_start, VERSION, versionCheckVisibilityTable, latest_version, customUrl, chip_type, versionCheckVisibility);
 
     closeHeader(req);
 
