@@ -22,9 +22,11 @@ jobs:
         run: pip install --upgrade platformio
       - name: Set environment variables
         run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
-      - name: Update version number in About
+      - name: Update version, hash, and date in About
         run: |
           sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v${{ env.VERSION }}"'</td>|g'  src/pages/config.html
+          sed -i -e 's|<td id="date">\(.*\)</td>|<td id="date">'"$(date +"%d.%m.%Y")"'</td>|g'  src/pages/config.html
+          sed -i -e 's|<td id="hash">\(.*\)</td>|<td id="hash">'"$(git rev-parse --short HEAD)"'</td>|g'  src/pages/config.html
       - name: Update version number for OTA
         run: |
           sed -i -e 's|*VERSION = "\(.*\)";|*VERSION = "${{ env.VERSION }}";|g'  src/urihandler/otahandler.c                    
