@@ -14,6 +14,8 @@ extern "C" {
 
 // Register system functions
 void register_system(void);
+void determineChipType(char chip_type[30]);
+
 
 #ifdef __cplusplus
 }

@@ -5,6 +5,7 @@
 #include <esp_log.h>
 #include <sys/param.h>
 #include "esp_chip_info.h"
+#include "cmd_system.h"
 
 static const char *TAG = "OTA";
 static const char *VERSION = "DEV";
@@ -38,7 +39,6 @@ void ota_task(void *pvParameter)
     {
         ESP_LOGE(TAG, "OTA update failed! Error: %d", ret);
     }
-
     vTaskDelete(NULL);
 }
 
@@ -134,28 +134,9 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     {
         strcpy(latest_version, LATEST_VERSION); // Initialisieren
     }
-
-    esp_chip_info_t chip_info;
-    esp_chip_info(&chip_info);
+   
     char chip_type[30];
-    switch (chip_info.model)
-    {
-    case CHIP_ESP32:
-        sprintf(chip_type, "%s", "ESP32");
-        break;
-    case CHIP_ESP32S2:
-        sprintf(chip_type, "%s", "ESP32-S2");
-        break;
-    case CHIP_ESP32C3:
-        sprintf(chip_type, "%s", "ESP32-C3");
-        break;
-    default:
-        int chip_model = chip_info.model;
-        sprintf(chip_type, "%s (%d)", "Unknown/Unsupported", chip_model);
-        versionCheckVisibility = "none";
-        versionCheckVisibilityTable = "none";
-        break;
-    }
+    determineChipType(chip_type);
 
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
 

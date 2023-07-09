@@ -23,8 +23,8 @@
 #include "cmd_system.h"
 #include "sdkconfig.h"
 #include "esp_chip_info.h"
-#include "esp_flash.h" 
-#include "soc/soc_caps.h" 
+#include "esp_flash.h"
+#include "soc/soc_caps.h"
 
 #ifdef CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
 #define WITH_TASKS_INFO 1
@@ -58,20 +58,23 @@ void register_system(void)
 /* 'version' command */
 static int get_version(int argc, char **argv)
 {
+
+    char chip_type[30];
+    determineChipType(chip_type);
     esp_chip_info_t info;
     esp_chip_info(&info);
     uint32_t size_flash_chip;
     esp_flash_get_size(NULL, &size_flash_chip);
     printf("IDF Version:%s\r\n", esp_get_idf_version());
     printf("Chip info:\r\n");
-    printf("\tmodel:%s\r\n", info.model == CHIP_ESP32 ? "ESP32" : "Unknow");
+    printf("\tmodel:%s\r\n", chip_type);
     printf("\tcores:%d\r\n", info.cores);
     printf("\tfeature:%s%s%s%s%ld%s\r\n",
            info.features & CHIP_FEATURE_WIFI_BGN ? "/802.11bgn" : "",
            info.features & CHIP_FEATURE_BLE ? "/BLE" : "",
            info.features & CHIP_FEATURE_BT ? "/BT" : "",
            info.features & CHIP_FEATURE_EMB_FLASH ? "/Embedded-Flash:" : "/External-Flash:",
-           size_flash_chip / (1024 * 1024), " MB"); 
+           size_flash_chip / (1024 * 1024), " MB");
     printf("\trevision number:%d\r\n", info.revision);
     return 0;
 }
@@ -129,7 +132,7 @@ static void register_free(void)
 static int heap_size(int argc, char **argv)
 {
     uint32_t heap_size = heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
-    ESP_LOGI(TAG, "min heap size: %lu", heap_size); 
+    ESP_LOGI(TAG, "min heap size: %lu", heap_size);
     return 0;
 }
 
@@ -355,4 +358,26 @@ static void register_light_sleep(void)
         .func = &light_sleep,
         .argtable = &light_sleep_args};
     ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
+void determineChipType(char chip_type[30])
+{
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+
+    switch (chip_info.model)
+    {
+    case CHIP_ESP32:
+        sprintf(chip_type, "%s", "ESP32");
+        break;
+    case CHIP_ESP32S2:
+        sprintf(chip_type, "%s", "ESP32-S2");
+        break;
+    case CHIP_ESP32C3:
+        sprintf(chip_type, "%s", "ESP32-C3");
+        break;
+    default:
+        int chip_model = chip_info.model;
+        sprintf(chip_type, "%s (%d)", "Unknown/Unsupported", chip_model);
+        break;
+    }
 }
