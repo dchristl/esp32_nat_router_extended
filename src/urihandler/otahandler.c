@@ -4,7 +4,6 @@
 #include <esp_https_ota.h>
 #include <esp_log.h>
 #include <sys/param.h>
-#include "esp_chip_info.h"
 #include "cmd_system.h"
 
 static const char *TAG = "OTA";
@@ -12,6 +11,7 @@ static const char *VERSION = "DEV";
 static const char *LATEST_VERSION = "Not determined yet";
 static char latest_version_buffer[sizeof(LATEST_VERSION)];
 static char *latest_version = latest_version_buffer;
+char chip_type[30];
 
 static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/gh-pages/";
 
@@ -20,7 +20,9 @@ void ota_task(void *pvParameter)
 
     char url[strlen(DEFAULT_URL) + 50];
     strcpy(url, DEFAULT_URL);
-    strcat(url, "esp32_firmware.bin");
+    strcat(url, chip_type);
+    strcat(url, "/");
+    strcat(url, "firmware.bin");
     ESP_LOGI(TAG, "OTA update started with Url: '%s'", url);
     esp_http_client_config_t config = {
         .url = url,
@@ -135,7 +137,6 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
         strcpy(latest_version, LATEST_VERSION); // Initialisieren
     }
    
-    char chip_type[30];
     determineChipType(chip_type);
 
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
