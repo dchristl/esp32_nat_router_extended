@@ -19,11 +19,11 @@ char chip_type[30];
 
 char otalog[4000] = "";
 
-static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/gh-pages/";
+static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-production/";
+// static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-staging/";
 
 void appendToLog(const char *message, const char *cssClass)
 {
-    ESP_LOGI(TAG, "INSIDE");
     char tmp[500] = "";
 
     sprintf(tmp, "<tr class=\"%s\"><th>%s</th></tr>", cssClass, message);
@@ -53,7 +53,7 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
         int progressInt = (int)progress;
         if (progressInt >= threshold)
         {
-            threshold = threshold + 20;
+            threshold = threshold + 10;
             sprintf(tmp, "%d%% downloaded (%.0f of %lld kB) <br/>", progressInt, data_length, content_length);
             appendToLog(tmp, "");
         }
@@ -102,14 +102,15 @@ esp_err_t version_event_handler(esp_http_client_event_t *evt)
 
 void ota_task(void *pvParameter)
 {
-    ESP_LOGI(TAG, "1");
+
+    data_length = 0;
+    content_length = 0;
+    threshold = 0;
     char url[strlen(DEFAULT_URL) + 50];
     strcpy(url, DEFAULT_URL);
     strcat(url, chip_type);
-    ESP_LOGI(TAG, "2");
     strcat(url, "/");
     strcat(url, "firmware.bin");
-    ESP_LOGI(TAG, "3");
     ESP_LOGI(TAG, "OTA update started with Url: '%s'", url);
 
     char tmp[200] = "OTA update started with Url: '";
@@ -129,11 +130,11 @@ void ota_task(void *pvParameter)
     esp_err_t ret = esp_https_ota(&ota_config);
     if (ret == ESP_OK)
     {
-        appendToLog("OTA update succesful. Device will be rebooted.", "table-success");
+        appendToLog("OTA update succesful. Device will reboot.", "table-success");
     }
     else
     {
-        appendToLog("OTA update failed! Device will be rebooted.", "table-danger");
+        appendToLog("OTA update failed! Device will reboot.", "table-danger");
     }
     finished = true;
     vTaskDelete(NULL);
@@ -227,7 +228,7 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     extern const char ota_start[] asm("_binary_ota_html_start");
     extern const char ota_end[] asm("_binary_ota_html_end");
     const size_t ota_html_size = (ota_end - ota_start);
-    char *customUrl = NULL;
+    char *customUrl = "";
 
     char *versionCheckVisibilityTable = "table-row";
     char *versionCheckVisibility = "block";
@@ -240,7 +241,10 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     }
     else
     {
-        customUrl = "Project Url";
+        strcpy(customUrl, DEFAULT_URL);
+        strcat(customUrl, chip_type);
+        strcat(customUrl, "/");
+        strcat(customUrl, "firmware.bin");
     }
     if (strlen(latest_version) == 0)
     {
