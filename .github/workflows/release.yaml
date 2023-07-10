@@ -5,7 +5,8 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:     
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
@@ -21,9 +22,14 @@ jobs:
         run: pip install --upgrade platformio
       - name: Set environment variables
         run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
-      - name: Update version number in About
+      - name: Update version, hash, and date in About
         run: |
           sed -i -e 's|<td id="version">\(.*\)</td>|<td id="version">'"v${{ env.VERSION }}"'</td>|g'  src/pages/config.html
+          sed -i -e 's|<td id="date">\(.*\)</td>|<td id="date">'"$(date +"%d.%m.%Y")"'</td>|g'  src/pages/config.html
+          sed -i -e 's|<td id="hash">\(.*\)</td>|<td id="hash">'"$(git rev-parse --short HEAD)"'</td>|g'  src/pages/config.html
+      - name: Update version number for OTA
+        run: |
+          sed -i -e 's|*VERSION = "\(.*\)";|*VERSION = "${{ env.VERSION }}";|g'  src/urihandler/otahandler.c                    
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -37,8 +43,14 @@ jobs:
         run: |
           folder=.pio/build/esp32dev
           chip=esp32
+          mkdir -p release/ota/ESP32/
+          cp version release/ota/
+          cp $folder/firmware.bin release/ota/ESP32/firmware.bin 
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+          esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+          mkdir -p release
+          esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin          
           mkdir -p release
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
@@ -49,9 +61,11 @@ jobs:
         run: |
           folder=.pio/build/esp32-c3-devkitm-1
           chip=esp32c3
+          mkdir -p release/ota/ESP32-C3/
+          cp $folder/firmware.bin release/ota/ESP32-C3/firmware.bin 
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x0 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
-          mkdir -p release
+          mkdir -p release/
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
       - name: Build ESP32 S2 firmware
@@ -60,6 +74,8 @@ jobs:
         run: |
           folder=.pio/build/featheresp32-s2
           chip=esp32s2
+          mkdir -p release/ota/ESP32-S2/
+          cp $folder/firmware.bin release/ota/ESP32-S2/firmware.bin 
           mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
           mkdir -p release
@@ -81,3 +97,17 @@ jobs:
           title: v${{ env.VERSION }}
           files: |
             release/*.zip
+      - name: Set dev branch variable
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "RELEASE_BRANCH=releases-staging" >> $GITHUB_ENV  
+      - name: Set master branch variable
+        if: github.ref == 'refs/heads/master'
+        run: |
+            echo "RELEASE_BRANCH=releases-production >> $GITHUB_ENV                       
+      - name: Deploy to Github Pages
+        if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@v4        
+        with:
+          folder: release/ota/            
+          branch: ${{env.RELEASE_BRANCH}}
