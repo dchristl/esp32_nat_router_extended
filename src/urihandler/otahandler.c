@@ -6,11 +6,11 @@
 #include <sys/param.h>
 #include "cmd_system.h"
 #include "timer.h"
+#include <esp_http_client.h>
 
 static const char *TAG = "OTA";
 static const char *VERSION = "DEV";
 static const char *LATEST_VERSION = "Not determined yet";
-static char *otaLogRedirect = "1; url=/otalog";
 static char latest_version_buffer[sizeof(LATEST_VERSION)];
 static char *latest_version = latest_version_buffer;
 bool finished = false;
@@ -52,7 +52,7 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
         if (progressInt >= threshold)
         {
             threshold = threshold + 10;
-            sprintf(tmp, "%d%% percent downloaded (%.0f of %lld kB) <br/>", progressInt, data_length, content_length);
+            sprintf(tmp, "%d%% downloaded (%.0f of %lld kB) <br/>", progressInt, data_length, content_length);
             appendToLog(tmp);
         }
         break;
@@ -113,7 +113,8 @@ void ota_task(void *pvParameter)
     esp_http_client_config_t config = {
         .url = url,
         .event_handler = ota_event_event_handler,
-        .skip_cert_common_name_check = true};
+        .skip_cert_common_name_check = true,
+        .timeout_ms = DOWNLOAD_TIMEOUT_MS};
 
     esp_https_ota_config_t ota_config = {
         .http_config = &config,
@@ -178,6 +179,7 @@ esp_err_t otalog_get_handler(httpd_req_t *req)
     extern const char otalog_start[] asm("_binary_otalog_html_start");
     extern const char otalog_end[] asm("_binary_otalog_html_end");
     const size_t otalog_html_size = (otalog_end - otalog_start);
+    char *otaLogRedirect = "1; url=/otalog";
     if (finished)
     {
         otaLogRedirect = "3; url=/apply";
