@@ -14,6 +14,7 @@ This is an extension of the great work of [martin-ger's ESP32 NAT Router-project
 - Scanning for APs (s. [limitations](#wifi-scanning-limitation))
 - User friendly UI with mobile support
 - [Resetting the device](docs/advanced.md#resetting-the-device-erasing-the-flash) in UI and with Pin/Button
+- [OTA-Updates](docs/ota.md)
 - Keep connection alive on networks with forced disconnect
 - Secure frontend by password or complete disabling
 - Show connected state and quality in UI
@@ -38,6 +39,7 @@ Now you can reconnect and reload the page and change the "Soft AP Settings". Cli
 ![image](docs/advanced.png)
 ![image](docs/reset.png)
 ![image](docs/lock.png)
+![image](docs/ota.png)
 ![image](docs/unlock.png)
 ![image](docs/connected_clients.png)
 
