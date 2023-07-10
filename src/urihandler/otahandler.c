@@ -228,24 +228,11 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     extern const char ota_start[] asm("_binary_ota_html_start");
     extern const char ota_end[] asm("_binary_ota_html_end");
     const size_t ota_html_size = (ota_end - ota_start);
-    char *customUrl = "";
+    char *customUrl = NULL;
 
     char *versionCheckVisibilityTable = "table-row";
     char *versionCheckVisibility = "block";
-    get_config_param_str("ota_url", &customUrl);
-    if (customUrl != NULL && strlen(customUrl) > 0)
-    {
-        ESP_LOGI(TAG, "Custom Url found '%s'", customUrl);
-        versionCheckVisibility = "none";
-        versionCheckVisibilityTable = "none";
-    }
-    else
-    {
-        strcpy(customUrl, DEFAULT_URL);
-        strcat(customUrl, chip_type);
-        strcat(customUrl, "/");
-        strcat(customUrl, "firmware.bin");
-    }
+
     if (strlen(latest_version) == 0)
     {
         strcpy(latest_version, LATEST_VERSION); // Initialisieren
@@ -255,10 +242,29 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
 
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
 
+    get_config_param_str("ota_url", &customUrl);
+    if (customUrl != NULL && strlen(customUrl) > 0)
+    {
+        ESP_LOGI(TAG, "Custom Url found '%s'", customUrl);
+        versionCheckVisibility = "none";
+        versionCheckVisibilityTable = "none";
+    }
+    else
+    {
+        char url[strlen(DEFAULT_URL) + 50];
+        strcpy(url, DEFAULT_URL);
+        strcat(url, chip_type);
+        strcat(url, "/");
+        strcat(url, "firmware.bin");
+        customUrl = malloc(strlen(url) + 1); 
+        strcpy(customUrl, url);   
+    }
+
     char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(versionCheckVisibility) + strlen(versionCheckVisibilityTable) + strlen(chip_type));
     sprintf(ota_page, ota_start, VERSION, versionCheckVisibilityTable, latest_version, customUrl, chip_type, versionCheckVisibility);
 
     closeHeader(req);
+    free(customUrl);
 
     ESP_LOGI(TAG, "Requesting OTA page");
 
