@@ -100,17 +100,38 @@ esp_err_t version_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
+char *getOtaUrl()
+{
+    char *customUrl = NULL;
+
+    // Assuming the function get_config_param_str is defined elsewhere
+    get_config_param_str("ota_url", &customUrl);
+    if (customUrl != NULL && strlen(customUrl) > 0)
+    {
+        printf("Custom Url found '%s'\n", customUrl);
+        return customUrl;
+    }
+    else
+    {
+        char url[strlen(DEFAULT_URL) + strlen(chip_type) + 20];
+        strcpy(url, DEFAULT_URL);
+        strcat(url, chip_type);
+        strcat(url, "/");
+        strcat(url, "firmware.bin");
+        customUrl = malloc(strlen(url) + 1);
+        strcpy(customUrl, url);
+        return customUrl;
+    }
+}
+
 void ota_task(void *pvParameter)
 {
 
     data_length = 0;
     content_length = 0;
     threshold = 0;
-    char url[strlen(DEFAULT_URL) + 50];
-    strcpy(url, DEFAULT_URL);
-    strcat(url, chip_type);
-    strcat(url, "/");
-    strcat(url, "firmware.bin");
+    char *url = getOtaUrl();
+
     ESP_LOGI(TAG, "OTA update started with Url: '%s'", url);
 
     char tmp[200] = "OTA update started with Url: '";
@@ -136,6 +157,7 @@ void ota_task(void *pvParameter)
     {
         appendToLog("OTA update failed! Device will reboot.", "table-danger");
     }
+    free(url);
     finished = true;
     vTaskDelete(NULL);
 }
@@ -228,7 +250,6 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     extern const char ota_start[] asm("_binary_ota_html_start");
     extern const char ota_end[] asm("_binary_ota_html_end");
     const size_t ota_html_size = (ota_end - ota_start);
-    char *customUrl = NULL;
 
     char *versionCheckVisibilityTable = "table-row";
     char *versionCheckVisibility = "block";
@@ -242,23 +263,7 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
 
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
 
-    get_config_param_str("ota_url", &customUrl);
-    if (customUrl != NULL && strlen(customUrl) > 0)
-    {
-        ESP_LOGI(TAG, "Custom Url found '%s'", customUrl);
-        versionCheckVisibility = "none";
-        versionCheckVisibilityTable = "none";
-    }
-    else
-    {
-        char url[strlen(DEFAULT_URL) + 50];
-        strcpy(url, DEFAULT_URL);
-        strcat(url, chip_type);
-        strcat(url, "/");
-        strcat(url, "firmware.bin");
-        customUrl = malloc(strlen(url) + 1); 
-        strcpy(customUrl, url);   
-    }
+    char *customUrl = getOtaUrl();
 
     char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(versionCheckVisibility) + strlen(versionCheckVisibilityTable) + strlen(chip_type));
     sprintf(ota_page, ota_start, VERSION, versionCheckVisibilityTable, latest_version, customUrl, chip_type, versionCheckVisibility);
