@@ -79,11 +79,17 @@ static httpd_uri_t clients_page_download = {
     .method = HTTP_GET,
     .handler = clients_download_get_handler,
     .user_ctx = NULL};
-    
+
 static httpd_uri_t ota_page_download = {
     .uri = "/ota",
     .method = HTTP_GET,
     .handler = ota_download_get_handler,
+    .user_ctx = NULL};
+
+static httpd_uri_t otalog_page_download = {
+    .uri = "/otalog",
+    .method = HTTP_GET,
+    .handler = otalog_get_handler,
     .user_ctx = NULL};
 
 static httpd_uri_t ota_page_post = {
@@ -91,6 +97,13 @@ static httpd_uri_t ota_page_post = {
     .method = HTTP_POST,
     .handler = ota_post_handler,
 };
+
+static httpd_uri_t otalog_post_download = {
+    .uri = "/otalog",
+    .method = HTTP_POST,
+    .handler = otalog_post_handler,
+    .user_ctx = NULL};
+
 
 static httpd_uri_t advanced_page_download = {
     .uri = "/advanced",
@@ -128,7 +141,7 @@ httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.stack_size = 999999999;
-    config.max_uri_handlers = 20;
+    config.max_uri_handlers = 25;
 
     initializeRestartTimer();
 
@@ -178,6 +191,8 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &clients_page_download);
         httpd_register_uri_handler(server, &ota_page_download);
         httpd_register_uri_handler(server, &ota_page_post);
+        httpd_register_uri_handler(server, &otalog_page_download);
+        httpd_register_uri_handler(server, &otalog_post_download);
         httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
         return server;
     }

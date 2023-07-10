@@ -11,9 +11,90 @@ static const char *VERSION = "DEV";
 static const char *LATEST_VERSION = "Not determined yet";
 static char latest_version_buffer[sizeof(LATEST_VERSION)];
 static char *latest_version = latest_version_buffer;
+bool finished = false;
+
 char chip_type[30];
 
+char otalog[4000] = "";
+
 static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/gh-pages/";
+
+void appendToLog(const char *message)
+{
+    strcat(otalog, message);
+    ESP_LOGI(TAG, "%s", message);
+}
+
+#define DOWNLOAD_TIMEOUT_MS 5000
+char *file_buffer = NULL;
+size_t file_size = 0;
+
+double data_length = 0;
+int64_t content_length = 0;
+int threshold = 0;
+
+// HTTP-Client-Event-Handler
+esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
+{
+    char tmp[50] = "";
+
+    switch (evt->event_id)
+    {
+    case HTTP_EVENT_ON_CONNECTED:
+        appendToLog("Connected<br/>");
+        break;
+    case HTTP_EVENT_ON_DATA:
+        data_length = data_length + ((double)evt->data_len / 1000.0);
+        double progress = (double)data_length / content_length * 100.0;
+        int progressInt = (int)progress;
+        if (progressInt >= threshold)
+        {
+            threshold = threshold + 10;
+            sprintf(tmp, "%d%% percent downloaded (%.0f of %lld kB) <br/>", progressInt, data_length, content_length);
+            appendToLog(tmp);
+        }
+        break;
+    case HTTP_EVENT_ERROR:
+        appendToLog("Error occured <br/>");
+        return ESP_FAIL;
+    case HTTP_EVENT_ON_HEADER:
+
+        char *endptr;
+        if (strcasecmp("Content-Length", evt->header_key) == 0)
+        {
+            content_length = strtol(evt->header_value, &endptr, 10) / 1000;
+            sprintf(tmp, "Download size is %lld kilobytes<br/>", content_length);
+            appendToLog(tmp);
+        }
+        break;
+    default:
+        break;
+    }
+    return ESP_OK;
+}
+
+esp_err_t version_event_handler(esp_http_client_event_t *evt)
+{
+
+    switch (evt->event_id)
+    {
+    case HTTP_EVENT_ON_DATA:
+        if (!esp_http_client_is_chunked_response(evt->client))
+        {
+            size_t new_size = file_size + evt->data_len;
+            file_buffer = realloc(file_buffer, new_size);
+            memcpy(file_buffer + file_size, evt->data, evt->data_len);
+            file_size = new_size;
+        }
+        break;
+    case HTTP_EVENT_ON_FINISH:
+        ESP_LOGI(TAG, "Download finished");
+        break;
+    default:
+        break;
+    }
+    return ESP_OK;
+}
 
 void ota_task(void *pvParameter)
 {
@@ -24,54 +105,34 @@ void ota_task(void *pvParameter)
     strcat(url, "/");
     strcat(url, "firmware.bin");
     ESP_LOGI(TAG, "OTA update started with Url: '%s'", url);
+    appendToLog("OTA update started with Url: '");
+    appendToLog(url);
+    appendToLog("'<br/>");
     esp_http_client_config_t config = {
         .url = url,
+        .event_handler = ota_event_event_handler,
         .skip_cert_common_name_check = true};
 
     esp_https_ota_config_t ota_config = {
         .http_config = &config,
     };
-
+    finished = false;
     esp_err_t ret = esp_https_ota(&ota_config);
     if (ret == ESP_OK)
     {
-        esp_restart();
+        appendToLog("OTA update succesful. Device will be rebooted.");
     }
     else
     {
-        ESP_LOGE(TAG, "OTA update failed! Error: %d", ret);
+        appendToLog("OTA update failed! Device will be rebooted.");
     }
+    finished = true;
     vTaskDelete(NULL);
 }
 
 void start_ota_update()
 {
     xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
-}
-
-char *file_buffer = NULL;
-size_t file_size = 0;
-#define DOWNLOAD_TIMEOUT_MS 5000
-// HTTP-Client-Event-Handler
-esp_err_t http_event_handler(esp_http_client_event_t *evt)
-{
-    switch (evt->event_id)
-    {
-    case HTTP_EVENT_ON_DATA:
-        ESP_LOGI(TAG, "HTTP_EVENT_ON_DATA, len=%d\n", evt->data_len);
-        if (!esp_http_client_is_chunked_response(evt->client))
-        {
-            size_t new_size = file_size + evt->data_len;
-            file_buffer = realloc(file_buffer, new_size);
-            memcpy(file_buffer + file_size, evt->data, evt->data_len);
-            file_size = new_size;
-        }
-        break;
-    default:
-        ESP_LOGI(TAG, "Event occured %d", evt->event_id);
-        break;
-    }
-    return ESP_OK;
 }
 
 void updateVersion()
@@ -81,7 +142,7 @@ void updateVersion()
     strcat(url, "version");
     esp_http_client_config_t config = {
         .url = url,
-        .event_handler = http_event_handler,
+        .event_handler = version_event_handler,
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
     esp_http_client_set_timeout_ms(client, DOWNLOAD_TIMEOUT_MS);
@@ -98,10 +159,44 @@ void updateVersion()
     else
     {
         latest_version = "Error retrieving the latest version";
-        ESP_LOGD(TAG, "Fehler beim Download: %s\n", esp_err_to_name(err));
+        ESP_LOGD(TAG, "Error on download: %s\n", esp_err_to_name(err));
     }
 
     esp_http_client_cleanup(client);
+}
+esp_err_t otalog_get_handler(httpd_req_t *req)
+{
+    if (isLocked())
+    {
+        return unlock_handler(req);
+    }
+
+    httpd_req_to_sockfd(req);
+
+    extern const char otalog_start[] asm("_binary_otalog_html_start");
+    extern const char otalog_end[] asm("_binary_otalog_html_end");
+    const size_t otalog_html_size = (otalog_end - otalog_start);
+
+    char *otalog_page = malloc(otalog_html_size + strlen(otalog));
+    sprintf(otalog_page, otalog_start, otalog);
+
+    closeHeader(req);
+
+    ESP_LOGI(TAG, "Requesting OTA-Log page");
+
+    esp_err_t ret = httpd_resp_send(req, otalog_page, HTTPD_RESP_USE_STRLEN);
+    return ret;
+}
+
+esp_err_t otalog_post_handler(httpd_req_t *req)
+{
+    if (isLocked())
+    {
+        return unlock_handler(req);
+    }
+    start_ota_update();
+
+    return otalog_get_handler(req);
 }
 
 esp_err_t ota_download_get_handler(httpd_req_t *req)
@@ -136,7 +231,7 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     {
         strcpy(latest_version, LATEST_VERSION); // Initialisieren
     }
-   
+
     determineChipType(chip_type);
 
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
@@ -179,16 +274,8 @@ esp_err_t ota_post_handler(httpd_req_t *req)
     }
     buf[req->content_len] = '\0';
     ESP_LOGI(TAG, "Getting with post: %s", buf);
-    char funcParam[13];
-    readUrlParameterIntoBuffer(buf, "func", funcParam, 13);
 
-    if (strcmp(funcParam, "versioncheck") == 0)
-    {
-        updateVersion();
-    }
-    if (strcmp(funcParam, "update") == 0)
-    {
-        start_ota_update();
-    }
+    updateVersion();
+
     return ota_download_get_handler(req);
 }
