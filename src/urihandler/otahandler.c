@@ -21,9 +21,14 @@ char otalog[4000] = "";
 
 static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/gh-pages/";
 
-void appendToLog(const char *message)
+void appendToLog(const char *message, const char *cssClass)
 {
-    strcat(otalog, message);
+    ESP_LOGI(TAG, "INSIDE");
+    char tmp[500] = "";
+
+    sprintf(tmp, "<tr class=\"%s\"><th>%s</th></tr>", cssClass, message);
+
+    strcat(otalog, tmp);
     ESP_LOGI(TAG, "%s", message);
 }
 
@@ -42,22 +47,19 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
 
     switch (evt->event_id)
     {
-    case HTTP_EVENT_ON_CONNECTED:
-        appendToLog("Connected<br/>");
-        break;
     case HTTP_EVENT_ON_DATA:
         data_length = data_length + ((double)evt->data_len / 1000.0);
         double progress = (double)data_length / content_length * 100.0;
         int progressInt = (int)progress;
         if (progressInt >= threshold)
         {
-            threshold = threshold + 10;
+            threshold = threshold + 20;
             sprintf(tmp, "%d%% downloaded (%.0f of %lld kB) <br/>", progressInt, data_length, content_length);
-            appendToLog(tmp);
+            appendToLog(tmp, "");
         }
         break;
     case HTTP_EVENT_ERROR:
-        appendToLog("Error occured <br/>");
+        appendToLog("Error occured <br/>", "table-danger");
         return ESP_FAIL;
     case HTTP_EVENT_ON_HEADER:
 
@@ -66,7 +68,7 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
         {
             content_length = strtol(evt->header_value, &endptr, 10) / 1000;
             sprintf(tmp, "Download size is %lld kB<br/>", content_length);
-            appendToLog(tmp);
+            appendToLog(tmp, "");
         }
         break;
     default:
@@ -100,16 +102,20 @@ esp_err_t version_event_handler(esp_http_client_event_t *evt)
 
 void ota_task(void *pvParameter)
 {
-
+    ESP_LOGI(TAG, "1");
     char url[strlen(DEFAULT_URL) + 50];
     strcpy(url, DEFAULT_URL);
     strcat(url, chip_type);
+    ESP_LOGI(TAG, "2");
     strcat(url, "/");
     strcat(url, "firmware.bin");
+    ESP_LOGI(TAG, "3");
     ESP_LOGI(TAG, "OTA update started with Url: '%s'", url);
-    appendToLog("OTA update started with Url: '");
-    appendToLog(url);
-    appendToLog("'<br/>");
+
+    char tmp[200] = "OTA update started with Url: '";
+    strcat(tmp, url);
+    strcat(tmp, "'");
+    appendToLog(tmp, "");
     esp_http_client_config_t config = {
         .url = url,
         .event_handler = ota_event_event_handler,
@@ -123,11 +129,11 @@ void ota_task(void *pvParameter)
     esp_err_t ret = esp_https_ota(&ota_config);
     if (ret == ESP_OK)
     {
-        appendToLog("OTA update succesful. Device will be rebooted.");
+        appendToLog("OTA update succesful. Device will be rebooted.", "table-success");
     }
     else
     {
-        appendToLog("OTA update failed! Device will be rebooted.");
+        appendToLog("OTA update failed! Device will be rebooted.", "table-danger");
     }
     finished = true;
     vTaskDelete(NULL);
