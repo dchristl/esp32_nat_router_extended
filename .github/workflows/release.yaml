@@ -104,7 +104,7 @@ jobs:
       - name: Set master branch variable
         if: github.ref == 'refs/heads/master'
         run: |
-            echo "RELEASE_BRANCH=releases-production >> $GITHUB_ENV                       
+            echo "RELEASE_BRANCH=releases-production" >> $GITHUB_ENV                       
       - name: Deploy to Github Pages
         if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master'
         uses: JamesIves/github-pages-deploy-action@v4        
