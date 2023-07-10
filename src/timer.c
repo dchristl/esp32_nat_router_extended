@@ -4,11 +4,9 @@
 #include "esp_timer.h"
 #include "esp_http_client.h"
 
-
 static const char *TAG = "Timer";
 
 #define REFRESH_TIMER_PERIOD 5 * 60000000
-
 
 esp_timer_handle_t restart_timer, refresh_timer;
 
@@ -66,3 +64,7 @@ void restartByTimer()
     esp_timer_start_once(restart_timer, 500000);
 }
 
+void restartByTimerinS(int seconds)
+{
+    esp_timer_start_once(restart_timer, seconds * 1000000);
+}

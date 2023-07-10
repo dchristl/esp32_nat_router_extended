@@ -5,10 +5,12 @@
 #include <esp_log.h>
 #include <sys/param.h>
 #include "cmd_system.h"
+#include "timer.h"
 
 static const char *TAG = "OTA";
 static const char *VERSION = "DEV";
 static const char *LATEST_VERSION = "Not determined yet";
+static char *otaLogRedirect = "1; url=/otalog";
 static char latest_version_buffer[sizeof(LATEST_VERSION)];
 static char *latest_version = latest_version_buffer;
 bool finished = false;
@@ -63,7 +65,7 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
         if (strcasecmp("Content-Length", evt->header_key) == 0)
         {
             content_length = strtol(evt->header_value, &endptr, 10) / 1000;
-            sprintf(tmp, "Download size is %lld kilobytes<br/>", content_length);
+            sprintf(tmp, "Download size is %lld kB<br/>", content_length);
             appendToLog(tmp);
         }
         break;
@@ -176,9 +178,14 @@ esp_err_t otalog_get_handler(httpd_req_t *req)
     extern const char otalog_start[] asm("_binary_otalog_html_start");
     extern const char otalog_end[] asm("_binary_otalog_html_end");
     const size_t otalog_html_size = (otalog_end - otalog_start);
+    if (finished)
+    {
+        otaLogRedirect = "3; url=/apply";
+        restartByTimerinS(3);
+    }
 
-    char *otalog_page = malloc(otalog_html_size + strlen(otalog));
-    sprintf(otalog_page, otalog_start, otalog);
+    char *otalog_page = malloc(otalog_html_size + strlen(otalog) + strlen(otaLogRedirect));
+    sprintf(otalog_page, otalog_start, otaLogRedirect, otalog);
 
     closeHeader(req);
 
