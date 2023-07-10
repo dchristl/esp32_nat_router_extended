@@ -97,8 +97,16 @@ jobs:
           title: v${{ env.VERSION }}
           files: |
             release/*.zip
+      - name: Set dev branch variable
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "RELEASE_BRANCH=releases-staging" >> $GITHUB_ENV  
+      - name: Set master branch variable
+        if: github.ref == 'refs/heads/master'
+        run: |
+            echo "RELEASE_BRANCH=releases >> $GITHUB_ENV                       
       - name: Deploy to Github Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        # if: github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@v4        
         with:
           folder: release/ota/            
+          branch: ${{env.RELEASE_BRANCH}}
