@@ -59,7 +59,8 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
         }
         break;
     case HTTP_EVENT_ERROR:
-        appendToLog("Error occured <br/>", "table-danger");
+        
+        appendToLog("Error occured ", "table-danger");
         return ESP_FAIL;
     case HTTP_EVENT_ON_HEADER:
 
