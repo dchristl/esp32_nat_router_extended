@@ -251,6 +251,7 @@ static void initialize_console(void)
     /* Disable buffering on stdin */
     setvbuf(stdin, NULL, _IONBF, 0);
 
+#if CONFIG_CONSOLE_UART_NUM == 0
     /* Minicom, screen, idf_monitor send CR when ENTER key is pressed */
     esp_vfs_dev_uart_port_set_rx_line_endings(0, ESP_LINE_ENDINGS_CR);
     /* Move the caret to the beginning of the next line on '\n' */
@@ -277,6 +278,9 @@ static void initialize_console(void)
 
     /* Tell VFS to use UART driver */
     esp_vfs_dev_uart_use_driver(CONFIG_ESP_CONSOLE_UART_NUM);
+#else
+    ESP_LOGI(TAG, "UART console is disabled. ");
+#endif
 
     /* Initialize the console */
     esp_console_config_t console_config = {.max_cmdline_args = 8,
