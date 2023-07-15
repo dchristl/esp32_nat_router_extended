@@ -1,0 +1,3 @@
+#!/bin/bash
+cd "$(dirname "$0")/src/pages" || exit
+purifycss -i -m -o minimized.css styles_normal.css *.html; mv minimized.css "styles-$(md5sum minimized.css).css"

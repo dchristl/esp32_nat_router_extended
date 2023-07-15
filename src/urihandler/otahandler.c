@@ -59,7 +59,7 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
         }
         break;
     case HTTP_EVENT_ERROR:
-        
+
         appendToLog("Error occured ", "table-danger");
         return ESP_FAIL;
     case HTTP_EVENT_ON_HEADER:
@@ -135,10 +135,6 @@ void ota_task(void *pvParameter)
 
     ESP_LOGI(TAG, "OTA update started with Url: '%s'", url);
 
-    char tmp[200] = "OTA update started with Url: '";
-    strcat(tmp, url);
-    strcat(tmp, "'");
-    appendToLog(tmp, "");
     esp_http_client_config_t config = {
         .url = url,
         .event_handler = ota_event_event_handler,
@@ -275,6 +271,7 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     ESP_LOGI(TAG, "Requesting OTA page");
 
     esp_err_t ret = httpd_resp_send(req, ota_page, HTTPD_RESP_USE_STRLEN);
+    free(ota_page);
     return ret;
 }
 
