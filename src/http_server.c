@@ -131,7 +131,7 @@ static httpd_uri_t bootstrap_handler = {
     .user_ctx = NULL};
 
 static httpd_uri_t styles_handler = {
-    .uri = "/styles-9ee3c4491d35b3c1d830fa9da31c7861.css",
+    .uri = "/styles-578410c85e5e076cb33aeeff500eb68d.css",
     .method = HTTP_GET,
     .handler = styles_download_get_handler,
     .user_ctx = NULL};
@@ -141,6 +141,7 @@ httpd_handle_t start_webserver(void)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.max_uri_handlers = 25;
+    config.stack_size = 20480;
 
     initializeRestartTimer();
 
