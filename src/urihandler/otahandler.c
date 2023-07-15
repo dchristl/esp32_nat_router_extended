@@ -18,17 +18,27 @@ bool finished = false;
 char chip_type[30];
 
 char otalog[4000] = "";
+char resultLog[1000] = "";
+char progressLabel[20] = "";
 
 static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-production/";
 // static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-staging/";
 
-void appendToLog(const char *message, const char *cssClass)
+void appendToLog(const char *message)
 {
     char tmp[500] = "";
 
-    sprintf(tmp, "<tr class=\"%s\"><th>%s</th></tr>", cssClass, message);
+    sprintf(tmp, "<tr><th>%s</th></tr>", message);
 
     strcat(otalog, tmp);
+    ESP_LOGI(TAG, "%s", message);
+}
+
+void setResultLog(const char *message, const char *cssClass)
+{
+
+    sprintf(resultLog, "<tr class=\"%s\"><th>%s</th></tr>", cssClass, message);
+
     ESP_LOGI(TAG, "%s", message);
 }
 
@@ -39,6 +49,7 @@ size_t file_size = 0;
 double data_length = 0;
 int64_t content_length = 0;
 int threshold = 0;
+int progressInt = 0;
 
 // HTTP-Client-Event-Handler
 esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
@@ -50,17 +61,15 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
     case HTTP_EVENT_ON_DATA:
         data_length = data_length + ((double)evt->data_len / 1000.0);
         double progress = (double)data_length / content_length * 100.0;
-        int progressInt = (int)progress;
-        if (progressInt >= threshold)
+        progressInt = (int)progress;
+        sprintf(progressLabel, "%.0f of %lld kB", data_length, content_length);
+        if (progressInt >= threshold) // do not flood log
         {
             threshold = threshold + 10;
-            sprintf(tmp, "%d%% downloaded (%.0f of %lld kB) <br/>", progressInt, data_length, content_length);
-            appendToLog(tmp, "");
+            ESP_LOGI(TAG, "%s", progressLabel);
         }
         break;
     case HTTP_EVENT_ERROR:
-
-        appendToLog("Error occured ", "table-danger");
         return ESP_FAIL;
     case HTTP_EVENT_ON_HEADER:
 
@@ -68,8 +77,8 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
         if (strcasecmp("Content-Length", evt->header_key) == 0)
         {
             content_length = strtol(evt->header_value, &endptr, 10) / 1000;
-            sprintf(tmp, "Download size is %lld kB<br/>", content_length);
-            appendToLog(tmp, "");
+            sprintf(tmp, "Download size is %lld kB", content_length);
+            appendToLog(tmp);
         }
         break;
     default:
@@ -133,8 +142,7 @@ void ota_task(void *pvParameter)
     threshold = 0;
     char *url = getOtaUrl();
 
-    ESP_LOGI(TAG, "OTA update started with Url: '%s'", url);
-
+    appendToLog(url);
     esp_http_client_config_t config = {
         .url = url,
         .event_handler = ota_event_event_handler,
@@ -148,11 +156,11 @@ void ota_task(void *pvParameter)
     esp_err_t ret = esp_https_ota(&ota_config);
     if (ret == ESP_OK)
     {
-        appendToLog("OTA update succesful. Device will reboot.", "table-success");
+        setResultLog("OTA update succesful. The device is restarting.", "table-success");
     }
     else
     {
-        appendToLog("OTA update failed! Device will reboot.", "table-danger");
+        setResultLog("Error occured. The device is restarting ", "table-danger");
     }
     free(url);
     finished = true;
@@ -212,8 +220,8 @@ esp_err_t otalog_get_handler(httpd_req_t *req)
         restartByTimerinS(3);
     }
 
-    char *otalog_page = malloc(otalog_html_size + strlen(otalog) + strlen(otaLogRedirect));
-    sprintf(otalog_page, otalog_start, otaLogRedirect, otalog);
+    char *otalog_page = malloc(otalog_html_size + strlen(otalog) + strlen(otaLogRedirect) + strlen(resultLog) + strlen(progressLabel) + 50);
+    sprintf(otalog_page, otalog_start, otaLogRedirect, otalog, progressInt, progressLabel, resultLog);
 
     closeHeader(req);
 
@@ -229,6 +237,9 @@ esp_err_t otalog_post_handler(httpd_req_t *req)
     {
         return unlock_handler(req);
     }
+    resultLog[0] = '\0';
+    otalog[0] = '\0';
+    appendToLog("OTA update started with:");
     start_ota_update();
 
     return otalog_get_handler(req);
