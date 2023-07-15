@@ -56,5 +56,6 @@ esp_err_t scan_download_get_handler(httpd_req_t *req)
 
     esp_err_t ret = httpd_resp_send(req, scan_page, HTTPD_RESP_USE_STRLEN);
     fillNodes();
+    free(scan_page);
     return ret;
 }
