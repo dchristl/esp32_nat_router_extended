@@ -31,7 +31,7 @@ jobs:
               echo "Tag ${TAG} already exists"
               exit 1
             else
-              echo "Tag ${TAG} does not exist"
+              echo "Tag ${TAG} does not exist or is DEV-Branch"
             fi        
       - name: Update version, hash, and date in About
         run: |
