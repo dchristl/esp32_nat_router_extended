@@ -125,7 +125,7 @@ static httpd_uri_t jquery_handler = {
     .user_ctx = NULL};
 
 static httpd_uri_t bootstrap_handler = {
-    .uri = "/bootstrap.js",
+    .uri = "/bootstrap-9d8e4911554dc484b35bfc04848f6dff.js",
     .method = HTTP_GET,
     .handler = bootstrap_get_handler,
     .user_ctx = NULL};

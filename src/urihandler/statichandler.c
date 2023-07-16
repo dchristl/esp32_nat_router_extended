@@ -24,7 +24,7 @@ esp_err_t styles_download_get_handler(httpd_req_t *req)
 
 esp_err_t bootstrap_get_handler(httpd_req_t *req)
 {
-    extern const unsigned char bootstrap_js_start[] asm("_binary_bootstrap_js_start");
+    extern const unsigned char bootstrap_js_start[] asm("_binary_bootstrap_9d8e4911554dc484b35bfc04848f6dff_js_start");
     httpd_resp_set_type(req, "text/javascript");
     ESP_LOGI(TAG_HANDLER, "Requesting bootstrap");
     return download(req, (const char *)bootstrap_js_start);
