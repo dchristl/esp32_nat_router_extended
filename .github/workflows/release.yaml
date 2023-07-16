@@ -9,6 +9,8 @@ jobs:
       contents: write
     steps:     
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: actions/cache@v3
         with:
           path: |
@@ -81,7 +83,14 @@ jobs:
           mkdir -p release
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
-
+      - name: Check for Tag
+        run: |
+            TAG="v${{ env.VERSION }}"
+            if git show-ref --tags --verify --quiet "refs/tags/${TAG}"; then
+              echo "Tag ${TAG} exists"
+            else
+              echo "Tag ${TAG} does not exist"
+            fi
       - name: Delete old drafts
         uses: hugo19941994/delete-draft-releases@v1.0.0
         env:
