@@ -27,8 +27,8 @@ jobs:
       - name: Check if Git-Tag already exist
         run: |
             TAG="v${{ env.VERSION }}"
-            if git show-ref --tags --verify --quiet "refs/tags/${TAG}"; then
-              echo "Tag ${TAG} exists"
+            if git show-ref --tags --verify --quiet "refs/tags/${TAG}" && [[ "${TAG}" == != *"DEV"* ]]; then
+              echo "Tag ${TAG} already exists"
               exit 1
             else
               echo "Tag ${TAG} does not exist"
@@ -98,7 +98,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create draft release
         uses: "marvinpinto/action-automatic-releases@latest"
-        # if: github.ref == 'refs/heads/master' FIXME
+        if: github.ref == 'refs/heads/master'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
