@@ -38,10 +38,10 @@ jobs:
         run: python .github/workflows/shrinkHTML.py
         shell: sh
       - name: Build ESP32 firmware
-        run: platformio run -e esp32dev
+        run: platformio run -e esp32
       - name: Build one binary for ESP32
         run: |
-          folder=.pio/build/esp32dev
+          folder=.pio/build/esp32
           chip=esp32
           mkdir -p release/ota/ESP32/
           cp version release/ota/
@@ -56,10 +56,10 @@ jobs:
           zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
 
       - name: Build ESP32 C3 firmware
-        run: platformio run -e esp32-c3-devkitm-1
+        run: platformio run -e esp32-c3
       - name: Build one binary for ESP32 C3
         run: |
-          folder=.pio/build/esp32-c3-devkitm-1
+          folder=.pio/build/esp32-c3
           chip=esp32c3
           mkdir -p release/ota/ESP32-C3/
           cp $folder/firmware.bin release/ota/ESP32-C3/firmware.bin 
@@ -69,10 +69,10 @@ jobs:
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
       - name: Build ESP32 S2 firmware
-        run: platformio run -e featheresp32-s2
+        run: platformio run -e esp32-s2
       - name: Build one binary for ESP32 S2
         run: |
-          folder=.pio/build/featheresp32-s2
+          folder=.pio/build/esp32-s2
           chip=esp32s2
           mkdir -p release/ota/ESP32-S2/
           cp $folder/firmware.bin release/ota/ESP32-S2/firmware.bin 
