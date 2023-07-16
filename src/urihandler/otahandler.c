@@ -271,8 +271,6 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     extern const char ota_start[] asm("_binary_ota_html_start");
     extern const char ota_end[] asm("_binary_ota_html_end");
     const size_t ota_html_size = (ota_end - ota_start);
-    char *versionCheckVisibilityTable = "table-row";
-    char *versionCheckVisibility = "block";
 
     if (strlen(latest_version) == 0)
     {
@@ -282,8 +280,8 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
 
     char *customUrl = getOtaUrl();
-    char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(versionCheckVisibility) + strlen(versionCheckVisibilityTable) + strlen(chip_type));
-    sprintf(ota_page, ota_start, VERSION, versionCheckVisibilityTable, latest_version, customUrl, chip_type, versionCheckVisibility);
+    char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(chip_type));
+    sprintf(ota_page, ota_start, VERSION, latest_version, customUrl, chip_type);
 
     closeHeader(req);
     free(customUrl);
