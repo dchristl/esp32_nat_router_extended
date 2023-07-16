@@ -17,8 +17,8 @@ bool finished = false;
 
 char chip_type[30];
 
-char otalog[4000] = "";
-char resultLog[1000] = "";
+char otalog[400] = "";
+char resultLog[110] = "";
 char progressLabel[20] = "";
 
 static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-production/";
@@ -217,6 +217,7 @@ void updateVersion()
 }
 esp_err_t otalog_get_handler(httpd_req_t *req)
 {
+
     if (isLocked())
     {
         return unlock_handler(req);
@@ -261,18 +262,15 @@ esp_err_t otalog_post_handler(httpd_req_t *req)
 
 esp_err_t ota_download_get_handler(httpd_req_t *req)
 {
-
     if (isLocked())
     {
         return unlock_handler(req);
     }
 
     httpd_req_to_sockfd(req);
-
     extern const char ota_start[] asm("_binary_ota_html_start");
     extern const char ota_end[] asm("_binary_ota_html_end");
     const size_t ota_html_size = (ota_end - ota_start);
-
     char *versionCheckVisibilityTable = "table-row";
     char *versionCheckVisibility = "block";
 
@@ -280,20 +278,17 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     {
         strcpy(latest_version, LATEST_VERSION); // Initialisieren
     }
-
     determineChipType(chip_type);
-
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
 
     char *customUrl = getOtaUrl();
-
     char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(versionCheckVisibility) + strlen(versionCheckVisibilityTable) + strlen(chip_type));
     sprintf(ota_page, ota_start, VERSION, versionCheckVisibilityTable, latest_version, customUrl, chip_type, versionCheckVisibility);
 
     closeHeader(req);
     free(customUrl);
 
-    ESP_LOGI(TAG, "Requesting OTA page");
+    ESP_LOGI(TAG, "Requesting OTA page with additional size of %d", strlen(ota_page));
 
     esp_err_t ret = httpd_resp_send(req, ota_page, HTTPD_RESP_USE_STRLEN);
     free(ota_page);

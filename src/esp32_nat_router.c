@@ -758,7 +758,7 @@ void app_main(void)
 
     pthread_t t1;
     get_config_param_int("led_disabled", &led_disabled);
-    if (scan_result == NULL || led_disabled == 0)
+    if (led_disabled == 0)
     {
         ESP_LOGI(TAG, "On board LED is enabled");
         pthread_create(&t1, NULL, led_status_thread, NULL);
