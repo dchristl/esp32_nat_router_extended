@@ -163,6 +163,7 @@ show
 | sta_user   | str        | WPA Enterprise username|
 | cer   | str        | Content of the WPA Enterprise certificate |
 | ota_url   | str        | Url to the binary for OTA-Updates |
+| canary   | i32        | Use the canary/nightly builds for OTA-Updates  |
 
 
 # DNS

@@ -22,7 +22,7 @@ char resultLog[1000] = "";
 char progressLabel[20] = "";
 
 static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-production/";
-// static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-staging/";
+static const char *DEFAULT_URL_CANARY = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-staging/";
 
 void appendToLog(const char *message)
 {
@@ -110,6 +110,18 @@ esp_err_t version_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
+const char *get_default_url()
+{
+    int32_t canary = 0;
+    get_config_param_int("canary", &canary);
+    if (canary == 1)
+    {
+        return DEFAULT_URL_CANARY;
+    }
+
+    return DEFAULT_URL;
+}
+
 char *getOtaUrl()
 {
     char *customUrl = NULL;
@@ -123,8 +135,9 @@ char *getOtaUrl()
     }
     else
     {
-        char url[strlen(DEFAULT_URL) + strlen(chip_type) + 20];
-        strcpy(url, DEFAULT_URL);
+        const char *usedUrl = get_default_url();
+        char url[strlen(usedUrl) + strlen(chip_type) + 20];
+        strcpy(url, usedUrl);
         strcat(url, chip_type);
         strcat(url, "/");
         strcat(url, "firmware.bin");
@@ -174,8 +187,9 @@ void start_ota_update()
 
 void updateVersion()
 {
-    char url[strlen(DEFAULT_URL) + 50];
-    strcpy(url, DEFAULT_URL);
+    const char *usedUrl = get_default_url();
+    char url[strlen(usedUrl) + 50];
+    strcpy(url, usedUrl);
     strcat(url, "version");
     esp_http_client_config_t config = {
         .url = url,
