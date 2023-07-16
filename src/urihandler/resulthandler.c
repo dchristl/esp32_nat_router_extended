@@ -8,7 +8,7 @@
 
 static const char *TAG = "ResultHandler";
 
-const char *ROW_TEMPLATE = "<tr class='text-%s'><td>%s</td><td>%s</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-primary'/></form></td></tr>";
+const char *ROW_TEMPLATE = "<tr><td class='text-%s'>%s</td><td class='text-%s'>%s</td><td><form action='/' method='POST'><input type='hidden' name='ssid' value='%s'><input type='submit' value='Use' name='use' class='btn btn-primary'/></form></td></tr>";
 
 char *findTextColorForSSID(int8_t rssi)
 {
@@ -27,7 +27,6 @@ char *findTextColorForSSID(int8_t rssi)
     }
     return color;
 }
-
 
 esp_err_t result_download_get_handler(httpd_req_t *req)
 {
@@ -50,7 +49,7 @@ esp_err_t result_download_get_handler(httpd_req_t *req)
     get_config_param_str("scan_result", &result_param);
     if (result_param == NULL)
     {
-        strcat(result, "<tr class='text-danger'><td colspan='3'>No networks found</td></tr>");
+        strcat(result, "<tr><td colspan='3' class='text-danger'>No networks found</td></tr>");
     }
     else
     {
@@ -63,7 +62,7 @@ esp_err_t result_download_get_handler(httpd_req_t *req)
             char *rssi = strtok(NULL, "\x03");
 
             char *css = findTextColorForSSID(atoi(rssi));
-            sprintf(template, ROW_TEMPLATE, css, ssid, rssi, ssid);
+            sprintf(template, ROW_TEMPLATE, css, ssid, css, rssi, ssid);
             strcat(result, template);
 
             row = strtok_r(NULL, "\x05", &end_str);

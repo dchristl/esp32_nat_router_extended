@@ -37,7 +37,7 @@ void appendToLog(const char *message)
 void setResultLog(const char *message, const char *cssClass)
 {
 
-    sprintf(resultLog, "<tr class=\"%s\"><th>%s</th></tr>", cssClass, message);
+    sprintf(resultLog, "<tr><th class=\"%s\">%s</th></tr>", cssClass, message);
 
     ESP_LOGI(TAG, "%s", message);
 }
@@ -156,11 +156,11 @@ void ota_task(void *pvParameter)
     esp_err_t ret = esp_https_ota(&ota_config);
     if (ret == ESP_OK)
     {
-        setResultLog("OTA update succesful. The device is restarting.", "table-success");
+        setResultLog("OTA update succesful. The device is restarting.", "text-success");
     }
     else
     {
-        setResultLog("Error occured. The device is restarting ", "table-danger");
+        setResultLog("Error occured. The device is restarting ", "text-danger");
     }
     free(url);
     finished = true;

@@ -12,7 +12,7 @@
 
 static const char *TAG = "ClientsHandler";
 
-const char *CLIENT_TEMPLATE = "<tr class='text-info'><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
+const char *CLIENT_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
 
 esp_err_t clients_download_get_handler(httpd_req_t *req)
 {
