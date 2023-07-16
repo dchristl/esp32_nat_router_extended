@@ -166,7 +166,7 @@
     <script src="jquery-8a1045d9cbf50b52a0805c111ba08e94.js"></script>
     <script src="bootstrap-9d8e4911554dc484b35bfc04848f6dff.js"></script>
     <script>     $('.password').on('mousedown mouseup mouseout touchstart touchend', function mouseState(e) { var field = $(this).parent().find('input'); if (e.type == "mousedown" || e.type == "touchstart") { field.get(0).type = 'text'; } else { field.get(0).type = 'password'; } });</script>
-    <script>     (function poll() { $.ajax({ url: "/api", type: "GET", success: function (data) { console.log(data); $('#clients').text(data.clients); $('#db').text(data.strength); $('#sta').removeClass(); $('#sta').addClass('text-' + data.text); $('#symbol').html(data.symbol); }, dataType: "json", complete: setTimeout(function () { poll(); }, 3000), timeout: 3000 }) })();</script>
+    <script>     (function poll() { $.ajax({ url: "/api", type: "GET", success: function (data) {$('#clients').text(data.clients); $('#db').text(data.strength); $('#sta').removeClass(); $('#sta').addClass('text-' + data.text); $('#symbol').html(data.symbol); }, dataType: "json", complete: setTimeout(function () { poll(); }, 3000), timeout: 3000 }) })();</script>
     <script>     $('.password').on('mousedown mouseup mouseout touchstart touchend', function mouseState(e) { var field = $(this).parent().find('input'); if (e.type == "mousedown" || e.type == "touchstart") { field.get(0).type = 'text'; } else { field.get(0).type = 'password'; } });</script>
     <script>$('#wpa2enabled').change(function () {
             if ($(this).prop('checked')) {
