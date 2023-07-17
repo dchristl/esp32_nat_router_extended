@@ -11,8 +11,8 @@
 static const char *TAG = "OTA";
 static const char *VERSION = "DEV";
 static const char *LATEST_VERSION = "Not determined yet";
-static char latest_version_buffer[sizeof(LATEST_VERSION)];
-static char *latest_version = latest_version_buffer;
+static const char *ERROR_RETRIEVING = "Error retrieving the latest version";
+static char *latest_version = NULL;
 bool finished = false;
 
 char chip_type[30];
@@ -200,17 +200,18 @@ void updateVersion()
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK)
     {
+        ESP_LOGI(TAG, "Version download succesful. Latest version is '%s'. File size is: %d Bytes", file_buffer, file_size);
         strncpy(latest_version, file_buffer, file_size);
         latest_version[file_size] = '\0';
-        ESP_LOGI(TAG, "Version download succesful. Latest version is '%s'. File size is: %d Bytes", file_buffer, file_size);
         free(file_buffer);
         file_buffer = NULL;
         file_size = 0;
     }
     else
     {
-        latest_version = "Error retrieving the latest version";
         ESP_LOGD(TAG, "Error on download: %s\n", esp_err_to_name(err));
+        latest_version = realloc(latest_version, strlen(ERROR_RETRIEVING) + 1);
+        strcpy(latest_version, ERROR_RETRIEVING);
     }
 
     esp_http_client_cleanup(client);
@@ -272,9 +273,10 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     extern const char ota_end[] asm("_binary_ota_html_end");
     const size_t ota_html_size = (ota_end - ota_start);
 
-    if (strlen(latest_version) == 0)
+    if (!latest_version)
     {
-        strcpy(latest_version, LATEST_VERSION); // Initialisieren
+        latest_version = (char *)malloc(strlen(LATEST_VERSION) + 1);
+        strcpy(latest_version, LATEST_VERSION);
     }
     determineChipType(chip_type);
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
@@ -284,12 +286,12 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     sprintf(ota_page, ota_start, VERSION, latest_version, customUrl, chip_type);
 
     closeHeader(req);
-    free(customUrl);
 
     ESP_LOGI(TAG, "Requesting OTA page with additional size of %d", strlen(ota_page));
 
     esp_err_t ret = httpd_resp_send(req, ota_page, HTTPD_RESP_USE_STRLEN);
     free(ota_page);
+    free(customUrl);
     return ret;
 }
 
