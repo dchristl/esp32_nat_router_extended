@@ -80,6 +80,10 @@ esp_netif_t *wifiSTA;
 
 httpd_handle_t start_webserver(void);
 
+const char *GLOBAL_VERSION = "DEV-VERSION";
+const char *GLOBAL_HASH = "96ad523";
+const char *GLOBAL_BUILD_DATE = "01.01.1970";
+
 static const char *TAG = "ESP32 NAT router";
 
 /* Console command history can be stored to and loaded from a file.

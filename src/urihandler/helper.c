@@ -1,6 +1,7 @@
 #include "helper.h"
 #include <ctype.h>
 
+
 static const char *TAG = "urihelper";
 
 void preprocess_string(char *str)

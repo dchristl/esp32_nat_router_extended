@@ -8,8 +8,10 @@
 #include "timer.h"
 #include <esp_http_client.h>
 
+extern const char *GLOBAL_VERSION;
+
 static const char *TAG = "OTA";
-static const char *VERSION = "DEV";
+
 static const char *LATEST_VERSION = "Not determined yet";
 static const char *ERROR_RETRIEVING = "Error retrieving the latest version";
 static char *latest_version = NULL;
@@ -282,8 +284,8 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
 
     char *customUrl = getOtaUrl();
-    char *ota_page = malloc(ota_html_size + strlen(VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(chip_type));
-    sprintf(ota_page, ota_start, VERSION, latest_version, customUrl, chip_type);
+    char *ota_page = malloc(ota_html_size + strlen(GLOBAL_VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(chip_type));
+    sprintf(ota_page, ota_start, GLOBAL_VERSION, latest_version, customUrl, chip_type);
 
     closeHeader(req);
 
