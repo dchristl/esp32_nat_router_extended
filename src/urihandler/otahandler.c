@@ -140,11 +140,11 @@ void getOtaUrl(char *url, char *label)
         const char *usedUrl = get_default_url();
         if (strcmp(usedUrl, DEFAULT_URL_CANARY) == 0)
         {
-            strcpy(label, "Default build");
+            strcpy(label, "Canary build");
         }
         else
         {
-            strcpy(label, "Canary build");
+            strcpy(label, "Default build");
         }
 
         strcpy(url, usedUrl);
@@ -166,7 +166,6 @@ void ota_task(void *pvParameter)
 
     getOtaUrl(url, label);
 
-    appendToLog(url);
     esp_http_client_config_t config = {
         .url = url,
         .event_handler = ota_event_event_handler,
@@ -245,9 +244,13 @@ esp_err_t otalog_get_handler(httpd_req_t *req)
         otaLogRedirect = "3; url=/apply";
         restartByTimerinS(3);
     }
+    char url[200];
+    char label[20];
 
-    char *otalog_page = malloc(otalog_html_size + strlen(otalog) + strlen(otaLogRedirect) + strlen(resultLog) + strlen(progressLabel) + 50);
-    sprintf(otalog_page, otalog_start, otaLogRedirect, otalog, progressInt, progressLabel, resultLog);
+    getOtaUrl(url, label);
+
+    char *otalog_page = malloc(otalog_html_size + strlen(otalog) + strlen(otaLogRedirect) + strlen(resultLog) + strlen(progressLabel) + 50 + strlen(label));
+    sprintf(otalog_page, otalog_start, otaLogRedirect, label, otalog, progressInt, progressLabel, resultLog);
 
     closeHeader(req);
 
@@ -265,7 +268,6 @@ esp_err_t otalog_post_handler(httpd_req_t *req)
     }
     resultLog[0] = '\0';
     otalog[0] = '\0';
-    appendToLog("OTA update started with:");
     start_ota_update();
 
     return otalog_get_handler(req);
