@@ -77,11 +77,21 @@ esp_err_t index_get_handler(httpd_req_t *req)
         size = size + strlen(ssid) + strlen(passwd);
     }
     char *db = NULL;
-    char *symbol = NULL;
     char *textColor = NULL;
-    fillInfoData(&db, &symbol, &textColor);
+    char *wifiOn, *wifiOff = NULL;
+    fillInfoData(&db, &textColor);
+    if (strcmp(db, "0") == 0)
+    {
+        wifiOn = "none";
+        wifiOff = "inline-block";
+    }
+    else
+    {
+        wifiOn = "inline-block";
+        wifiOff = "none";
+    }
 
-    size = size + strlen(symbol) + strlen(textColor) + 5 /* Länge der clients */ + strlen(db);
+    size = size + +strlen(wifiOn) + strlen(wifiOff) + strlen(textColor) + 5 /* Länge der clients */ + strlen(db);
     /* WPA2  */
     char *wpa2CB = NULL;
     char *wpa2Input = NULL;
@@ -134,11 +144,11 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", scanButtonWidth, displayResult, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", scanButtonWidth, displayResult, display);
     }
     else
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, scanButtonWidth, displayResult, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, scanButtonWidth, displayResult, display);
     }
 
     closeHeader(req);

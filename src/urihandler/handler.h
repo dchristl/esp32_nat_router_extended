@@ -26,7 +26,7 @@ esp_err_t unlock_handler(httpd_req_t *req);
 esp_err_t lock_handler(httpd_req_t *req);
 
 /* ScanHandler */
-void fillInfoData(char **db, char **symbol, char **textColor);
+void fillInfoData(char **db, char **textColor);
 esp_err_t scan_download_get_handler(httpd_req_t *req);
 
 /* ResultHandler */
