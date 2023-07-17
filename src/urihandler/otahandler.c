@@ -124,28 +124,34 @@ const char *get_default_url()
     return DEFAULT_URL;
 }
 
-char *getOtaUrl()
+void getOtaUrl(char *url, char *label)
 {
     char *customUrl = NULL;
-
     // Assuming the function get_config_param_str is defined elsewhere
     get_config_param_str("ota_url", &customUrl);
     if (customUrl != NULL && strlen(customUrl) > 0)
     {
-        printf("Custom Url found '%s'\n", customUrl);
-        return customUrl;
+        ESP_LOGI(TAG, "Custom Url found '%s'\n", customUrl);
+        strcpy(label, "Custom build");
+        strcpy(url, customUrl);
     }
     else
     {
         const char *usedUrl = get_default_url();
-        char url[strlen(usedUrl) + strlen(chip_type) + 20];
+        if (strcmp(usedUrl, DEFAULT_URL_CANARY) == 0)
+        {
+            strcpy(label, "Default build");
+        }
+        else
+        {
+            strcpy(label, "Canary build");
+        }
+
         strcpy(url, usedUrl);
         strcat(url, chip_type);
         strcat(url, "/");
         strcat(url, "firmware.bin");
-        customUrl = malloc(strlen(url) + 1);
-        strcpy(customUrl, url);
-        return customUrl;
+        ESP_LOGI(TAG, "%s will be used '%s'\n", label, url);
     }
 }
 
@@ -155,7 +161,10 @@ void ota_task(void *pvParameter)
     data_length = 0;
     content_length = 0;
     threshold = 0;
-    char *url = getOtaUrl();
+    char url[200];
+    char label[20];
+
+    getOtaUrl(url, label);
 
     appendToLog(url);
     esp_http_client_config_t config = {
@@ -177,7 +186,6 @@ void ota_task(void *pvParameter)
     {
         setResultLog("Error occured. The device is restarting ", "text-danger");
     }
-    free(url);
     finished = true;
     vTaskDelete(NULL);
 }
@@ -282,10 +290,11 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     }
     determineChipType(chip_type);
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
-
-    char *customUrl = getOtaUrl();
-    char *ota_page = malloc(ota_html_size + strlen(GLOBAL_VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(chip_type));
-    sprintf(ota_page, ota_start, GLOBAL_VERSION, latest_version, customUrl, chip_type);
+    char customUrl[200];
+    char label[20];
+    getOtaUrl(customUrl, label);
+    char *ota_page = malloc(ota_html_size + strlen(GLOBAL_VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(chip_type) + strlen(label));
+    sprintf(ota_page, ota_start, GLOBAL_VERSION, latest_version, customUrl, label, chip_type);
 
     closeHeader(req);
 
@@ -293,7 +302,6 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
 
     esp_err_t ret = httpd_resp_send(req, ota_page, HTTPD_RESP_USE_STRLEN);
     free(ota_page);
-    free(customUrl);
     return ret;
 }
 
