@@ -58,17 +58,17 @@ Unpack archive first and then execute:
 
 ```
 esptool.py write_flash 0x0 esp32nat_extended_full_vX.X.X.bin 
-
 ```
 
 ### Update from older version
-If this project was already installed. No data loss from previous version. 
+If this project was already installed. No data loss from previous version. The preferred way is with [OTA-Updates](docs/ota.md). If you want to do it manually:
  
 ```
 esptool.py write_flash 0x10000 esp32nat_extended_vX.X.X.bin 
 ```
+### General 
 
-If any problem occurs, erase flash manually before flashing:
+If any problem occurs, erase flash manually before flashing the full version :
 ```
 esptool.py erase_flash
 ```
