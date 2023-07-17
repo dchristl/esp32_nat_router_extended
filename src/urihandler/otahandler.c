@@ -250,7 +250,7 @@ esp_err_t otalog_get_handler(httpd_req_t *req)
     getOtaUrl(url, label);
 
     char *otalog_page = malloc(otalog_html_size + strlen(otalog) + strlen(otaLogRedirect) + strlen(resultLog) + strlen(progressLabel) + 50 + strlen(label));
-    sprintf(otalog_page, otalog_start, otaLogRedirect, label, otalog, progressInt, progressLabel, resultLog);
+    sprintf(otalog_page, otalog_start, otaLogRedirect, progressInt, progressLabel, label, otalog, resultLog);
 
     closeHeader(req);
 
