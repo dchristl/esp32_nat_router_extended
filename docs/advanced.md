@@ -158,6 +158,7 @@ show
 | custom_dns   | str        | Custom DNS address|
 | lock_pass   | str        | Password for the UI lock|
 | scan_result   | str        | Temporary parameter for the last scan result|
+| result_shown   | i32        | Counter how many times the result was already shown (>3 = delete result)|
 | netmask   | str        | Value of the network class to use (classa, classb or classc)  |
 | sta_identity   | str        | Identity for WPA enterprise |
 | sta_user   | str        | WPA Enterprise username|

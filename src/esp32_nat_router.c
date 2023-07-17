@@ -612,7 +612,7 @@ char *gateway_addr = NULL;
 char *ap_ssid = NULL;
 char *lock_pass = NULL;
 int32_t led_disabled = 0;
-char *scan_result = NULL;
+
 char *ap_passwd = NULL;
 char *ap_ip = NULL;
 
@@ -749,10 +749,16 @@ void app_main(void)
         lock_pass = param_set_default("");
     }
 
+    char *scan_result = NULL;
     get_config_param_str("scan_result", &scan_result);
-    if (scan_result == NULL)
+    int32_t result_shown = 0;
+    get_config_param_int("result_shown", &result_shown);
+
+    if (scan_result != NULL && result_shown >= 3)
     {
-        scan_result = param_set_default("");
+        erase_key("scan_result");
+        erase_key("result_shown");
+        ESP_LOGI(TAG, "Scan result was shown %ld times. Result will be deleted", result_shown);
     }
 
     get_portmap_tab();

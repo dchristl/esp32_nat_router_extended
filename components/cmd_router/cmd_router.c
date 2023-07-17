@@ -153,6 +153,24 @@ esp_err_t get_config_param_int(char *name, int32_t *param)
     return ESP_OK;
 }
 
+esp_err_t erase_key(char *name)
+{
+    nvs_handle_t nvs;
+
+    esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READONLY, &nvs);
+    if (err == ESP_OK)
+    {
+        nvs_erase_key(nvs,name);
+        nvs_close(nvs);
+        return ESP_OK;
+    }
+    else
+    {
+        return err;
+    }
+    return ESP_OK;
+}
+
 char *getDefaultIPByNetmask()
 {
     char *netmask = getNetmask();
@@ -290,7 +308,7 @@ int set_sta_ent(int argc, char **argv)
     }
 
     cleanConsoleString((char *)set_sta_ent_arg.ssid->sval[0]);
-    cleanConsoleString((char *)set_sta_ent_arg.identity -> sval[0]);
+    cleanConsoleString((char *)set_sta_ent_arg.identity->sval[0]);
     cleanConsoleString((char *)set_sta_ent_arg.user->sval[0]);
     cleanConsoleString((char *)set_sta_ent_arg.password->sval[0]);
 
@@ -298,7 +316,7 @@ int set_sta_ent(int argc, char **argv)
     ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", set_sta_ent_arg.ssid->sval[0]));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "passwd", set_sta_ent_arg.password->sval[0]));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "sta_user", set_sta_ent_arg.user->sval[0]));
-    ESP_ERROR_CHECK(nvs_set_str(nvs, "sta_identity", set_sta_ent_arg.identity -> sval[0]));
+    ESP_ERROR_CHECK(nvs_set_str(nvs, "sta_identity", set_sta_ent_arg.identity->sval[0]));
 
     ESP_ERROR_CHECK(nvs_commit(nvs));
     ESP_LOGI(TAG, "WPA Enterprise settings SSID: '%s', User: %s, Identity: %s, Password: %s stored.", set_sta_ent_arg.ssid->sval[0], set_sta_ent_arg.user->sval[0], set_sta_ent_arg.identity->sval[0], set_sta_ent_arg.password->sval[0]);

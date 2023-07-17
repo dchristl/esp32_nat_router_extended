@@ -29,14 +29,24 @@ esp_err_t index_get_handler(httpd_req_t *req)
     {
         return unlock_handler(req);
     }
-
     char *result_param = NULL;
+    char *displayResult = "none";
+
+    char *scanButtonWidth = "12";
     get_config_param_str("scan_result", &result_param);
-    if (result_param != NULL)
+    int32_t result_shown = 0;
+    get_config_param_int("result_shown", &result_shown);
+    if (result_param != NULL && result_shown < 3)
     {
-        free(result_param);
-        ESP_LOGI(TAG, "Scan result is available. Forwarding to scan page");
-        return result_download_get_handler(req);
+        if (result_shown == 0)
+        {
+            free(result_param);
+            ESP_LOGI(TAG, "Scan result is available and not shown already. Forwarding to scan page");
+            return result_download_get_handler(req);
+        }
+
+        scanButtonWidth = "9";
+        displayResult = "block";
     }
 
     httpd_req_to_sockfd(req);
@@ -116,7 +126,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
         cer = "";
     }
 
-    size = size + strlen(wpa2CB) + strlen(wpa2Input) + strlen(sta_identity) + strlen(sta_user) + strlen(cer);
+    size = size + strlen(wpa2CB) + strlen(wpa2Input) + strlen(sta_identity) + strlen(sta_user) + strlen(cer) + strlen(displayResult) + strlen(scanButtonWidth);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
 
     char *config_page = malloc(config_html_size + size);
@@ -124,11 +134,11 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", scanButtonWidth, displayResult, display);
     }
     else
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, symbol, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, scanButtonWidth, displayResult, display);
     }
 
     closeHeader(req);

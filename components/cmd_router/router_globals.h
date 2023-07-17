@@ -38,6 +38,7 @@ extern "C"
    esp_err_t get_config_param_str(char *name, char **param);
    esp_err_t get_config_param_blob(char *name, char **param, size_t* blob_len);
    esp_err_t get_config_param_blob2(char *name, uint8_t *blob, size_t blob_len);
+   esp_err_t erase_key(char *name);
 
    void print_portmap_tab();
    esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);

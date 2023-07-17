@@ -78,14 +78,17 @@ esp_err_t result_download_get_handler(httpd_req_t *req)
     closeHeader(req);
 
     esp_err_t ret = httpd_resp_send(req, result_page, HTTPD_RESP_USE_STRLEN);
-    ESP_LOGW(TAG, "Requesting additional size of %d", strlen(result_page));
+    ESP_LOGI(TAG, "Requesting result page with  %d additional bytes", strlen(result_page));
 
     free(result_page);
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
-    nvs_erase_key(nvs, "scan_result");
+    int32_t result_shown = 0;
+    get_config_param_int("result_shown", &result_shown);
+    nvs_set_i32(nvs, "result_shown", ++result_shown);
+    ESP_LOGI(TAG, "Result shown %ld times", result_shown);
+
     nvs_commit(nvs);
     nvs_close(nvs);
-    ESP_LOGI(TAG, "Requesting result page");
     return ret;
 }

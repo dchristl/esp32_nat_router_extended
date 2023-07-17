@@ -16,7 +16,6 @@
 
 static const char *TAG = "Scan";
 
-
 static void print_auth_mode(int authmode)
 {
     switch (authmode)
@@ -104,7 +103,6 @@ static void print_cipher_type(int pairwise_cipher, int group_cipher)
     }
 }
 
-
 /* Initialize Wi-Fi as sta and set scan method */
 static char *wifi_scan(void)
 {
@@ -128,7 +126,7 @@ static char *wifi_scan(void)
 
     char result[DEFAULT_SCAN_LIST_SIZE * 100];
     strcpy(result, "");
-   
+
     for (int i = 0; (i < DEFAULT_SCAN_LIST_SIZE) && (i < ap_count); i++)
     {
         ESP_LOGI(TAG, "SSID \t\t%s", ap_info[i].ssid);
@@ -139,9 +137,8 @@ static char *wifi_scan(void)
             print_cipher_type(ap_info[i].pairwise_cipher, ap_info[i].group_cipher);
         }
         ESP_LOGI(TAG, "Channel \t\t%d\n", ap_info[i].primary);
-     
-        char *tmp = malloc(100);
 
+        char *tmp = malloc(100);
 
         sprintf(tmp, "%s\x03%d\x05", ap_info[i].ssid, ap_info[i].rssi);
 
@@ -169,7 +166,9 @@ void fillNodes()
     nvs_handle_t nvs;
     ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "scan_result", scan_result));
+    ESP_ERROR_CHECK(nvs_erase_key(nvs, "result_shown"));
+
     ESP_ERROR_CHECK(nvs_commit(nvs));
     nvs_close(nvs);
-    esp_restart();  
+    esp_restart();
 }
