@@ -124,10 +124,10 @@ static httpd_uri_t jquery_handler = {
     .handler = jquery_get_handler,
     .user_ctx = NULL};
 
-static httpd_uri_t bootstrap_handler = {
-    .uri = "/bootstrap-9d8e4911554dc484b35bfc04848f6dff.js",
+static httpd_uri_t about_handler = {
+    .uri = "/about",
     .method = HTTP_GET,
-    .handler = bootstrap_get_handler,
+    .handler = about_get_handler,
     .user_ctx = NULL};
 
 static httpd_uri_t styles_handler = {
@@ -184,7 +184,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &lockp);
         httpd_register_uri_handler(server, &favicon_handler);
         httpd_register_uri_handler(server, &jquery_handler);
-        httpd_register_uri_handler(server, &bootstrap_handler);
+        httpd_register_uri_handler(server, &about_handler);
         httpd_register_uri_handler(server, &styles_handler);
         httpd_register_uri_handler(server, &apig);
         httpd_register_uri_handler(server, &advanced_page_download);

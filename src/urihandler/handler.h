@@ -9,7 +9,6 @@
 /* Static */
 void closeHeader(httpd_req_t *req);
 esp_err_t styles_download_get_handler(httpd_req_t *req);
-esp_err_t bootstrap_get_handler(httpd_req_t *req);
 esp_err_t jquery_get_handler(httpd_req_t *req);
 esp_err_t favicon_get_handler(httpd_req_t *req);
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err);
@@ -51,3 +50,6 @@ esp_err_t ota_download_get_handler(httpd_req_t *req);
 esp_err_t otalog_get_handler(httpd_req_t *req);
 esp_err_t ota_post_handler(httpd_req_t *req);
 esp_err_t otalog_post_handler(httpd_req_t *req);
+
+/* About-Handler */
+esp_err_t about_get_handler(httpd_req_t *req);
