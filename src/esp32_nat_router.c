@@ -778,8 +778,8 @@ void app_main(void)
         ESP_LOGI(TAG, "On board LED is disabled");
     }
 
-    // ip_napt_enable(my_ap_ip, 0); 
-    ESP_LOGI(TAG, "NAT is disabled");
+    ip_napt_enable(my_ap_ip, 0); 
+    ESP_LOGI(TAG, "NAT is not enabled");
 
     int32_t lock = 0;
     get_config_param_int("lock", &lock);
