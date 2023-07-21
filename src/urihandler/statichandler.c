@@ -22,7 +22,6 @@ esp_err_t styles_download_get_handler(httpd_req_t *req)
     return download(req, (const char *)styles_start);
 }
 
-
 esp_err_t jquery_get_handler(httpd_req_t *req)
 {
     extern const unsigned char jquery_js_start[] asm("_binary_jquery_8a1045d9cbf50b52a0805c111ba08e94_js_start");
@@ -58,7 +57,10 @@ esp_err_t redirectToRoot(httpd_req_t *req)
 
 esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
 {
-    return redirectToRoot(req);
+
+    httpd_resp_set_status(req, "302 Temporary Redirect");
+    httpd_resp_set_hdr(req, "Location", "/");
+    return httpd_resp_send(req, NULL, 0);
 }
 
 esp_err_t reset_get_handler(httpd_req_t *req)
