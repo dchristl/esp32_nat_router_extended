@@ -230,7 +230,7 @@ esp_err_t otalog_get_handler(httpd_req_t *req)
 
     if (isLocked())
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
 
     httpd_req_to_sockfd(req);
@@ -264,7 +264,7 @@ esp_err_t otalog_post_handler(httpd_req_t *req)
 {
     if (isLocked())
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
     resultLog[0] = '\0';
     otalog[0] = '\0';
@@ -277,7 +277,7 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
 {
     if (isLocked())
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
 
     httpd_req_to_sockfd(req);
@@ -311,7 +311,7 @@ esp_err_t ota_post_handler(httpd_req_t *req)
 {
     if (isLocked())
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
 
     int ret, remaining = req->content_len;

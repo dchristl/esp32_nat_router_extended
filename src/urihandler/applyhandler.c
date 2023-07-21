@@ -287,7 +287,7 @@ esp_err_t apply_get_handler(httpd_req_t *req)
 
     if (isLocked())
     {
-        return unlock_handler(req);
+       return redirectToLock(req);
     }
     extern const char apply_start[] asm("_binary_apply_html_start");
     extern const char apply_end[] asm("_binary_apply_html_end");
@@ -307,7 +307,7 @@ esp_err_t apply_post_handler(httpd_req_t *req)
 {
     if (isLocked())
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
     httpd_req_to_sockfd(req);
 

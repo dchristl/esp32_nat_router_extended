@@ -13,7 +13,7 @@ extern const char *GLOBAL_BUILD_DATE;
     ESP_LOGI(TAG, "Requesting about page");
     if (isLocked())
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
     httpd_req_to_sockfd(req);
 

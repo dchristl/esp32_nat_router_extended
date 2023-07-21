@@ -4,8 +4,6 @@
 #include "lwip/ip4_addr.h"
 #include "helper.h"
 
-
-
 /* Static */
 void closeHeader(httpd_req_t *req);
 esp_err_t styles_download_get_handler(httpd_req_t *req);
@@ -24,6 +22,7 @@ bool isLocked();
 void lockUI();
 esp_err_t unlock_handler(httpd_req_t *req);
 esp_err_t lock_handler(httpd_req_t *req);
+esp_err_t redirectToLock(httpd_req_t *req);
 
 /* ScanHandler */
 void fillInfoData(char **db, char **textColor);

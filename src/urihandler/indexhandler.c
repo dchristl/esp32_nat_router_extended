@@ -27,7 +27,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (isLocked())
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
     char *result_param = NULL;
     char *displayResult = "none";
@@ -173,7 +173,7 @@ esp_err_t index_post_handler(httpd_req_t *req)
 
     if (isLocked())
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
     httpd_req_to_sockfd(req);
 

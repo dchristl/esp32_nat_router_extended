@@ -65,11 +65,18 @@ esp_err_t unlock_handler(httpd_req_t *req)
     closeHeader(req);
     return httpd_resp_send(req, ul_start, HTTPD_RESP_USE_STRLEN);
 }
+
+esp_err_t redirectToLock(httpd_req_t *req)
+{
+    httpd_resp_set_status(req, "302 Found");
+    httpd_resp_set_hdr(req, "Location", "/unlock");
+    return httpd_resp_send(req, NULL, 0);
+}
 esp_err_t lock_handler(httpd_req_t *req)
 {
     if (locked)
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
     httpd_req_to_sockfd(req);
 
@@ -111,11 +118,17 @@ esp_err_t lock_handler(httpd_req_t *req)
             nvs_set_str(nvs, "lock_pass", passParam);
             nvs_commit(nvs);
             nvs_close(nvs);
+            httpd_resp_set_status(req, "302 Found");
             if (strlen(passParam) > 0)
             {
-                locked = true;
+                httpd_resp_set_hdr(req, "Location", "/lock");
+                lockUI();
             }
-            return index_get_handler(req);
+            else
+            {
+                httpd_resp_set_hdr(req, "Location", "/");
+            }
+            return httpd_resp_send(req, NULL, 0);
         }
         else
         {

@@ -12,7 +12,7 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
 {
     if (isLocked())
     {
-        return unlock_handler(req);
+        return redirectToLock(req);
     }
 
     httpd_req_to_sockfd(req);
