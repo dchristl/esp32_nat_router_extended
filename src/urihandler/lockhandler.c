@@ -20,6 +20,13 @@ void lockUI()
 }
 esp_err_t unlock_handler(httpd_req_t *req)
 {
+
+    if (!locked)
+    {
+        httpd_resp_set_status(req, "302 Found");
+        httpd_resp_set_hdr(req, "Location", "/");
+        return httpd_resp_send(req, NULL, 0);
+    }
     httpd_req_to_sockfd(req);
 
     int ret, remaining = req->content_len;
