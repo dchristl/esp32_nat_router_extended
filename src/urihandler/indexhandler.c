@@ -55,16 +55,19 @@ esp_err_t index_get_handler(httpd_req_t *req)
     const size_t config_html_size = (config_end - config_start);
 
     char *display = NULL;
+    char *lockLabel = NULL;
 
     char *lock_pass = NULL;
     get_config_param_str("lock_pass", &lock_pass);
     if (lock_pass != NULL && strlen(lock_pass) > 0)
     {
         display = "block";
+        lockLabel = "Change lock pass";
     }
     else
     {
         display = "none";
+        lockLabel = "Lock interface";
     }
 
     size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(display);
@@ -144,11 +147,11 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", scanButtonWidth, displayResult, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", scanButtonWidth, displayResult, lockLabel, lockLabel, display);
     }
     else
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, scanButtonWidth, displayResult, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, scanButtonWidth, displayResult, lockLabel, lockLabel, display);
     }
 
     closeHeader(req);

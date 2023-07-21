@@ -111,8 +111,11 @@ esp_err_t lock_handler(httpd_req_t *req)
             nvs_set_str(nvs, "lock_pass", passParam);
             nvs_commit(nvs);
             nvs_close(nvs);
-            restartByTimer();
-            return apply_get_handler(req);
+            if (strlen(passParam) > 0)
+            {
+                locked = true;
+            }
+            return index_get_handler(req);
         }
         else
         {
