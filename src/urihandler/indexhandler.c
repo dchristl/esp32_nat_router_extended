@@ -54,23 +54,23 @@ esp_err_t index_get_handler(httpd_req_t *req)
     extern const char config_end[] asm("_binary_config_html_end");
     const size_t config_html_size = (config_end - config_start);
 
-    char *display = NULL;
-    char *lockLabel = NULL;
+    char *displayLockButton = NULL;
+    char *displayRelockButton = NULL;
 
     char *lock_pass = NULL;
     get_config_param_str("lock_pass", &lock_pass);
     if (lock_pass != NULL && strlen(lock_pass) > 0)
     {
-        display = "block";
-        lockLabel = "Change lock pass";
+        displayLockButton = "none";
+        displayRelockButton = "flex";
     }
     else
     {
-        display = "none";
-        lockLabel = "Lock interface";
+        displayLockButton = "block";
+        displayRelockButton = "none";
     }
 
-    size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(display);
+    size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(displayLockButton);
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
         size = size + strlen(appliedSSID);
@@ -139,7 +139,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
         cer = "";
     }
 
-    size = size + strlen(wpa2CB) + strlen(wpa2Input) + strlen(sta_identity) + strlen(sta_user) + strlen(cer) + strlen(displayResult) + strlen(scanButtonWidth);
+    size = size + strlen(wpa2CB) + strlen(wpa2Input) + strlen(sta_identity) + strlen(sta_user) + strlen(cer) + strlen(displayResult) + strlen(scanButtonWidth) + strlen(displayLockButton) + strlen(displayRelockButton);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
 
     char *config_page = malloc(config_html_size + size);
@@ -147,11 +147,11 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", scanButtonWidth, displayResult, lockLabel, lockLabel, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", scanButtonWidth, displayResult, displayLockButton, displayRelockButton);
     }
     else
     {
-        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, scanButtonWidth, displayResult, lockLabel, lockLabel, display);
+        sprintf(config_page, config_start, connect_count, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, scanButtonWidth, displayResult, displayLockButton, displayRelockButton);
     }
 
     closeHeader(req);
