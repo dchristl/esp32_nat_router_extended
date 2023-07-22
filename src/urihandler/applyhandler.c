@@ -183,6 +183,18 @@ void applyAdvancedConfig(char *buf)
         nvs_set_i32(nvs, "led_disabled", 1);
     }
 
+    readUrlParameterIntoBuffer(buf, "natenabled", param, contentLength);
+    if (strlen(param) > 0)
+    {
+        ESP_LOGI(TAG, "NAT will be enabled");
+        nvs_set_i32(nvs, "nat_disabled", 0);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "NAT will be disabled");
+        nvs_set_i32(nvs, "nat_disabled", 1);
+    }
+
     readUrlParameterIntoBuffer(buf, "wsenabled", param, contentLength);
     if (strlen(param) == 0)
     {
@@ -287,7 +299,7 @@ esp_err_t apply_get_handler(httpd_req_t *req)
 
     if (isLocked())
     {
-       return redirectToLock(req);
+        return redirectToLock(req);
     }
     extern const char apply_start[] asm("_binary_apply_html_start");
     extern const char apply_end[] asm("_binary_apply_html_end");
