@@ -153,6 +153,7 @@ show
 | ssid      | str       |SSID of the STA network|
 | keep_alive   | i32        | Keep the connection alive|
 | led_disabled   | i32        | Is the LED disabled|
+| nat_disabled   | i32        | Is NAT disabled|
 | lock   | i32        | Webserver is disabled|
 | custom_mac   | str        | Custom Mac address or "random"|
 | custom_dns   | str        | Custom DNS address|
