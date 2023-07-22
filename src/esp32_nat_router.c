@@ -611,7 +611,6 @@ char *subnet_mask = NULL;
 char *gateway_addr = NULL;
 char *ap_ssid = NULL;
 char *lock_pass = NULL;
-int32_t led_disabled = 0;
 
 char *ap_passwd = NULL;
 char *ap_ip = NULL;
@@ -767,6 +766,7 @@ void app_main(void)
     wifi_init(ssid, passwd, static_ip, subnet_mask, gateway_addr, ap_ssid, ap_passwd, ap_ip, sta_user, sta_identity);
 
     pthread_t t1;
+    int32_t led_disabled = 0;
     get_config_param_int("led_disabled", &led_disabled);
     if (led_disabled == 0)
     {
@@ -777,9 +777,17 @@ void app_main(void)
     {
         ESP_LOGI(TAG, "On board LED is disabled");
     }
-
-    ip_napt_enable(my_ap_ip, 0); 
-    ESP_LOGI(TAG, "NAT is not enabled");
+    int32_t nat_disabled = 0;
+    get_config_param_int("nat_disabled", &nat_disabled);
+    if (nat_disabled == 0)
+    {
+        ip_napt_enable(my_ap_ip, 1);
+        ESP_LOGI(TAG, "NAT is enabled");
+    }
+    else
+    {
+        ESP_LOGI(TAG, "NAT is disabled");
+    }
 
     int32_t lock = 0;
     get_config_param_int("lock", &lock);

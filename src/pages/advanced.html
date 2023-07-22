@@ -2,111 +2,152 @@
 <html lang=en>
 
 <head>
-    <link href=favicon.ico rel="shortcut icon" type=image/x-icon>
-    <meta charset=utf-8>
-    <meta content="IE=edge" http-equiv=X-UA-Compatible>
-    <meta content="width=device-width, initial-scale=1" name=viewport>
-    <link href=styles-578410c85e5e076cb33aeeff500eb68d.css rel=stylesheet>
-    <title>Advanced</title>
+        <link href=favicon.ico rel="shortcut icon" type=image/x-icon>
+        <meta charset=utf-8>
+        <meta content="IE=edge" http-equiv=X-UA-Compatible>
+        <meta content="width=device-width, initial-scale=1" name=viewport>
+        <link href=styles-578410c85e5e076cb33aeeff500eb68d.css rel=stylesheet>
+        <title>Advanced</title>
 </head>
 
 <body>
-    <div class=container>
-        <div class="row text-center p-3">
-            <h1>Advanced configuration</h1>
+        <div class=container>
+                <div class="row text-center p-3">
+                        <h1>Advanced configuration</h1>
+                </div>
+                <form action=apply class=p-2 method=POST> <input name=func type=hidden value=advanced>
+                        <h2>Misc</h2>
+                        <div class="form-group row mt-2">
+                                <div class="form-check form-switch"> <input class=form-check-input type=checkbox
+                                                id=ledenabled name=ledenabled %s> <label class=form-check-label
+                                                for=ledenabled>LED enabled</label> </div>
+                                <div class="alert alert-light mt-2" role=alert> This enables or disables the on board
+                                        LED, if available.
+                                        Uncheck this option for less power consumption and less disturbing blinking. Of
+                                        course, you will not
+                                        be able to interpret the number of connected devices anymore by this LED. </div>
+                        </div>
+                        <div class="form-group row mt-2">
+                                <div class="form-check form-switch"> <input class=form-check-input type=checkbox
+                                                id=keepalive name=keepalive %s> <label class=form-check-label
+                                                for=keepalive>Keep connection alive</label>
+                                </div>
+                                <div class="alert alert-light mt-2" role=alert> Check this option for networks with a
+                                        forced disconnect
+                                        after some inactivity. This will call <a
+                                                href=https:www.startpage.com>Startpage.com</a> every 5
+                                        minutes with a small footprint to keep the connection alive. </div>
+                        </div>
+                        <div class="form-group row mt-2">
+                                <div class="form-check form-switch"> <input class=form-check-input type=checkbox
+                                                id=natenabled name=natenabled %s> <label class=form-check-label
+                                                for=natenabled>NAT enabled</label> </div>
+                                <div class="alert alert-warning mt-2" role=alert> This enables or disables NAT.</div>
+                        </div>
+                        <div class="form-group row mt-2 ">
+                                <div class="form-check form-switch"> <input class=form-check-input type=checkbox
+                                                id=wsenabled name=wsenabled checked> <label class=form-check-label
+                                                for=wsenabled>Webserver enabled</label>
+                                </div>
+                                <div class="alert alert-danger mt-2" role=alert> This enables or disables the webserver.
+                                        Disables the
+                                        this UI for additional security. Use this with caution. If disabled, you will
+                                        not be able to
+                                        configure the device with your browser anymore. </div>
+                        </div>
+
+                        <h2>DNS override</h2> <span class=text-info>Your current DNS is: %s</span>
+                        <div class="form-group row mt-2">
+                                <div class=form-check> <input class=form-check-input type=radio name=dns id=default
+                                                value %s> <label class=form-check-label for=default> Default from uplink
+                                                WiFi-network</label> </div>
+                                <div class="form-check mt-2"> <input class=form-check-input type=radio name=dns
+                                                id=cloudflare value=1.1.1.1 %s> <label class=form-check-label
+                                                for=cloudflare> 1.1.1.1 (Cloudflare) </label>
+                                </div>
+                                <div class="form-check mt-2"> <input class=form-check-input type=radio name=dns
+                                                id=adguard value=94.140.14.14 %s> <label class=form-check-label
+                                                for=adguard> 94.140.14.14 (AdGuard)
+                                        </label> </div>
+                                <div class="form-check mt-2"> <input class=form-check-input type=radio name=dns
+                                                id=custom value=custom %s> <label class=form-check-label for=custom>
+                                                Custom </label> <input class="form-control mt-2" id=dnsip maxlength=15
+                                                name=dnsip placeholder="IPv4 address in format 123.123.123.123"
+                                                type=text value=%s> </div>
+                                <div class="alert alert-warning mt-2" role=alert>This overrides the DNS server of the
+                                        uplink network.
+                                        Changing this leads to more privacy (Cloudflare) and the possibilty to block ads
+                                        (AdGuard). Use this
+                                        with caution if you have to register/login to the uplink network. This can lead
+                                        to unreachable
+                                        sites. After login or registration this can be reactivated. If you define an
+                                        invalid custom DNS
+                                        server, the value will be set back to default one.</div>
+                        </div>
+                        <h2>MAC override</h2> <span class=text-info>Your current MAC address is: <span
+                                        style="text-transform: uppercase;">%s</span></span>
+                        <div class="form-group row mt-2">
+                                <div class=form-check> <input class=form-check-input type=radio id=defaultmac
+                                                name=custommac value=default %s> <label class=form-check-label
+                                                for=defaultmac> Default <span
+                                                        style="text-transform: uppercase;">(%s)</span> </label> </div>
+                                <div class="form-check mt-2"> <input class=form-check-input type=radio id=randomMac
+                                                name=custommac value=random %s> <label class=form-check-label
+                                                for=randomMac>Random<span style="text-transform: uppercase;">
+                                                        (%sXX)</span>.</label> </div>
+                                <div class="form-check mt-2"> <input class=form-check-input type=radio id=custommac
+                                                name=custommac value=custom %s> <label class=form-check-label
+                                                for=custommac> Custom </label> <input class="form-control mt-2" id=mac
+                                                maxlength=17 name=macaddress
+                                                placeholder="MAC address in format AB:BC:DE:F1:23:45" type=text
+                                                value=%s> </div>
+                                <div class="alert alert-warning mt-2" role=alert>This overrides the MAC address of the
+                                        device. Changing
+                                        this can be used for networks with MAC limitations. For example limited number
+                                        of devices or
+                                        specific MACs. The value will be resetted to the default, if you define an
+                                        invalid address. To
+                                        bypass time by device limits in some WiFis (e.g. 30min free per device and day)
+                                        you can select
+                                        "Random". This will change the last part of the default MAC on every reboot.
+                                </div>
+                        </div>
+                        <h2>Netmask override</h2> <span class=text-info>Your current netmask is: <span
+                                        style="text-transform: uppercase;">%s</span></span>
+                        <div class="form-group row mt-2">
+                                <div class=form-check> <input class=form-check-input type=radio id=classc name=netmask
+                                                value=classc %s>
+                                        <label class=form-check-label for=classc> Class C (255.255.255.0). ESP 32 NAT
+                                                Router address is
+                                                192.168.4.1.</label>
+                                </div>
+                                <div class="form-check mt-2"> <input class=form-check-input type=radio id=classb
+                                                name=netmask value=classb %s> <label class=form-check-label for=classb>
+                                                Class B (255.255.0.0). ESP 32 NAT
+                                                Router address is 172.16.4.1.</label> </div>
+                                <div class="form-check mt-2"> <input class=form-check-input type=radio id=classa
+                                                name=netmask value=classa %s> <label class=form-check-label for=classa>
+                                                Class A (255.0.0.0). ESP 32 NAT
+                                                Router address is 10.0.4.1.</label> </div>
+                                <div class="alert alert-warning mt-2" role=alert>This overrides the netmask of the
+                                        device and can be
+                                        used if upstream network uses a non class C mask. The setting can be used for
+                                        communication with
+                                        clients connected to the upstream network. This changes the default IP address
+                                        of the device and the
+                                        IPs of the connected clients to the corresponding IP range.</div>
+                        </div>
+                        <div class="form-group row col-4 offset-4 mt-4"> <input class="btn btn-primary" type=submit
+                                        value="Apply changes"> </div> <input type=hidden value=x name=x>
+                </form>
+                <form action=reset method=GET>
+                        <div class="form-group row col-4 offset-4 mt-5"> <input class="btn btn-warning" type=submit
+                                        value="Erase flash"> </div>
+                </form>
+                <div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
         </div>
-        <form action=apply class=p-2 method=POST> <input name=func type=hidden value=advanced>
-            <h2>Misc</h2>
-            <div class="form-group row mt-2">
-                <div class="form-check form-switch"> <input class=form-check-input type=checkbox id=ledenabled
-                        name=ledenabled %s> <label class=form-check-label for=ledenabled>LED enabled</label> </div>
-                <div class="alert alert-light mt-2" role=alert> This enables or disables the on board LED, if available.
-                    Uncheck this option for less power consumption and less disturbing blinking. Of course, you will not
-                    be able to interpret the number of connected devices anymore by this LED. </div>
-            </div>
-            <div class="form-group row mt-2">
-                <div class="form-check form-switch"> <input class=form-check-input type=checkbox id=keepalive
-                        name=keepalive %s> <label class=form-check-label for=keepalive>Keep connection alive</label>
-                </div>
-                <div class="alert alert-light mt-2" role=alert> Check this option for networks with a forced disconnect
-                    after some inactivity. This will call <a href=https:www.startpage.com>Startpage.com</a> every 5
-                    minutes with a small footprint to keep the connection alive. </div>
-            </div>
-            <div class="form-group row mt-2 ">
-                <div class="form-check form-switch"> <input class=form-check-input type=checkbox id=wsenabled
-                        name=wsenabled checked> <label class=form-check-label for=wsenabled>Webserver enabled</label>
-                </div>
-                <div class="alert alert-danger mt-2" role=alert> This enables or disables the webserver. Disables the
-                    this UI for additional security. Use this with caution. If disabled, you will not be able to
-                    configure the device with your browser anymore. </div>
-            </div>
-            <h2>DNS override</h2> <span class=text-info>Your current DNS is: %s</span>
-            <div class="form-group row mt-2">
-                <div class=form-check> <input class=form-check-input type=radio name=dns id=default value %s> <label
-                        class=form-check-label for=default> Default from uplink WiFi-network</label> </div>
-                <div class="form-check mt-2"> <input class=form-check-input type=radio name=dns id=cloudflare
-                        value=1.1.1.1 %s> <label class=form-check-label for=cloudflare> 1.1.1.1 (Cloudflare) </label>
-                </div>
-                <div class="form-check mt-2"> <input class=form-check-input type=radio name=dns id=adguard
-                        value=94.140.14.14 %s> <label class=form-check-label for=adguard> 94.140.14.14 (AdGuard)
-                    </label> </div>
-                <div class="form-check mt-2"> <input class=form-check-input type=radio name=dns id=custom value=custom
-                        %s> <label class=form-check-label for=custom> Custom </label> <input class="form-control mt-2"
-                        id=dnsip maxlength=15 name=dnsip placeholder="IPv4 address in format 123.123.123.123" type=text
-                        value=%s> </div>
-                <div class="alert alert-warning mt-2" role=alert>This overrides the DNS server of the uplink network.
-                    Changing this leads to more privacy (Cloudflare) and the possibilty to block ads (AdGuard). Use this
-                    with caution if you have to register/login to the uplink network. This can lead to unreachable
-                    sites. After login or registration this can be reactivated. If you define an invalid custom DNS
-                    server, the value will be set back to default one.</div>
-            </div>
-            <h2>MAC override</h2> <span class=text-info>Your current MAC address is: <span
-                    style="text-transform: uppercase;">%s</span></span>
-            <div class="form-group row mt-2">
-                <div class=form-check> <input class=form-check-input type=radio id=defaultmac name=custommac
-                        value=default %s> <label class=form-check-label for=defaultmac> Default <span
-                            style="text-transform: uppercase;">(%s)</span> </label> </div>
-                <div class="form-check mt-2"> <input class=form-check-input type=radio id=randomMac name=custommac
-                        value=random %s> <label class=form-check-label for=randomMac>Random<span
-                            style="text-transform: uppercase;"> (%sXX)</span>.</label> </div>
-                <div class="form-check mt-2"> <input class=form-check-input type=radio id=custommac name=custommac
-                        value=custom %s> <label class=form-check-label for=custommac> Custom </label> <input
-                        class="form-control mt-2" id=mac maxlength=17 name=macaddress
-                        placeholder="MAC address in format AB:BC:DE:F1:23:45" type=text value=%s> </div>
-                <div class="alert alert-warning mt-2" role=alert>This overrides the MAC address of the device. Changing
-                    this can be used for networks with MAC limitations. For example limited number of devices or
-                    specific MACs. The value will be resetted to the default, if you define an invalid address. To
-                    bypass time by device limits in some WiFis (e.g. 30min free per device and day) you can select
-                    "Random". This will change the last part of the default MAC on every reboot.</div>
-            </div>
-            <h2>Netmask override</h2> <span class=text-info>Your current netmask is: <span
-                    style="text-transform: uppercase;">%s</span></span>
-            <div class="form-group row mt-2">
-                <div class=form-check> <input class=form-check-input type=radio id=classc name=netmask value=classc %s>
-                    <label class=form-check-label for=classc> Class C (255.255.255.0). ESP 32 NAT Router address is
-                        192.168.4.1.</label> </div>
-                <div class="form-check mt-2"> <input class=form-check-input type=radio id=classb name=netmask
-                        value=classb %s> <label class=form-check-label for=classb> Class B (255.255.0.0). ESP 32 NAT
-                        Router address is 172.16.4.1.</label> </div>
-                <div class="form-check mt-2"> <input class=form-check-input type=radio id=classa name=netmask
-                        value=classa %s> <label class=form-check-label for=classa> Class A (255.0.0.0). ESP 32 NAT
-                        Router address is 10.0.4.1.</label> </div>
-                <div class="alert alert-warning mt-2" role=alert>This overrides the netmask of the device and can be
-                    used if upstream network uses a non class C mask. The setting can be used for communication with
-                    clients connected to the upstream network. This changes the default IP address of the device and the
-                    IPs of the connected clients to the corresponding IP range.</div>
-            </div>
-            <div class="form-group row col-4 offset-4 mt-4"> <input class="btn btn-primary" type=submit
-                    value="Apply changes"> </div> <input type=hidden value=x name=x>
-        </form>
-        <form action=reset method=GET>
-            <div class="form-group row col-4 offset-4 mt-5"> <input class="btn btn-warning" type=submit
-                    value="Erase flash"> </div>
-        </form>
-        <div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
-    </div>
-    <script src=jquery-8a1045d9cbf50b52a0805c111ba08e94.js></script>
-    <script>         function refreshRadios() { $('input[value="custom"]').each(function () { $(this).next().next().prop('disabled', $(this).prop('checked') ? false : true); }) }; $('input[type=radio]').change(function () { refreshRadios(); }); $(document).ready(function () { refreshRadios(); });          </script>
+        <script src=jquery-8a1045d9cbf50b52a0805c111ba08e94.js></script>
+        <script>         function refreshRadios() { $('input[value="custom"]').each(function () { $(this).next().next().prop('disabled', $(this).prop('checked') ? false : true); }) }; $('input[type=radio]').change(function () { refreshRadios(); }); $(document).ready(function () { refreshRadios(); });          </script>
 </body>
 
 </html>
