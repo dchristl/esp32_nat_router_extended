@@ -25,7 +25,7 @@
                                         LED, if available.
                                         Uncheck this option for less power consumption and less disturbing blinking. Of
                                         course, you will not
-                                        be able to interpret the number of connected devices anymore by this LED. </div>
+                                        be able to interpret the number of connected devices anymore. </div>
                         </div>
                         <div class="form-group row mt-2">
                                 <div class="form-check form-switch"> <input class=form-check-input type=checkbox
@@ -42,10 +42,11 @@
                                 <div class="form-check form-switch"> <input class=form-check-input type=checkbox
                                                 id=natenabled name=natenabled %s> <label class=form-check-label
                                                 for=natenabled>NAT enabled</label> </div>
-                                <div class="alert alert-warning mt-2" role=alert> This enables or disables NAT. Disabled
-                                        NAT means that each client needs its own IP address to communicate with the
-                                        internet. This address must be configured separately - typically on the access
-                                        point (AP).</div>
+                                <div class="alert alert-warning mt-2" role=alert> This enables or disables NAT(Network
+                                        Address Translation). If disabled, the ESP32 will not perform automatic
+                                        translation of IP addresses and ports for connected devices when they establish
+                                        a connection to the internet. These routes need to be configured separately, for
+                                        example, on the router.</div>
                         </div>
                         <div class="form-group row mt-2 ">
                                 <div class="form-check form-switch"> <input class=form-check-input type=checkbox
@@ -53,10 +54,8 @@
                                                 for=wsenabled>Webserver enabled</label>
                                 </div>
                                 <div class="alert alert-danger mt-2" role=alert> This enables or disables the webserver.
-                                        Disables the
-                                        this UI for additional security. Use this with caution. If disabled, you will
-                                        not be able to
-                                        configure the device with your browser anymore. </div>
+                                        Disabling it increases security but also means that the device can no longer be
+                                        configured through the web browser.</div>
                         </div>
 
                         <h2>DNS override</h2> <span class=text-info>Your current DNS is: %s</span>
@@ -78,13 +77,11 @@
                                                 name=dnsip placeholder="IPv4 address in format 123.123.123.123"
                                                 type=text value=%s> </div>
                                 <div class="alert alert-warning mt-2" role=alert>This overrides the DNS server of the
-                                        uplink network.
-                                        Changing this leads to more privacy (Cloudflare) and the possibilty to block ads
-                                        (AdGuard). Use this
-                                        with caution if you have to register/login to the uplink network. This can lead
-                                        to unreachable
-                                        sites. After login or registration this can be reactivated. If you define an
-                                        invalid custom DNS
+                                        uplink network. Changing this results in more privacy (Cloudflare) or the
+                                        ability to block advertisements(AdGuard).
+                                        Use this with caution if you have to register/login to the uplink network. This
+                                        can lead to unreachable sites. After login or registration this can be
+                                        reactivated. If you define an invalid custom DNS
                                         server, the value will be set back to default one.</div>
                         </div>
                         <h2>MAC override</h2> <span class=text-info>Your current MAC address is: <span
@@ -106,13 +103,13 @@
                                                 value=%s> </div>
                                 <div class="alert alert-warning mt-2" role=alert>This overrides the MAC address of the
                                         device. Changing
-                                        this can be used for networks with MAC limitations. For example limited number
-                                        of devices or
-                                        specific MACs. The value will be resetted to the default, if you define an
-                                        invalid address. To
+                                        this can be used for networks with MAC limitations. For example, when the
+                                        network allows only a limited number of devices per access for specific MACs.
+                                        The value will be
+                                        resetted to the default, if you define an invalid address. To
                                         bypass time by device limits in some WiFis (e.g. 30min free per device and day)
-                                        you can select
-                                        "Random". This will change the last part of the default MAC on every reboot.
+                                        you can select "Random". This will change the last part of the default MAC on
+                                        every reboot.
                                 </div>
                         </div>
                         <h2>Netmask override</h2> <span class=text-info>Your current netmask is: <span
