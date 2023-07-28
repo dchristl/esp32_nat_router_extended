@@ -572,12 +572,23 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
 
     setHostName();
 
+    int32_t hiddenSSID = 0;
+    get_config_param_int("ssid_hidden", &hiddenSSID);
+    if (hiddenSSID == 1)
+    {
+        ESP_LOGI(TAG, "AP-SSID will be hidden");
+    }
+    else
+    {
+        hiddenSSID = 0;
+    }
+
     /* ESP WIFI CONFIG */
     wifi_config_t wifi_config = {0};
     wifi_config_t ap_config = {
         .ap = {
             .authmode = WIFI_AUTH_WPA2_PSK, // Check WIFI_AUTH_WPA2_WPA3_PSK with ESP-IDF 5.1
-            .ssid_hidden = 0,
+            .ssid_hidden = hiddenSSID,
             .max_connection = 10,
             .beacon_interval = 100,
             .pairwise_cipher = WIFI_CIPHER_TYPE_CCMP}};

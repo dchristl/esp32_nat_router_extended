@@ -150,6 +150,7 @@ show
 | ----------- | ----------- | ------- |
 | ap_ssid      | str       |SSID of the AP network|
 | ap_passwd   | str        | Password of the AP network|
+| ssid_hidden   | i32        | Hide the AP SSID |
 | ssid      | str       |SSID of the STA network|
 | keep_alive   | i32        | Keep the connection alive|
 | led_disabled   | i32        | Is the LED disabled|
@@ -161,6 +162,7 @@ show
 | lock_pass   | str        | Password for the UI lock|
 | scan_result   | str        | Temporary parameter for the last scan result|
 | result_shown   | i32        | Counter how many times the result was already shown (>3 = delete result)|
+| txpower   | i32        | How much tx power should be used (between 8 and 84), larger, more power|
 | netmask   | str        | Value of the network class to use (classa, classb or classc)  |
 | sta_identity   | str        | Identity for WPA enterprise |
 | sta_user   | str        | WPA Enterprise username|
