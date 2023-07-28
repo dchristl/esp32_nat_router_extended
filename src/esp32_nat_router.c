@@ -34,6 +34,7 @@
 #include "driver/gpio.h"
 #include "lwip/dns.h"
 #include "esp_mac.h"
+#include <esp_netif.h>
 
 #if !IP_NAPT
 #error "IP_NAPT must be defined"
@@ -354,6 +355,29 @@ void fillDNS(esp_ip_addr_t *dnsserver, esp_ip_addr_t *fallback)
     }
 }
 
+void setHostName()
+{
+    char *hostName = NULL;
+    get_config_param_str("hostname", &hostName);
+    if (hostName == NULL || strlen(hostName) == 0 || strlen(hostName) >= 250)
+    {
+        esp_random();
+        ESP_LOGI(TAG, "No hostname set. Generating and setting random");
+        // Generate a random number between 1000 and 9999
+        int random_number = esp_random() % 9000 + 1000;
+        hostName = (char *)malloc(14 * sizeof(char));
+        sprintf(hostName, "esp32nre-%d", random_number);
+        nvs_handle_t nvs;
+        ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+        ESP_ERROR_CHECK(nvs_set_str(nvs, "hostname", hostName));
+        ESP_ERROR_CHECK(nvs_commit(nvs));
+    }
+    ESP_LOGI(TAG, "Setting hostname to: %s", hostName);
+    esp_netif_t *sta_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    ESP_ERROR_CHECK(esp_netif_set_hostname(sta_netif, hostName));
+    free(hostName);
+}
+
 void fillMac()
 {
     char *customMac = NULL;
@@ -534,6 +558,8 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    setHostName();
 
     /* ESP WIFI CONFIG */
     wifi_config_t wifi_config = {0};

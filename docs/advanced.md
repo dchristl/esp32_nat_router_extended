@@ -157,6 +157,7 @@ show
 | lock   | i32        | Webserver is disabled|
 | custom_mac   | str        | Custom Mac address or "random"|
 | custom_dns   | str        | Custom DNS address|
+| hostname   | str        | Custom hostname|
 | lock_pass   | str        | Password for the UI lock|
 | scan_result   | str        | Temporary parameter for the last scan result|
 | result_shown   | i32        | Counter how many times the result was already shown (>3 = delete result)|
