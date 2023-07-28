@@ -217,5 +217,5 @@ esp_err_t index_post_handler(httpd_req_t *req)
         strcpy(appliedSSID, ssidParam);
     }
 
-    return index_get_handler(req);
+    return redirectToRoot(req);
 }

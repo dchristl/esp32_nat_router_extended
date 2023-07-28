@@ -27,6 +27,17 @@ void setApByQuery(char *urlContent, nvs_handle_t nvs)
     {
         ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_passwd", param));
     }
+
+    readUrlParameterIntoBuffer(urlContent, "ssid_hidden", param, contentLength);
+    if (strcmp(param, "on") == 0)
+    {
+        ESP_LOGI(TAG, "AP-SSID should be hidden.");
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "ssid_hidden", 1));
+    }
+    else
+    {
+        nvs_erase_key(nvs, "ssid_hidden");
+    }
 }
 
 void setStaByQuery(char *urlContent, nvs_handle_t nvs)
