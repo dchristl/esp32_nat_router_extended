@@ -366,7 +366,7 @@ void setHostName()
         // Generate a random number between 1000 and 9999
         int random_number = esp_random() % 9000 + 1000;
         hostName = (char *)malloc(14 * sizeof(char));
-        sprintf(hostName, "esp32nre-%d", random_number);
+        sprintf(hostName, "esp32nre%d", random_number);
         nvs_handle_t nvs;
         ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
         ESP_ERROR_CHECK(nvs_set_str(nvs, "hostname", hostName));
