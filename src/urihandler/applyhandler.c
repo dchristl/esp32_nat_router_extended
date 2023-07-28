@@ -167,7 +167,7 @@ void applyAdvancedConfig(char *buf)
     nvs_handle_t nvs;
     nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
 
-    size_t contentLength = 64;
+    size_t contentLength = 250;
     char param[contentLength];
     readUrlParameterIntoBuffer(buf, "keepalive", param, contentLength);
 

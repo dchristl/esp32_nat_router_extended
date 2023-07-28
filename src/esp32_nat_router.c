@@ -385,7 +385,16 @@ void setHostName()
     }
     ESP_LOGI(TAG, "Setting hostname to: %s", hostName);
     esp_netif_t *sta_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    ESP_ERROR_CHECK(esp_netif_set_hostname(sta_netif, hostName));
+    esp_err_t err = esp_netif_set_hostname(sta_netif, hostName);
+    if (err != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Invalid hostname (%s) detected. Will be resetted", hostName);
+        nvs_handle_t nvs;
+        ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+        ESP_ERROR_CHECK(nvs_erase_key(nvs, "hostname"));
+        ESP_ERROR_CHECK(nvs_commit(nvs));
+        esp_restart();
+    }
     free(hostName);
 }
 
