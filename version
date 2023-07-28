@@ -3,5 +3,5 @@
 Changelog:
 
 - new option for hiding SSID
-- new option for setting the AP-channel
+- new option for setting the hostname
 - new option for setting the transmission power
