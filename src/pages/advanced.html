@@ -17,10 +17,29 @@
                 </div>
                 <form action=apply class=p-2 method=POST> <input name=func type=hidden value=advanced>
                         <h2>Misc</h2>
+
+                        <div class="form-group row mt-2">
+                                <div class="col-6" style="padding-left: 0;">
+                                        <label for="hostname">Hostname</label>
+                                        <input class="form-control mt-2" id="hostname" maxlength="250" name="hostname"
+                                                placeholder="Hostname" type="text" value="%s" />
+                                </div>
+                                <div class="col-6" style="padding-right: 0;">
+                                        <label for="txpower">Transmission power</label>
+                                        <select class="form-select mt-2" aria-label="Select the transmission power"
+                                                title="Select the transmission power" name="txpower" id="txpower">
+                                                <option value="8">Low</option>
+                                                <option value="52">Medium</option>
+                                                <option value="80" selected>High</option>
+                                        </select>
+                                </div>
+                        </div>
+
                         <div class="form-group row mt-2">
                                 <div class="form-check form-switch"> <input class=form-check-input type=checkbox
                                                 id=ledenabled name=ledenabled %s> <label class=form-check-label
-                                                for=ledenabled>LED enabled</label> </div>
+                                                for=ledenabled>LED enabled</label>
+                                </div>
                                 <div class="alert alert-light mt-2" role=alert> This enables or disables the on board
                                         LED, if available.
                                         Uncheck this option for less power consumption and less disturbing blinking. Of
@@ -30,7 +49,8 @@
                         <div class="form-group row mt-2">
                                 <div class="form-check form-switch"> <input class=form-check-input type=checkbox
                                                 id=keepalive name=keepalive %s> <label class=form-check-label
-                                                for=keepalive>Keep connection alive</label>
+                                                for=keepalive>Keep connection
+                                                alive</label>
                                 </div>
                                 <div class="alert alert-light mt-2" role=alert> Check this option for networks with a
                                         forced disconnect
@@ -41,7 +61,8 @@
                         <div class="form-group row mt-2">
                                 <div class="form-check form-switch"> <input class=form-check-input type=checkbox
                                                 id=natenabled name=natenabled %s> <label class=form-check-label
-                                                for=natenabled>NAT enabled</label> </div>
+                                                for=natenabled>NAT enabled</label>
+                                </div>
                                 <div class="alert alert-warning mt-2" role=alert> This enables or disables NAT(Network
                                         Address Translation). If disabled, the ESP32 will not perform automatic
                                         translation of IP addresses and ports for connected devices when they establish
@@ -51,7 +72,8 @@
                         <div class="form-group row mt-2 ">
                                 <div class="form-check form-switch"> <input class=form-check-input type=checkbox
                                                 id=wsenabled name=wsenabled checked> <label class=form-check-label
-                                                for=wsenabled>Webserver enabled</label>
+                                                for=wsenabled>Webserver
+                                                enabled</label>
                                 </div>
                                 <div class="alert alert-danger mt-2" role=alert> This enables or disables the webserver.
                                         Disabling it increases security but also means that the device can no longer be
@@ -65,7 +87,8 @@
                                                 WiFi-network</label> </div>
                                 <div class="form-check mt-2"> <input class=form-check-input type=radio name=dns
                                                 id=cloudflare value=1.1.1.1 %s> <label class=form-check-label
-                                                for=cloudflare> 1.1.1.1 (Cloudflare) </label>
+                                                for=cloudflare> 1.1.1.1 (Cloudflare)
+                                        </label>
                                 </div>
                                 <div class="form-check mt-2"> <input class=form-check-input type=radio name=dns
                                                 id=adguard value=94.140.14.14 %s> <label class=form-check-label
