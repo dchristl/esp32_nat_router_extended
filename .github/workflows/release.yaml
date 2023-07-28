@@ -23,7 +23,7 @@ jobs:
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
       - name: Set environment variables
-        run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
+        run: echo "VERSION=$(head -1 version)" >> $GITHUB_ENV
       - name: Check if Git-Tag already exist
         run: |
             TAG="v${{ env.VERSION }}"
