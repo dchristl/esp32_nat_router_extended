@@ -21,8 +21,11 @@
                         id="clients">%d</span> client(s) connected</span></a>
 
 
-
-            <div class="form-group row"> <label class="col-3" for="ap_ssid">SSID</label>
+            <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" id="ssid_hidden" name="ssid_hidden" %s>
+                <label class="form-check-label" for="ssid_hidden">Hide the SSID</label>
+            </div>
+            <div class="form-group row mt-4"> <label class="col-3" for="ap_ssid">SSID</label>
                 <div class="col-9"> <input class="form-control" id="ap_ssid" maxlength="32" name="ap_ssid"
                         placeholder="SSID of the new network" type="text" value="%s" /> </div>
             </div>
@@ -119,7 +122,8 @@
         <div class="form-group row col-4 offset-4 mt-2">
             <a href="/ota" class="btn btn-light">OTA Updates</a>
         </div>
-        <a href="lock" class="btn btn-light col-4 offset-4 mt-2" style="display: %s" title="Lock interface">Lock interface</a>
+        <a href="lock" class="btn btn-light col-4 offset-4 mt-2" style="display: %s" title="Lock interface">Lock
+            interface</a>
 
         <div class="form-group row col-4 offset-4 mt-2" style="display: %s">
             <a href="lock" class="btn btn-light col-9" title="Change/Remove lock pass">Change/Remove lock
