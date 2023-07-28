@@ -355,6 +355,17 @@ void fillDNS(esp_ip_addr_t *dnsserver, esp_ip_addr_t *fallback)
     }
 }
 
+void setTxPower()
+{
+    int32_t txPower = 0;
+    get_config_param_int("txpower", &txPower);
+    if (txPower >= 8 && txPower <= 84)
+    {
+        ESP_LOGI(TAG, "Setting Wifi tx power to %ld.", txPower);
+        ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(txPower));
+    }
+}
+
 void setHostName()
 {
     char *hostName = NULL;
@@ -567,7 +578,6 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
         .ap = {
             .authmode = WIFI_AUTH_WPA2_PSK, // Check WIFI_AUTH_WPA2_WPA3_PSK with ESP-IDF 5.1
             .ssid_hidden = 0,
-            // .channel =
             .max_connection = 10,
             .beacon_interval = 100,
             .pairwise_cipher = WIFI_CIPHER_TYPE_CCMP}};
@@ -623,11 +633,8 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     {
         ESP_LOGI(TAG, "wifi_init_ap with default finished.");
     }
+    setTxPower();
     start_dns_server();
-    // ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(80));
-    // int8_t j;
-    // ESP_ERROR_CHECK(esp_wifi_get_max_tx_power(&j));
-    // ESP_LOGI(TAG, "\t\t\tWifi power get is %d.", j);
 }
 
 char *ssid = NULL;
