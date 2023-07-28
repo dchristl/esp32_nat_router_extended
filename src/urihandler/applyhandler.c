@@ -300,6 +300,17 @@ void applyAdvancedConfig(char *buf)
             nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_C);
         }
     }
+    readUrlParameterIntoBuffer(buf, "hostname", param, contentLength);
+    if (strlen(param) > 0)
+    {
+        ESP_LOGI(TAG, "Set hostname to: %s", param);
+        nvs_set_str(nvs, "hostname", param);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Erasing hostname. Will be regenerated on boot.");
+        nvs_erase_key(nvs, "hostname");
+    }
 
     nvs_commit(nvs);
     nvs_close(nvs);
