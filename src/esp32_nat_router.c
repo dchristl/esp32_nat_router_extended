@@ -596,7 +596,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     wifi_config_t wifi_config = {0};
     wifi_config_t ap_config = {
         .ap = {
-            .authmode = WIFI_AUTH_WPA2_PSK, // Check WIFI_AUTH_WPA2_WPA3_PSK with ESP-IDF 5.1
+            .authmode = WIFI_AUTH_WPA2_WPA3_PSK, // Check WIFI_AUTH_WPA2_WPA3_PSK with ESP-IDF 5.1
             .ssid_hidden = hiddenSSID,
             .max_connection = 10,
             .beacon_interval = 100,
@@ -793,7 +793,6 @@ void app_main(void)
 
     get_config_param_str("sta_user", &sta_user);
     get_config_param_str("sta_identity", &sta_identity);
-    // get_config_param_str("sta_channel", &channel);//TODO
 
     get_config_param_str("lock_pass", &lock_pass);
     if (lock_pass == NULL)
