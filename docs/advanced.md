@@ -174,3 +174,16 @@ show
 # DNS
 As soon as the ESP32 STA has learned a DNS IP from its upstream DNS server on first connect, it passes that to newly connected clients.
 Before that by default the DNS-Server which is offerd to clients connecting to the ESP32 AP is set to 192.168.4.1 and sets up a [Captive portal](https://en.wikipedia.org/wiki/Captive_portal). All DNS (http) resolutions will be resolved to 192.168.4.1 itself, so any input will lead to the start page.
+
+# Modified parameters compared to the default configuration 
+
+| Location   | Value | Hints
+| ----------- | ----------- | ------- |
+| Component config > LWIP > Enable copy between Layer2 and Layer3 packets.     | Activated       ||
+| Component config > LWIP > Enable IP forwarding     | Activated       ||
+| Component config > LWIP > Enable NAT (new/experimental)    | Activated       ||
+| Component config > LWIP > Enable NAT (new/experimental)    | Activated       ||
+| Component config > ESP-TLS > Allow potentially insecure options    | Activated       |For OTA-Updates|
+| Component config > ESP-TLS > Skip server certificate verification by default | Activated   | For OTA-Updates       |
+| Component config > ESP HTTPS OTA > Allow HTTP for OTA | Activated   | For OTA-Updates with custom urls       |
+| Component config > HTTP-Server > Max HTTP Request Header Length   | 6144   | Max size for post requests (i.e. certificate)    |
