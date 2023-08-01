@@ -15,7 +15,7 @@ static const char *TAG = "OTA";
 static const char *NO_DETERMINED = "Not determined yet";
 static const char *ERROR_RETRIEVING = "Error retrieving the latest version";
 static char *latest_version = NULL;
-static char *changelog = NULL;
+static char changelog[200] = "";
 bool finished = false;
 
 char chip_type[30];
@@ -274,6 +274,13 @@ esp_err_t otalog_post_handler(httpd_req_t *req)
     return otalog_get_handler(req);
 }
 
+void appendToChangelog(const char *entry)
+{
+    char tmp[500] = "";
+    sprintf(tmp, "<li>%s</li>", entry);
+    strcat(changelog, tmp);
+}
+
 esp_err_t ota_download_get_handler(httpd_req_t *req)
 {
     if (isLocked())
@@ -290,8 +297,8 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     {
         latest_version = (char *)malloc(strlen(NO_DETERMINED) + 1);
         strcpy(latest_version, NO_DETERMINED);
-        changelog = (char *)malloc(strlen(NO_DETERMINED) + 1);
-        strcpy(changelog, NO_DETERMINED);
+        changelog[0] = '\0';
+        appendToChangelog(NO_DETERMINED);
     }
 
     determineChipType(chip_type);

@@ -131,7 +131,7 @@ static httpd_uri_t about_handler = {
     .user_ctx = NULL};
 
 static httpd_uri_t styles_handler = {
-    .uri = "/styles-578410c85e5e076cb33aeeff500eb68d.css",
+    .uri = "/styles-67aa3b0203355627b525be2ea57be7bf.css",
     .method = HTTP_GET,
     .handler = styles_download_get_handler,
     .user_ctx = NULL};
