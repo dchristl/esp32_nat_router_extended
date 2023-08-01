@@ -811,6 +811,13 @@ void app_main(void)
         erase_key("result_shown");
         ESP_LOGI(TAG, "Scan result was shown %ld times. Result will be deleted", result_shown);
     }
+    else if (scan_result != NULL && result_shown > 0)
+    {
+        nvs_handle_t nvs;
+        ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+        nvs_set_i32(nvs, "result_shown", ++result_shown);
+        ESP_LOGI(TAG, "result_shown increased to %ld after reboot", result_shown);
+    }
 
     get_portmap_tab();
 

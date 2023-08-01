@@ -40,9 +40,10 @@ esp_err_t index_get_handler(httpd_req_t *req)
     {
         if (result_shown == 0)
         {
-            free(result_param);
             ESP_LOGI(TAG, "Scan result is available and not shown already. Forwarding to scan page");
-            return result_download_get_handler(req);
+            httpd_resp_set_status(req, "302 Found");
+            httpd_resp_set_hdr(req, "Location", "/result");
+            return httpd_resp_send(req, NULL, 0);
         }
 
         scanButtonWidth = "9";

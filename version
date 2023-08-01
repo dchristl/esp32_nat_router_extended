@@ -1,7 +1,6 @@
 6.2.0-DEV
 
-Changelog:
-
-- new option for hiding SSID
-- new option for setting the hostname
-- new option for setting the transmission power
+New option for hiding SSID
+New option for setting the hostname
+New option for setting the transmission power
+Added changelog to OTA-Update
