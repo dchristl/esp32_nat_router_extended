@@ -12,9 +12,10 @@ extern const char *GLOBAL_VERSION;
 
 static const char *TAG = "OTA";
 
-static const char *LATEST_VERSION = "Not determined yet";
+static const char *NO_DETERMINED = "Not determined yet";
 static const char *ERROR_RETRIEVING = "Error retrieving the latest version";
 static char *latest_version = NULL;
+static char *changelog = NULL;
 bool finished = false;
 
 char chip_type[30];
@@ -287,16 +288,19 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
 
     if (!latest_version)
     {
-        latest_version = (char *)malloc(strlen(LATEST_VERSION) + 1);
-        strcpy(latest_version, LATEST_VERSION);
+        latest_version = (char *)malloc(strlen(NO_DETERMINED) + 1);
+        strcpy(latest_version, NO_DETERMINED);
+        changelog = (char *)malloc(strlen(NO_DETERMINED) + 1);
+        strcpy(changelog, NO_DETERMINED);
     }
+
     determineChipType(chip_type);
     ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
     char customUrl[200];
     char label[20];
     getOtaUrl(customUrl, label);
-    char *ota_page = malloc(ota_html_size + strlen(GLOBAL_VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(chip_type) + strlen(label));
-    sprintf(ota_page, ota_start, GLOBAL_VERSION, latest_version, customUrl, label, chip_type);
+    char *ota_page = malloc(ota_html_size + strlen(GLOBAL_VERSION) + strlen(customUrl) + strlen(latest_version) + strlen(chip_type) + strlen(label) + strlen(changelog));
+    sprintf(ota_page, ota_start, GLOBAL_VERSION, latest_version, changelog, customUrl, label, chip_type);
 
     closeHeader(req);
 
