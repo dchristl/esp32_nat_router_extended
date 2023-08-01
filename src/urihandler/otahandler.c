@@ -195,6 +195,13 @@ void start_ota_update()
     xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
 }
 
+void appendToChangelog(const char *entry)
+{
+    char tmp[500] = "";
+    sprintf(tmp, "<li>%s</li>", entry);
+    strcat(changelog, tmp);
+}
+
 void updateVersion()
 {
     const char *usedUrl = get_default_url();
@@ -210,9 +217,28 @@ void updateVersion()
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK)
     {
-        ESP_LOGI(TAG, "Version download succesful. Latest version is '%s'. File size is: %d Bytes", file_buffer, file_size);
-        strncpy(latest_version, file_buffer, file_size);
-        latest_version[file_size] = '\0';
+        ESP_LOGI(TAG, "Version and changelog download succesful. File size is: %d Bytes", file_size);
+        char *rest = file_buffer;
+        char *line;
+        int lineNumber = 1;
+        changelog[0] = '\0';
+        while ((line = strtok_r(rest, "\n", &rest)) != NULL)
+        {
+            printf("Line: %s\n", line);
+            switch (lineNumber)
+            {
+            case 1:
+                strncpy(latest_version, file_buffer, file_size);
+                latest_version[file_size] = '\0';
+                break;
+
+            default:
+                appendToChangelog(line);
+                break;
+            }
+            lineNumber++;
+        }
+
         free(file_buffer);
         file_buffer = NULL;
         file_size = 0;
@@ -272,13 +298,6 @@ esp_err_t otalog_post_handler(httpd_req_t *req)
     start_ota_update();
 
     return otalog_get_handler(req);
-}
-
-void appendToChangelog(const char *entry)
-{
-    char tmp[500] = "";
-    sprintf(tmp, "<li>%s</li>", entry);
-    strcat(changelog, tmp);
 }
 
 esp_err_t ota_download_get_handler(httpd_req_t *req)
