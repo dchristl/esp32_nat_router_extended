@@ -151,8 +151,7 @@ void getOtaUrl(char *url, char *label)
         strcpy(url, usedUrl);
         strcat(url, chip_type);
         strcat(url, "/");
-        strcat(url, "firmware.bin");
-        ESP_LOGI(TAG, "%s will be used '%s'\n", label, url);
+        strcat(url, "firmware.bin");        
     }
 }
 
@@ -224,7 +223,7 @@ void updateVersion()
         changelog[0] = '\0';
         while ((line = strtok_r(rest, "\n", &rest)) != NULL)
         {
-            printf("Line: %s\n", line);
+            ESP_LOGI(TAG, "Line %d: %s\n", lineNumber, line);
             switch (lineNumber)
             {
             case 1:
