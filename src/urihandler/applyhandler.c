@@ -312,6 +312,14 @@ void applyAdvancedConfig(char *buf)
         nvs_erase_key(nvs, "hostname");
     }
 
+    readUrlParameterIntoBuffer(buf, "txpower", param, contentLength);
+    int txPower = atoi(param);
+    if (txPower >= 8 && txPower <= 84)
+    {
+        ESP_LOGI(TAG, "Setting Wifi tx power to %d.", txPower);
+        nvs_set_i32(nvs, "txpower", txPower);
+    }
+
     nvs_commit(nvs);
     nvs_close(nvs);
 }

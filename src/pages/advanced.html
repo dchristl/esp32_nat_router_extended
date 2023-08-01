@@ -22,15 +22,16 @@
                                 <div class="col-6" style="padding-left: 0;">
                                         <label for="hostname">Hostname</label>
                                         <input class="form-control mt-2" id="hostname" maxlength="250" name="hostname"
-                                                placeholder="Hostname" type="text" value="%s" />
+                                                placeholder="Hostname, will be regenerated if empty" type="text"
+                                                value="%s" />
                                 </div>
                                 <div class="col-6" style="padding-right: 0;">
-                                        <label for="txpower">Transmission power</label>
+                                        <label for="txpower">Transmission power/ WiFi range</label>
                                         <select class="form-select mt-2" aria-label="Select the transmission power"
                                                 title="Select the transmission power" name="txpower" id="txpower">
-                                                <option value="8">Low</option>
-                                                <option value="52">Medium</option>
-                                                <option value="80" selected>High</option>
+                                                <option value="8" %s>Low</option>
+                                                <option value="52" %s>Medium</option>
+                                                <option value="80" %s>High</option>
                                         </select>
                                 </div>
                         </div>
