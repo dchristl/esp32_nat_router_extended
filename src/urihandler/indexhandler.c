@@ -218,5 +218,7 @@ esp_err_t index_post_handler(httpd_req_t *req)
         strcpy(appliedSSID, ssidParam);
     }
 
-    return redirectToRoot(req);
+    httpd_resp_set_status(req, "302 Temporary Redirect");
+    httpd_resp_set_hdr(req, "Location", "/");
+    return httpd_resp_send(req, NULL, 0);
 }
