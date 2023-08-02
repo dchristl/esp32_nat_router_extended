@@ -166,7 +166,7 @@ void fillNodes()
     nvs_handle_t nvs;
     ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
     ESP_ERROR_CHECK(nvs_set_str(nvs, "scan_result", scan_result));
-    ESP_ERROR_CHECK(nvs_erase_key(nvs, "result_shown"));
+    nvs_erase_key(nvs, "result_shown");
 
     ESP_ERROR_CHECK(nvs_commit(nvs));
     nvs_close(nvs);

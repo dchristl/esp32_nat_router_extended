@@ -157,10 +157,11 @@ esp_err_t erase_key(char *name)
 {
     nvs_handle_t nvs;
 
-    esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READONLY, &nvs);
+    esp_err_t err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
     if (err == ESP_OK)
     {
-        nvs_erase_key(nvs,name);
+        nvs_erase_key(nvs, name);
+        nvs_commit(nvs);
         nvs_close(nvs);
         return ESP_OK;
     }
