@@ -105,13 +105,15 @@ jobs:
           title: v${{ env.VERSION }}
           files: |
             release/*.zip
+      - name: Create changelog from version file
+        run: tail -n +3 version | sed 's/^/- /' > changelog           
       - name: Set changelog
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           name: v${{ env.VERSION }}
           tag: v${{ env.VERSION }}
-          bodyFile: "version"             
+          bodyFile: "changelog"             
       - name: Set dev branch variable
         if: github.ref == 'refs/heads/dev'
         run: |
