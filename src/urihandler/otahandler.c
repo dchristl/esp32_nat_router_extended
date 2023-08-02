@@ -114,11 +114,6 @@ esp_err_t version_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
-void update_latest_version(const char *latest)
-{
-    strcpy(latest_version, latest);
-}
-
 const char *get_default_url()
 {
     int32_t canary = 0;
@@ -163,7 +158,6 @@ void getOtaUrl(char *url, char *label)
 
 void ota_task(void *pvParameter)
 {
-    otaRunning = true;
     data_length = 0;
     content_length = 0;
     threshold = 0;
@@ -192,7 +186,6 @@ void ota_task(void *pvParameter)
         setResultLog("Error occured. The device is restarting ", "text-danger");
     }
     finished = true;
-    otaRunning = false;
     vTaskDelete(NULL);
 }
 
@@ -235,7 +228,7 @@ void updateVersion()
             switch (lineNumber)
             {
             case 1:
-                update_latest_version(line);
+                strcpy(latest_version, line);
                 break;
 
             default:
@@ -252,7 +245,7 @@ void updateVersion()
     else
     {
         ESP_LOGD(TAG, "Error on download: %s\n", esp_err_to_name(err));
-        update_latest_version(ERROR_RETRIEVING);
+        strcpy(latest_version, ERROR_RETRIEVING);
     }
     esp_http_client_cleanup(client);
 }
@@ -306,9 +299,12 @@ esp_err_t otalog_post_handler(httpd_req_t *req)
     }
     resultLog[0] = '\0';
     otalog[0] = '\0';
+    otaRunning = true;
     start_ota_update();
 
-    return otalog_get_handler(req);
+    httpd_resp_set_status(req, "302 Found");
+    httpd_resp_set_hdr(req, "Location", "/otalog");
+    return httpd_resp_send(req, NULL, 0);
 }
 
 esp_err_t ota_download_get_handler(httpd_req_t *req)
@@ -325,7 +321,7 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
 
     if (strlen(latest_version) == 0)
     {
-        update_latest_version(NOT_DETERMINED);
+        strcpy(latest_version, NOT_DETERMINED);
         changelog[0] = '\0';
         appendToChangelog(NOT_DETERMINED);
     }
