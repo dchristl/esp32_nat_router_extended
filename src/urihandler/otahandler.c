@@ -12,10 +12,10 @@ extern const char *GLOBAL_VERSION;
 
 static const char *TAG = "OTA";
 
-static const char *NO_DETERMINED = "Not determined yet";
+static const char *NOT_DETERMINED = "Not determined yet";
 static const char *ERROR_RETRIEVING = "Error retrieving the latest version";
-static char *latest_version = NULL;
-static char changelog[200] = "";
+static char latest_version[50] = "";
+static char changelog[400] = "";
 bool finished = false;
 bool otaRunning = false;
 
@@ -112,6 +112,11 @@ esp_err_t version_event_handler(esp_http_client_event_t *evt)
         break;
     }
     return ESP_OK;
+}
+
+void update_latest_version(const char *latest)
+{
+    strcpy(latest_version, latest);
 }
 
 const char *get_default_url()
@@ -230,8 +235,7 @@ void updateVersion()
             switch (lineNumber)
             {
             case 1:
-                strncpy(latest_version, line, strlen(line) + 1);
-                latest_version[strlen(line) + 1] = '\0';
+                update_latest_version(line);
                 break;
 
             default:
@@ -248,10 +252,8 @@ void updateVersion()
     else
     {
         ESP_LOGD(TAG, "Error on download: %s\n", esp_err_to_name(err));
-        latest_version = realloc(latest_version, strlen(ERROR_RETRIEVING) + 1);
-        strcpy(latest_version, ERROR_RETRIEVING);
+        update_latest_version(ERROR_RETRIEVING);
     }
-
     esp_http_client_cleanup(client);
 }
 esp_err_t otalog_get_handler(httpd_req_t *req)
@@ -321,12 +323,11 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     extern const char ota_end[] asm("_binary_ota_html_end");
     const size_t ota_html_size = (ota_end - ota_start);
 
-    if (!latest_version)
+    if (strlen(latest_version) == 0)
     {
-        latest_version = (char *)malloc(strlen(NO_DETERMINED) + 1);
-        strcpy(latest_version, NO_DETERMINED);
+        update_latest_version(NOT_DETERMINED);
         changelog[0] = '\0';
-        appendToChangelog(NO_DETERMINED);
+        appendToChangelog(NOT_DETERMINED);
     }
 
     determineChipType(chip_type);
@@ -376,5 +377,7 @@ esp_err_t ota_post_handler(httpd_req_t *req)
 
     updateVersion();
 
-    return ota_download_get_handler(req);
+    httpd_resp_set_status(req, "302 Found");
+    httpd_resp_set_hdr(req, "Location", "/ota");
+    return httpd_resp_send(req, NULL, 0);
 }

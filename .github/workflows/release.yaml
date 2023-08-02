@@ -113,6 +113,7 @@ jobs:
           allowUpdates: true
           name: v${{ env.VERSION }}
           tag: v${{ env.VERSION }}
+          draft: true
           bodyFile: "changelog"             
       - name: Set dev branch variable
         if: github.ref == 'refs/heads/dev'
