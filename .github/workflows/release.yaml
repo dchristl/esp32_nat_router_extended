@@ -96,7 +96,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create draft release
         uses: "marvinpinto/action-automatic-releases@latest"
-        # if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
@@ -106,8 +106,10 @@ jobs:
           files: |
             release/*.zip
       - name: Create changelog from version file
+        if: github.ref == 'refs/heads/master'
         run: tail -n +3 version | sed 's/^/- /' > changelog           
       - name: Set changelog
+        if: github.ref == 'refs/heads/master'
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
