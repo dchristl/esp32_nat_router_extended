@@ -17,6 +17,7 @@ static const char *ERROR_RETRIEVING = "Error retrieving the latest version";
 static char *latest_version = NULL;
 static char changelog[200] = "";
 bool finished = false;
+bool otaRunning = false;
 
 char chip_type[30];
 
@@ -157,7 +158,7 @@ void getOtaUrl(char *url, char *label)
 
 void ota_task(void *pvParameter)
 {
-
+    otaRunning = true;
     data_length = 0;
     content_length = 0;
     threshold = 0;
@@ -186,6 +187,7 @@ void ota_task(void *pvParameter)
         setResultLog("Error occured. The device is restarting ", "text-danger");
     }
     finished = true;
+    otaRunning = false;
     vTaskDelete(NULL);
 }
 
@@ -259,6 +261,12 @@ esp_err_t otalog_get_handler(httpd_req_t *req)
     {
         return redirectToLock(req);
     }
+    if (!otaRunning)
+    {
+        httpd_resp_set_status(req, "302 Found");
+        httpd_resp_set_hdr(req, "Location", "/");
+        return httpd_resp_send(req, NULL, 0);
+    }
 
     httpd_req_to_sockfd(req);
 
@@ -266,6 +274,7 @@ esp_err_t otalog_get_handler(httpd_req_t *req)
     extern const char otalog_end[] asm("_binary_otalog_html_end");
     const size_t otalog_html_size = (otalog_end - otalog_start);
     char *otaLogRedirect = "1; url=/otalog";
+
     if (finished)
     {
         otaLogRedirect = "3; url=/apply";
