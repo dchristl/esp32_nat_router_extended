@@ -151,7 +151,7 @@ void getOtaUrl(char *url, char *label)
         strcpy(url, usedUrl);
         strcat(url, chip_type);
         strcat(url, "/");
-        strcat(url, "firmware.bin");        
+        strcat(url, "firmware.bin");
     }
 }
 
@@ -217,6 +217,7 @@ void updateVersion()
     if (err == ESP_OK)
     {
         ESP_LOGI(TAG, "Version and changelog download succesful. File size is: %d Bytes", file_size);
+        file_buffer[file_size] = '\0'; // Terminate the string on the correct length
         char *rest = file_buffer;
         char *line;
         int lineNumber = 1;
@@ -227,8 +228,8 @@ void updateVersion()
             switch (lineNumber)
             {
             case 1:
-                strncpy(latest_version, file_buffer, file_size);
-                latest_version[file_size] = '\0';
+                strncpy(latest_version, line, strlen(line) + 1);
+                latest_version[strlen(line) + 1] = '\0';
                 break;
 
             default:
