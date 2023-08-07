@@ -104,11 +104,22 @@ static httpd_uri_t otalog_post_download = {
     .handler = otalog_post_handler,
     .user_ctx = NULL};
 
-
 static httpd_uri_t advanced_page_download = {
     .uri = "/advanced",
     .method = HTTP_GET,
     .handler = advanced_download_get_handler,
+    .user_ctx = NULL};
+
+static httpd_uri_t portmap_page_download = {
+    .uri = "/portmap",
+    .method = HTTP_GET,
+    .handler = portmap_get_handler,
+    .user_ctx = NULL};
+
+    static httpd_uri_t portmap_post_download = {
+    .uri = "/portmap",
+    .method = HTTP_POST,
+    .handler = portmap_post_handler,
     .user_ctx = NULL};
 
 // URI handler for getting favicon
@@ -194,6 +205,8 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &ota_page_post);
         httpd_register_uri_handler(server, &otalog_page_download);
         httpd_register_uri_handler(server, &otalog_post_download);
+        httpd_register_uri_handler(server, &portmap_page_download);
+        httpd_register_uri_handler(server, &portmap_post_download);
         httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
         return server;
     }
