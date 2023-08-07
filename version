@@ -1,1 +1,7 @@
-6.1.0
+6.2.0
+
+New option for hiding SSID
+New option for setting the hostname
+New option for setting the transmission power
+Show changelog for OTA-Update
+Smaller UI and workflow improvements
