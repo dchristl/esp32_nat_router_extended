@@ -23,8 +23,6 @@ esp_err_t unlock_handler(httpd_req_t *req)
 
     httpd_req_to_sockfd(req);
 
-    httpd_req_to_sockfd(req);
-
     size_t content_len = req->content_len;
     char buf[content_len];
 
