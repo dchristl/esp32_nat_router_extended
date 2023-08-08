@@ -28,6 +28,7 @@ esp_err_t portmap_get_handler(httpd_req_t *req)
     ESP_ERROR_CHECK(httpd_resp_send_chunk(req, (const char *)portmap_start, HTTPD_RESP_USE_STRLEN));
 
     // send entries
+    bool entriesSent = false;
     for (int i = 0; i < PORTMAP_MAX; i++)
     {
         if (portmap_tab[i].valid)
@@ -54,9 +55,15 @@ esp_err_t portmap_get_handler(httpd_req_t *req)
 
             ESP_LOGI(TAG, "Sending portmap entry part");
             ESP_ERROR_CHECK(httpd_resp_send_chunk(req, template, HTTPD_RESP_USE_STRLEN));
-
+            entriesSent = true;
             free(template);
         }
+    }
+    if (!entriesSent)
+    {
+        ESP_LOGI(TAG, "Sending no entry part");
+        const char *template = "<tr><td colspan='5' class='text-warning'>No portmap entries found</td></tr>";
+        ESP_ERROR_CHECK(httpd_resp_send_chunk(req, template, HTTPD_RESP_USE_STRLEN));
     }
 
     // send end
