@@ -215,13 +215,13 @@ esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
     return ESP_ERR_NO_MEM;
 }
 
-esp_err_t del_portmap(u8_t proto, u16_t mport)
+esp_err_t del_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
 {
     nvs_handle_t nvs;
 
     for (int i = 0; i < PORTMAP_MAX; i++)
     {
-        if (portmap_tab[i].valid && portmap_tab[i].mport == mport && portmap_tab[i].proto == proto)
+        if (portmap_tab[i].valid && portmap_tab[i].mport == mport && portmap_tab[i].proto == proto && portmap_tab[i].dport == dport && portmap_tab[i].daddr == daddr)
         {
             portmap_tab[i].valid = 0;
 

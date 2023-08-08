@@ -45,8 +45,12 @@ esp_err_t portmap_get_handler(httpd_req_t *req)
             addr.addr = portmap_tab[i].daddr;
             char ip_str[16];
             sprintf(ip_str, IPSTR, IP2STR(&addr));
-            char *template = malloc(strlen(PORTMAP_ROW_TEMPLATE) + 12 + strlen(ip_str) + 2 * strlen(protocol));
-            sprintf(template, PORTMAP_ROW_TEMPLATE, protocol, portmap_tab[i].mport, ip_str, portmap_tab[i].dport, protocol);
+            char delParam[50];
+            sprintf(delParam, "%s_%hu_%s_%hu", protocol, portmap_tab[i].mport, ip_str, portmap_tab[i].dport);
+
+            char *template = malloc(strlen(PORTMAP_ROW_TEMPLATE) + 12 + strlen(ip_str) + strlen(protocol) + strlen(delParam));
+
+            sprintf(template, PORTMAP_ROW_TEMPLATE, protocol, portmap_tab[i].mport, ip_str, portmap_tab[i].dport, delParam);
 
             ESP_LOGI(TAG, "Sending portmap entry part");
             ESP_ERROR_CHECK(httpd_resp_send_chunk(req, template, HTTPD_RESP_USE_STRLEN));
@@ -128,6 +132,53 @@ void addPortmapEntry(char *urlContent)
     add_portmap(tcp_udp, ext_port, int_ip, int_port);
 }
 
+void delPortmapEntry(char *urlContent)
+{
+    size_t contentLength = 64;
+    char param[contentLength];
+    readUrlParameterIntoBuffer(urlContent, "entry", param, contentLength);
+
+    const char delimiter[] = "_";
+
+    char *token = strtok(param, delimiter);
+    uint8_t tcp_udp;
+    if (strcmp(token, "TCP") == 0)
+    {
+        tcp_udp = PROTO_TCP;
+    }
+    else
+    {
+        tcp_udp = PROTO_UDP;
+    }
+
+    token = strtok(NULL, delimiter);
+    char *endptr;
+    uint16_t ext_port = (uint16_t)strtoul(token, &endptr, 10);
+    if (ext_port < 1 || *endptr != '\0')
+    {
+        ESP_LOGW(TAG, "External port out of range");
+        return;
+    }
+    token = strtok(NULL, delimiter);
+    uint32_t int_ip = ipaddr_addr(token);
+    if (int_ip == IPADDR_NONE)
+    {
+        ESP_LOGW(TAG, "Invalid IP");
+        return;
+    }
+
+    token = strtok(NULL, delimiter);
+    uint16_t int_port = (uint16_t)strtoul(token, &endptr, 10);
+
+    if (int_port < 1 || *endptr != '\0')
+    {
+        ESP_LOGW(TAG, "Internal port out of range");
+        return;
+    }
+
+    del_portmap(tcp_udp, ext_port, int_ip, int_port);
+}
+
 esp_err_t portmap_post_handler(httpd_req_t *req)
 {
     if (isLocked())
@@ -166,6 +217,7 @@ esp_err_t portmap_post_handler(httpd_req_t *req)
     }
     if (strcmp(funcParam, "del") == 0)
     {
+        delPortmapEntry(buf);
     }
 
     httpd_resp_set_status(req, "302 Found");

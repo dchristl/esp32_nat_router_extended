@@ -564,7 +564,7 @@ int portmap(int argc, char **argv)
     }
     else
     {
-        ESP_ERROR_CHECK(del_portmap(tcp_udp, ext_port));
+        ESP_ERROR_CHECK(del_portmap(tcp_udp, ext_port, int_ip, int_port));
     }
 
     return ESP_OK;
