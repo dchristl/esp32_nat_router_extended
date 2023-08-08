@@ -2,3 +2,4 @@
 
 Compiling with latest ESP-IDF (5.1)
 Add support for WPA3 for Access Point
+New UI for managing portmap entries
