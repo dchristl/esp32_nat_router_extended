@@ -111,6 +111,11 @@ void addPortmapEntry(char *urlContent)
     strcat(resultIP, param);
 
     uint32_t int_ip = ipaddr_addr(resultIP);
+    if (int_ip == IPADDR_NONE)
+    {
+        ESP_LOGW(TAG, "Invalid IP");
+        return;
+    }
     readUrlParameterIntoBuffer(urlContent, "iport", param, contentLength);
     uint16_t int_port = (uint16_t)strtoul(param, &endptr, 10);
 
