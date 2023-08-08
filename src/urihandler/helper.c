@@ -1,7 +1,6 @@
 #include "helper.h"
 #include <ctype.h>
 
-
 static const char *TAG = "urihelper";
 
 void preprocess_string(char *str)
@@ -51,4 +50,27 @@ void readUrlParameterIntoBuffer(char *parameterString, char *parameter, char *bu
         ESP_LOGI(TAG, "Parameter '%s' not found", parameter);
         buffer[0] = '\0';
     }
+}
+
+esp_err_t fill_post_buffer(httpd_req_t *req, char *buf, size_t len)
+{
+    int ret, remaining = len;
+
+    while (remaining > 0)
+    {
+        /* Read the data for the request */
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, len))) <= 0)
+        {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            {
+                continue;
+            }
+            ESP_LOGE(TAG, "Timeout occurred");
+            return ESP_FAIL;
+        }
+
+        remaining -= ret;
+    }
+
+    return ESP_OK;
 }

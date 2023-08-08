@@ -193,38 +193,26 @@ esp_err_t portmap_post_handler(httpd_req_t *req)
         return redirectToLock(req);
     }
     httpd_req_to_sockfd(req);
-    int ret, remaining = req->content_len;
-    char buf[req->content_len];
 
-    while (remaining > 0)
+    size_t content_len = req->content_len;
+    char buf[content_len];
+
+    if (fill_post_buffer(req, buf, content_len) == ESP_OK)
     {
-        /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+        char funcParam[4];
+
+        ESP_LOGI(TAG, "getting content %s", buf);
+
+        readUrlParameterIntoBuffer(buf, "func", funcParam, 4);
+
+        if (strcmp(funcParam, "add") == 0)
         {
-            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
-            {
-                continue;
-            }
-            ESP_LOGE(TAG, "Timeout occured");
-            return ESP_FAIL;
+            addPortmapEntry(buf);
         }
-
-        remaining -= ret;
-    }
-
-    char funcParam[4];
-
-    ESP_LOGI(TAG, "getting content %s", buf);
-
-    readUrlParameterIntoBuffer(buf, "func", funcParam, 4);
-
-    if (strcmp(funcParam, "add") == 0)
-    {
-        addPortmapEntry(buf);
-    }
-    if (strcmp(funcParam, "del") == 0)
-    {
-        delPortmapEntry(buf);
+        if (strcmp(funcParam, "del") == 0)
+        {
+            delPortmapEntry(buf);
+        }
     }
 
     httpd_resp_set_status(req, "302 Found");
