@@ -23,41 +23,30 @@ esp_err_t unlock_handler(httpd_req_t *req)
 
     httpd_req_to_sockfd(req);
 
-    int ret, remaining = req->content_len;
-    char buf[req->content_len];
+    httpd_req_to_sockfd(req);
 
-    while (remaining > 0)
+    size_t content_len = req->content_len;
+    char buf[content_len];
+
+    if (fill_post_buffer(req, buf, content_len) == ESP_OK)
     {
-        /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+
+        char unlockParam[req->content_len];
+        readUrlParameterIntoBuffer(buf, "unlock", unlockParam, req->content_len);
+
+        if (strlen(unlockParam) > 0)
         {
-            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+            char *lock;
+            get_config_param_str("lock_pass", &lock);
+            if (strcmp(lock, unlockParam) == 0)
             {
-                continue;
+                locked = false;
+                httpd_resp_set_status(req, "302 Found");
+                httpd_resp_set_hdr(req, "Location", "/");
+                return httpd_resp_send(req, NULL, 0);
             }
-            ESP_LOGE(TAG, "Timeout occured");
-            return ESP_FAIL;
-        }
-
-        remaining -= ret;
-    }
-
-    char unlockParam[req->content_len];
-    readUrlParameterIntoBuffer(buf, "unlock", unlockParam, req->content_len);
-
-    if (strlen(unlockParam) > 0)
-    {
-        char *lock;
-        get_config_param_str("lock_pass", &lock);
-        if (strcmp(lock, unlockParam) == 0)
-        {
-            locked = false;
-            httpd_resp_set_status(req, "302 Found");
-            httpd_resp_set_hdr(req, "Location", "/");
-            return httpd_resp_send(req, NULL, 0);
         }
     }
-
     if (req->method == HTTP_GET) // Relock if called
     {
         locked = true;

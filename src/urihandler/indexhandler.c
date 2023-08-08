@@ -190,34 +190,23 @@ esp_err_t index_post_handler(httpd_req_t *req)
     }
     httpd_req_to_sockfd(req);
 
-    int ret, remaining = req->content_len;
-    char buf[req->content_len];
+    httpd_req_to_sockfd(req);
 
-    while (remaining > 0)
+    size_t content_len = req->content_len;
+    char buf[content_len];
+
+    if (fill_post_buffer(req, buf, content_len) == ESP_OK)
     {
-        /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0)
+        char ssidParam[req->content_len];
+        readUrlParameterIntoBuffer(buf, "ssid", ssidParam, req->content_len);
+
+        if (strlen(ssidParam) > 0)
         {
-            if (ret == HTTPD_SOCK_ERR_TIMEOUT)
-            {
-                continue;
-            }
-            ESP_LOGE(TAG, "Timeout occured");
-            return ESP_FAIL;
+            ESP_LOGI(TAG, "Found SSID parameter => %s", ssidParam);
+            appliedSSID = malloc(strlen(ssidParam) + 1);
+            strcpy(appliedSSID, ssidParam);
         }
-
-        remaining -= ret;
     }
-    char ssidParam[req->content_len];
-    readUrlParameterIntoBuffer(buf, "ssid", ssidParam, req->content_len);
-
-    if (strlen(ssidParam) > 0)
-    {
-        ESP_LOGI(TAG, "Found SSID parameter => %s", ssidParam);
-        appliedSSID = malloc(strlen(ssidParam) + 1);
-        strcpy(appliedSSID, ssidParam);
-    }
-
     httpd_resp_set_status(req, "302 Temporary Redirect");
     httpd_resp_set_hdr(req, "Location", "/");
     return httpd_resp_send(req, NULL, 0);
