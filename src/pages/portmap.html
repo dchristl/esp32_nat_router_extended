@@ -38,38 +38,7 @@
                     <th class=fw-bold>Action</th>
                 </tr>
             </thead>
-            <tbody class=text-center>
-                <tr>
-                    <td>TCP</td>
-                    <td>8080</td>
-                    <td>192.168.4.2</td>
-                    <td>80</td>
-                    <td>
-                        <form action='/portmap' method='POST'><input type='hidden' name='entry' value='%s'>
-                            <button title='Remove' name='remove' class='btn btn-primary'> <svg version="2.0" width="16"
-                                    height="16">
-                                    <use href="#trash" />
-                                </svg>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td>TCP</td>
-                    <td>8080</td>
-                    <td>192.168.4.2</td>
-                    <td>80</td>
-                    <td>
-                        <form action='/portmap' method='POST'><input type='hidden' name='entry' value='%s'>
-                            <button title='Remove' name='remove' class='btn btn-primary'>
-                                <svg version="2.0" width="16" height="16">
-                                    <use href="#trash">
-                                </svg>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-            <!-- <tbody class=text-center> %s </tbody> -->
+            <tbody class=text-center> %s </tbody>
         </table>
         <h3>Add new portmap</h3>
         <form action="portmap" method="POST" class="text-center">
@@ -87,7 +56,7 @@
                 </div>
                 <div class="col-4">
                     <div class="input-group mt-2">
-                        <span class="input-group-text" id="basic-addon1">192.168.4.</span>
+                        <span class="input-group-text" id="basic-addon1">%s</span>
                         <input type="number" class="form-control" placeholder="IP" min="2" max="254" maxlength="3">
                     </div>
                 </div>

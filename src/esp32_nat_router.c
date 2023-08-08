@@ -66,15 +66,7 @@ bool ap_connect = false;
 uint32_t my_ip;
 uint32_t my_ap_ip;
 
-struct portmap_table_entry
-{
-    u32_t daddr;
-    u16_t mport;
-    u16_t dport;
-    u8_t proto;
-    u8_t valid;
-};
-struct portmap_table_entry portmap_tab[IP_PORTMAP_MAX];
+struct portmap_table_entry portmap_tab[PORTMAP_MAX];
 
 esp_netif_t *wifiAP;
 esp_netif_t *wifiSTA;
@@ -124,7 +116,7 @@ static void initialize_nvs(void)
 
 esp_err_t apply_portmap_tab()
 {
-    for (int i = 0; i < IP_PORTMAP_MAX; i++)
+    for (int i = 0; i < PORTMAP_MAX; i++)
     {
         if (portmap_tab[i].valid)
         {
@@ -136,7 +128,7 @@ esp_err_t apply_portmap_tab()
 
 esp_err_t delete_portmap_tab()
 {
-    for (int i = 0; i < IP_PORTMAP_MAX; i++)
+    for (int i = 0; i < PORTMAP_MAX; i++)
     {
         if (portmap_tab[i].valid)
         {
@@ -148,7 +140,7 @@ esp_err_t delete_portmap_tab()
 
 void print_portmap_tab()
 {
-    for (int i = 0; i < IP_PORTMAP_MAX; i++)
+    for (int i = 0; i < PORTMAP_MAX; i++)
     {
         if (portmap_tab[i].valid)
         {
@@ -198,7 +190,7 @@ esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
 {
     nvs_handle_t nvs;
 
-    for (int i = 0; i < IP_PORTMAP_MAX; i++)
+    for (int i = 0; i < PORTMAP_MAX; i++)
     {
         if (!portmap_tab[i].valid)
         {
@@ -227,7 +219,7 @@ esp_err_t del_portmap(u8_t proto, u16_t mport)
 {
     nvs_handle_t nvs;
 
-    for (int i = 0; i < IP_PORTMAP_MAX; i++)
+    for (int i = 0; i < PORTMAP_MAX; i++)
     {
         if (portmap_tab[i].valid && portmap_tab[i].mport == mport && portmap_tab[i].proto == proto)
         {
