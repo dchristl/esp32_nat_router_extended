@@ -54,10 +54,6 @@ esp_err_t portmap_get_handler(httpd_req_t *req)
             ESP_ERROR_CHECK(httpd_resp_send_chunk(req, template, HTTPD_RESP_USE_STRLEN));
 
             free(template);
-
-            addr.addr = my_ip;
-            ESP_LOGI(TAG, IPSTR ":%d -> ", IP2STR(&addr), portmap_tab[i].mport);
-            ESP_LOGI(TAG, IPSTR ":%d\n", IP2STR(&addr), portmap_tab[i].dport);
         }
     }
 
@@ -76,11 +72,7 @@ esp_err_t portmap_get_handler(httpd_req_t *req)
 
     ESP_ERROR_CHECK(httpd_resp_send_chunk(req, portmap_page, HTTPD_RESP_USE_STRLEN));
 
-    int allocatedSize = (strlen(PORTMAP_ROW_TEMPLATE) + 100); // *entries
     free(portmap_page);
-
-    char result[allocatedSize];
-    strcpy(result, "");
 
     // Finalize
     closeHeader(req);
@@ -98,6 +90,6 @@ esp_err_t portmap_post_handler(httpd_req_t *req)
     }
 
     httpd_resp_set_status(req, "302 Found");
-    httpd_resp_set_hdr(req, "Location", "/result");
+    httpd_resp_set_hdr(req, "Location", "/portmap");
     return httpd_resp_send(req, NULL, 0);
 }
