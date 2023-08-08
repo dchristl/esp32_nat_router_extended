@@ -1,0 +1,46 @@
+</tbody>
+</table>
+<h3>Add new portmap</h3>
+<form action="portmap" method="POST" class="text-center">
+    <div class="form-group row mt-2">
+        <div class="col-2">
+            <select class="form-select mt-2" aria-label="Select the protocol" title="Select the protocol"
+                name="protocol" id="protocol">
+                <option value="tcp" selected>TCP</option>
+                <option value="udp">UDP</option>
+            </select>
+        </div>
+        <div class="col-2">
+            <input class="form-control mt-2" id="eport" maxlength="5" name="eport" placeholder="External port"
+                type="number" min="1" max="65536" />
+        </div>
+        <div class="col-4">
+            <div class="input-group mt-2">
+                <span class="input-group-text" id="basic-addon1">%s</span>
+                <input type="number" class="form-control" placeholder="IP" min="2" max="254" maxlength="3">
+            </div>
+        </div>
+        <div class="col-2">
+            <input class="form-control mt-2" id="iport" maxlength="5" name="iport" placeholder="Internal port"
+                type="number" min="1" max="65536" />
+        </div>
+        <div class="col-2">
+            <div>
+                <button title='Add' name='add' class=' btn btn-primary mt-2'>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</form>
+<div class="form-group row col-4 offset-4 mt-4"> <a href=/apply class="btn btn-primary">Apply changes</a> </div>
+<div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
+</div>
+</body>
+
+</html>
