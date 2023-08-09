@@ -10,7 +10,7 @@
 static const char *TAG = "OTA";
 
 static const char *NOT_DETERMINED = "Not determined yet";
-static const char *ERROR_RETRIEVING = "Error retrieving the latest version";
+static const char *ERROR_RETRIEVING = "Error retrieving the data";
 static char latest_version[50] = "";
 static char changelog[400] = "";
 bool finished = false;
@@ -246,6 +246,7 @@ void updateVersion()
     {
         ESP_LOGD(TAG, "Error on download: %s\n", esp_err_to_name(err));
         strcpy(latest_version, ERROR_RETRIEVING);
+        appendToChangelog(ERROR_RETRIEVING);
     }
     esp_http_client_cleanup(client);
 }
