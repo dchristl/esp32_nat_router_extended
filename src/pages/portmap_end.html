@@ -18,7 +18,8 @@
         <div class="col-4">
             <div class="input-group mt-2">
                 <span class="input-group-text" id="basic-addon1">%s</span>
-                <input type="number" class="form-control" name="ip" placeholder="IP" min="2" max="254" maxlength="3">
+                <input type="number" class="form-control" name="ip" placeholder="IP" min="2" max="254"
+                    maxlength="3">
             </div>
         </div>
         <div class="col-2">
@@ -37,7 +38,20 @@
             </div>
         </div>
     </div>
-
+    <div class="alert alert-warning mt-4" role=alert>
+        Port mapping is used to address devices behind the ESP32. For instance, a web server on TCP port 80
+        connected to the ESP32 router should be accessible within the network on port 8080. To configure this,
+        the following settings need to be chosen:
+        <ul class="text-start">
+            <li>Protocol: TCP</li>
+            <li>External port: 8080 (The port that is exposed externally)</li>
+            <li>Internal IP: The IP assigned by the ESP32 to the device, i.e. 192.168.4.2 </li>
+            <li>Internal port: 80 (The port that is only known within the ESP32 network and on which the web server on the endpoint device is running)</li>
+        </ul>
+        Port 80 is now exposed as port 8080 on the ESP32, accessible
+        via the ESP32's public IP (e.g., 192.168.178.20). So the webserver is available at
+        http://192.168.178.20:8080
+    </div>
 </form>
 <div class="form-group row col-4 offset-4 mt-4"> <a href=/apply class="btn btn-primary">Apply changes</a> </div>
 <div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
