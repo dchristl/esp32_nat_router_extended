@@ -235,11 +235,8 @@ void updateVersion()
             lineNumber++;
         }
 
-        ESP_LOGI(TAG, "1");
         free(file_buffer);
-        ESP_LOGI(TAG, "2");
         file_buffer = NULL;
-        ESP_LOGI(TAG, "3");
         file_size = 0;
     }
     else
