@@ -3,6 +3,7 @@
 #include "router_globals.h"
 #include "lwip/ip4_addr.h"
 #include "helper.h"
+#include "cmd_system.h"
 
 /* Static */
 void closeHeader(httpd_req_t *req);

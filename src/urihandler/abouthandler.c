@@ -2,12 +2,7 @@
 
 static const char *TAG = "AboutHandler";
 
-extern const char *GLOBAL_VERSION;
-extern const char *GLOBAL_HASH;
-extern const char *GLOBAL_BUILD_DATE;
-
-    esp_err_t
-    about_get_handler(httpd_req_t *req)
+esp_err_t about_get_handler(httpd_req_t *req)
 {
 
     ESP_LOGI(TAG, "Requesting about page");

@@ -31,6 +31,9 @@
 #endif
 
 static const char *TAG = "cmd_system";
+const char *GLOBAL_VERSION = "DEV-VERSION";
+const char *GLOBAL_HASH = "96ad523";
+const char *GLOBAL_BUILD_DATE = "01.01.1970";
 
 static void register_free(void);
 static void register_heap(void);
@@ -65,17 +68,19 @@ static int get_version(int argc, char **argv)
     esp_chip_info(&info);
     uint32_t size_flash_chip;
     esp_flash_get_size(NULL, &size_flash_chip);
-    printf("IDF Version:%s\r\n", esp_get_idf_version());
+    printf("App version:\t%s-%s\r\n", GLOBAL_VERSION, GLOBAL_HASH);
+    printf("Build date:\t%s\r\n", GLOBAL_BUILD_DATE);
+    printf("IDF version:\t%s\r\n", esp_get_idf_version());
     printf("Chip info:\r\n");
-    printf("\tmodel:%s\r\n", chip_type);
-    printf("\tcores:%d\r\n", info.cores);
-    printf("\tfeature:%s%s%s%s%ld%s\r\n",
+    printf("\t\tmodel:%s\r\n", chip_type);
+    printf("\t\tcores:%d\r\n", info.cores);
+    printf("\t\tfeature:%s%s%s%s%ld%s\r\n",
            info.features & CHIP_FEATURE_WIFI_BGN ? "/802.11bgn" : "",
            info.features & CHIP_FEATURE_BLE ? "/BLE" : "",
            info.features & CHIP_FEATURE_BT ? "/BT" : "",
            info.features & CHIP_FEATURE_EMB_FLASH ? "/Embedded-Flash:" : "/External-Flash:",
            size_flash_chip / (1024 * 1024), " MB");
-    printf("\trevision number:%d\r\n", info.revision);
+    printf("\t\trevision number:%d\r\n", info.revision);
     return 0;
 }
 

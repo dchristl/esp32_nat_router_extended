@@ -4,11 +4,8 @@
 #include <esp_https_ota.h>
 #include <esp_log.h>
 #include <sys/param.h>
-#include "cmd_system.h"
 #include "timer.h"
 #include <esp_http_client.h>
-
-extern const char *GLOBAL_VERSION;
 
 static const char *TAG = "OTA";
 
@@ -238,8 +235,11 @@ void updateVersion()
             lineNumber++;
         }
 
+        ESP_LOGI(TAG, "1");
         free(file_buffer);
+        ESP_LOGI(TAG, "2");
         file_buffer = NULL;
+        ESP_LOGI(TAG, "3");
         file_size = 0;
     }
     else

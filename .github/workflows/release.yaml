@@ -35,9 +35,9 @@ jobs:
             fi        
       - name: Update version, hash, and date in Global properties
         run: |
-          sed -i -e 's|*GLOBAL_VERSION = "\(.*\)";|*GLOBAL_VERSION = "${{ env.VERSION }}";|g'  src/esp32_nat_router.c 
-          sed -i -e 's|*GLOBAL_BUILD_DATE = "\(.*\)";|*GLOBAL_BUILD_DATE = "'"$(date +"%d.%m.%Y")"'";|g'  src/esp32_nat_router.c 
-          sed -i -e 's|*GLOBAL_HASH = "\(.*\)";|*GLOBAL_HASH = "'"$(git rev-parse --short HEAD)"'";|g'  src/esp32_nat_router.c 
+          sed -i -e 's|*GLOBAL_VERSION = "\(.*\)";|*GLOBAL_VERSION = "${{ env.VERSION }}";|g'  components/cmd_router/cmd_system.c 
+          sed -i -e 's|*GLOBAL_BUILD_DATE = "\(.*\)";|*GLOBAL_BUILD_DATE = "'"$(date +"%d.%m.%Y")"'";|g'   components/cmd_router/cmd_system.c 
+          sed -i -e 's|*GLOBAL_HASH = "\(.*\)";|*GLOBAL_HASH = "'"$(git rev-parse --short HEAD)"'";|g'   components/cmd_router/cmd_system.c  
              
       - name: Install Python dependencies
         run: |
@@ -96,7 +96,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create draft release
         uses: "marvinpinto/action-automatic-releases@latest"
-        if: github.ref == 'refs/heads/master'
+        # if: github.ref == 'refs/heads/master'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false

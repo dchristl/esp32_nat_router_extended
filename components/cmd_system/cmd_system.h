@@ -9,13 +9,21 @@
 #pragma once
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-// Register system functions
-void register_system(void);
-void determineChipType(char chip_type[30]);
+#ifndef CMD_SYSTEM_H
+#define CMD_SYSTEM_H
 
+   extern const char *GLOBAL_VERSION;
+   extern const char *GLOBAL_HASH;
+   extern const char *GLOBAL_BUILD_DATE;
+#endif
+
+   // Register system functions
+   void register_system(void);
+   void determineChipType(char chip_type[30]);
 
 #ifdef __cplusplus
 }
