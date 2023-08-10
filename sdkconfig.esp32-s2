@@ -1,6 +1,6 @@
 #
 # Automatically generated file. DO NOT EDIT.
-# Espressif IoT Development Framework (ESP-IDF) Project Configuration
+# Espressif IoT Development Framework (ESP-IDF) 5.1.0 Project Configuration
 #
 CONFIG_SOC_ADC_SUPPORTED=y
 CONFIG_SOC_DAC_SUPPORTED=y
