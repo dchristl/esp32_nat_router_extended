@@ -357,7 +357,7 @@ esp_err_t apply_post_handler(httpd_req_t *req)
     int ret = 0;
     int bufferLength = req->content_len;
     ESP_LOGI(TAG, "Content length  => %d", req->content_len);
-    char buf[1000]; // 1000 byte chunk
+    char buf[100]; // 1000 byte chunk
     char content[bufferLength];
     strcpy(content, ""); // Fill initial
 
@@ -373,7 +373,7 @@ esp_err_t apply_post_handler(httpd_req_t *req)
             ESP_LOGE(TAG, "Timeout occured %d", ret);
             return ESP_FAIL;
         }
-        buf[ret + 1] = '\0'; // add NUL terminator
+        buf[ret] = '\0'; // add NUL terminator
         strcat(content, buf);
         remaining -= ret;
         ESP_LOGI(TAG, "%d bytes total received -> %d left", strlen(content), remaining);
