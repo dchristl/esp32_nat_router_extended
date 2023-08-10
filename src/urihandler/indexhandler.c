@@ -172,6 +172,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
     esp_err_t ret = httpd_resp_send(req, config_page, HTTPD_RESP_USE_STRLEN);
     free(config_page);
     free(appliedSSID);
+    appliedSSID = NULL;
     free(db);
     if (strlen(cer) > 0) // Error on C3
     {

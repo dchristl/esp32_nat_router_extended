@@ -16,8 +16,8 @@ void fillInfoData(char **db, char **textColor)
     {
         sprintf(*db, "%d", apinfo.rssi);
         *textColor = findTextColorForSSID(apinfo.rssi);
-        ESP_LOGI(TAG, "RSSI: %d", apinfo.rssi);
-        ESP_LOGI(TAG, "SSID: %s", apinfo.ssid);
+        ESP_LOGD(TAG, "RSSI: %d", apinfo.rssi);
+        ESP_LOGD(TAG, "SSID: %s", apinfo.ssid);
     }
     else
     {

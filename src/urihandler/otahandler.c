@@ -10,7 +10,7 @@
 static const char *TAG = "OTA";
 
 static const char *NOT_DETERMINED = "Not determined yet";
-static const char *ERROR_RETRIEVING = "Error retrieving the data";
+static const char *ERROR_RETRIEVING = "Error retrieving the data. HTTP-Code: %d";
 static char latest_version[50] = "";
 static char changelog[400] = "";
 bool finished = false;
@@ -21,6 +21,11 @@ char chip_type[30];
 char otalog[400] = "";
 char resultLog[110] = "";
 char progressLabel[20] = "";
+
+typedef struct
+{
+    int http_code;
+} http_handler_data_t;
 
 static const char *DEFAULT_URL = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-production/";
 static const char *DEFAULT_URL_CANARY = "https://raw.githubusercontent.com/dchristl/esp32_nat_router_extended/releases-staging/";
@@ -91,6 +96,8 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
 esp_err_t version_event_handler(esp_http_client_event_t *evt)
 {
 
+    http_handler_data_t *handler_data = (http_handler_data_t *)evt->user_data;
+
     switch (evt->event_id)
     {
     case HTTP_EVENT_ON_DATA:
@@ -103,6 +110,8 @@ esp_err_t version_event_handler(esp_http_client_event_t *evt)
         }
         break;
     case HTTP_EVENT_ON_FINISH:
+        int http_status_code = esp_http_client_get_status_code(evt->client);
+        handler_data->http_code = http_status_code;
         ESP_LOGI(TAG, "Download finished");
         break;
     default:
@@ -207,21 +216,24 @@ void updateVersion()
     esp_http_client_config_t config = {
         .url = url,
         .event_handler = version_event_handler,
+        .user_data = &(http_handler_data_t){.http_code = 200},
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
     esp_http_client_set_timeout_ms(client, DOWNLOAD_TIMEOUT_MS);
     esp_err_t err = esp_http_client_perform(client);
-    if (err == ESP_OK)
+    changelog[0] = '\0';
+    http_handler_data_t *handler_data = (http_handler_data_t *)config.user_data;
+
+    if (err == ESP_OK && handler_data->http_code == 200)
     {
         ESP_LOGI(TAG, "Version and changelog download succesful. File size is: %d Bytes", file_size);
         file_buffer[file_size] = '\0'; // Terminate the string on the correct length
         char *rest = file_buffer;
         char *line;
         int lineNumber = 1;
-        changelog[0] = '\0';
         while ((line = strtok_r(rest, "\n", &rest)) != NULL)
         {
-            ESP_LOGI(TAG, "Line %d: %s\n", lineNumber, line);
+            ESP_LOGD(TAG, "Line %d: %s\n", lineNumber, line);
             switch (lineNumber)
             {
             case 1:
@@ -241,9 +253,9 @@ void updateVersion()
     }
     else
     {
-        ESP_LOGD(TAG, "Error on download: %s\n", esp_err_to_name(err));
-        strcpy(latest_version, ERROR_RETRIEVING);
-        appendToChangelog(ERROR_RETRIEVING);
+        ESP_LOGE(TAG, "Error on download: %s -> %d\n", esp_err_to_name(err), handler_data->http_code);
+        snprintf(latest_version, sizeof(latest_version), ERROR_RETRIEVING, handler_data->http_code);
+        appendToChangelog(latest_version);
     }
     esp_http_client_cleanup(client);
 }
