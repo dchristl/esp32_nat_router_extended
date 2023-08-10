@@ -11,7 +11,7 @@
 #include "esp_wifi_ap_get_sta_list.h"
 
 static const char *TAG = "PortMapHandler";
-const char *PORTMAP_ROW_TEMPLATE = "<tr> <td>%s</td> <td>%hu</td> <td>%s</td> <td>%hu</td> <td> <form action='/portmap' method='POST'><input type='hidden' name='func' value='del'><input type='hidden' name='entry' value='%s'> <button title='Remove' name='remove' class='btn btn-primary'> <svg version='2.0' width='16' height='16'> <use href='#trash' /> </svg> </form> </td></tr>";
+const char *PORTMAP_ROW_TEMPLATE = "<tr> <td>%s</td> <td>%hu</td> <td>%s</td> <td>%hu</td> <td> <form action='/portmap' method='POST'><input type='hidden' name='func' value='del'><input type='hidden' name='entry' value='%s'> <button title='Remove' name='remove' class='btn btn-light'> <svg version='2.0' width='16' height='16'> <use href='#trash' /> </svg> </form> </td></tr>";
 
 esp_err_t portmap_get_handler(httpd_req_t *req)
 {
