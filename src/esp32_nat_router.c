@@ -604,7 +604,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     if (strlen(ssid) > 0)
     {
         strlcpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
-        bool isWpaEnterprise = (sta_identity != NULL && strlen(sta_identity) != 0) || (sta_user != NULL && strlen(sta_user) != 0);
+        bool isWpaEnterprise = false; //(sta_identity != NULL && strlen(sta_identity) != 0) || (sta_user != NULL && strlen(sta_user) != 0);FIXME
         if (!isWpaEnterprise)
         {
             strlcpy((char *)wifi_config.sta.password, passwd, sizeof(wifi_config.sta.password));

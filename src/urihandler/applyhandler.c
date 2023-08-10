@@ -99,7 +99,11 @@ void applyApStaConfig(char *buf)
     ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
     setApByQuery(buf, nvs);
     setStaByQuery(buf, nvs);
+    uint32_t remaining_stack = uxTaskGetStackHighWaterMark(NULL);
+    ESP_LOGE(TAG,"Remaining stack space: %lu bytes\n", remaining_stack);
     setWpa2(buf, nvs);
+    remaining_stack = uxTaskGetStackHighWaterMark(NULL);
+    ESP_LOGE(TAG,"Remaining stack space: %lu bytes\n", remaining_stack);
     ESP_ERROR_CHECK(nvs_commit(nvs));
     nvs_close(nvs);
 }
