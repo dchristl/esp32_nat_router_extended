@@ -35,7 +35,7 @@ jobs:
             fi   
       - name: Check if version file contains linebreak at the end
         run: |
-          if [ -n "$(tail -c 1 version")" ]; then
+          if [ -n "$(tail -c 1 "version")" ]; then
             echo "The version file has no linebreak at the end"
             exit 1
           fi                
