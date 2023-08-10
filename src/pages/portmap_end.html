@@ -46,14 +46,18 @@
             <li>Protocol: TCP</li>
             <li>External port: 8080 (The port that is exposed externally)</li>
             <li>Internal IP: The IP assigned by the ESP32 to the device, i.e. 192.168.4.2 </li>
-            <li>Internal port: 80 (The port that is only known within the ESP32 network and on which the web server on the endpoint device is running)</li>
+            <li>Internal port: 80 (The port that is only known within the ESP32 network and on which the web
+                server on the endpoint device is running)</li>
         </ul>
         Port 80 is now exposed as port 8080 on the ESP32, accessible
         via the ESP32's public IP (e.g., 192.168.178.20). So the webserver is available at
         http://192.168.178.20:8080
     </div>
 </form>
-<div class="form-group row col-4 offset-4 mt-4"> <a href=/apply class="btn btn-primary">Apply changes</a> </div>
+<form action=apply class=p-2 method=POST>
+    <div class="form-group row col-4 offset-4 mt-4"> <input class="btn btn-primary" type=submit value="Apply changes">
+    </div>
+</form>
 <div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
 </div>
 </body>

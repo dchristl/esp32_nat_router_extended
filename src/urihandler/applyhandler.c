@@ -398,7 +398,7 @@ esp_err_t apply_post_handler(httpd_req_t *req)
     {
         applyAdvancedConfig(content);
     }
-    restartByTimer();
+    restartByTimerinS(1);
 
     return apply_get_handler(req);
 }

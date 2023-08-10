@@ -32,7 +32,13 @@ jobs:
               exit 1
             else
               echo "Tag ${TAG} does not exist or is DEV-Branch"
-            fi        
+            fi   
+      - name: Check if version file contains linebreak at the end
+        run: |
+          if [ -n "$(tail -c 1 version")" ]; then
+            echo "The version file has no linebreak at the end"
+            exit 1
+          fi                
       - name: Update version, hash, and date in Global properties
         run: |
           sed -i -e 's|*GLOBAL_VERSION = "\(.*\)";|*GLOBAL_VERSION = "${{ env.VERSION }}";|g'  components/cmd_system/cmd_system.c 
@@ -96,7 +102,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create draft release
         uses: "marvinpinto/action-automatic-releases@latest"
-        # if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false

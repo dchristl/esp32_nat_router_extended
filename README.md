@@ -37,6 +37,7 @@ Now you can reconnect and reload the page and change the "Soft AP Settings". Cli
 ![image](docs/scan.png)
 ![image](docs/enterprise_wifi.png)
 ![image](docs/advanced.png)
+![image](docs/portmap.png)
 ![image](docs/reset.png)
 ![image](docs/lock.png)
 ![image](docs/ota.png)
