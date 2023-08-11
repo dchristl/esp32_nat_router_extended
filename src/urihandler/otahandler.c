@@ -52,7 +52,7 @@ void setResultLog(const char *message, const char *cssClass)
 char *file_buffer = NULL;
 size_t file_size = 0;
 
-double data_length = 0;
+int64_t data_length = 0;
 int64_t content_length = 0;
 int threshold = 0;
 int progressInt = 0;
@@ -65,15 +65,21 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
     switch (evt->event_id)
     {
     case HTTP_EVENT_ON_DATA:
-        data_length = data_length + ((double)evt->data_len / 1000.0);
-        double progress = (double)data_length / content_length * 100.0;
-        progressInt = (int)progress;
-        sprintf(progressLabel, "%.0f of %lld kB", data_length, content_length);
-        if (progressInt >= threshold) // do not flood log
+
+        data_length = data_length + ((int64_t)evt->data_len * 1000);
+        if (content_length != 0)
         {
-            threshold = threshold + 10;
-            ESP_LOGI(TAG, "%s", progressLabel);
+            int64_t progress = (data_length * 100) / content_length / 1000;
+            progressInt = (int)progress;
+            sprintf(progressLabel, "%d of %d kB", (int)(data_length / 1000 / 1000), (int)(content_length / 1000));
+
+            if (progressInt >= threshold) // do not flood log
+            {
+                threshold = threshold + 10;
+                ESP_LOGI(TAG, "%s", progressLabel);
+            }
         }
+
         break;
     case HTTP_EVENT_ERROR:
         return ESP_FAIL;
@@ -82,8 +88,8 @@ esp_err_t ota_event_event_handler(esp_http_client_event_t *evt)
         char *endptr;
         if (strcasecmp("Content-Length", evt->header_key) == 0)
         {
-            content_length = strtol(evt->header_value, &endptr, 10) / 1000;
-            sprintf(tmp, "Download size is %lld kB", content_length);
+            content_length = strtol(evt->header_value, &endptr, 10);
+            sprintf(tmp, "Download size is %lld kB", (content_length / 1000));
             appendToLog(tmp);
         }
         break;
