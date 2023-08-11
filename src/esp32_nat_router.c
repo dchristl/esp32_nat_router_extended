@@ -75,30 +75,6 @@ httpd_handle_t start_webserver(void);
 
 static const char *TAG = "ESP32NRE";
 
-/* Console command history can be stored to and loaded from a file.
- * The easiest way to do this is to use FATFS filesystem on top of
- * wear_levelling library.
- */
-#if CONFIG_STORE_HISTORY
-
-#define MOUNT_PATH "/data"
-#define HISTORY_PATH MOUNT_PATH "/history.txt"
-
-static void initialize_filesystem(void)
-{
-    static wl_handle_t wl_handle;
-    const esp_vfs_fat_mount_config_t mount_config = {
-        .max_files = 4,
-        .format_if_mount_failed = true};
-    esp_err_t err = esp_vfs_fat_spiflash_mount(MOUNT_PATH, "storage", &mount_config, &wl_handle);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to mount FATFS (%s)", esp_err_to_name(err));
-        return;
-    }
-}
-#endif // CONFIG_STORE_HISTORY
-
 static void initialize_nvs(void)
 {
     esp_err_t err = nvs_flash_init();
@@ -296,11 +272,6 @@ static void initialize_console(void)
 
     /* Set command history size */
     linenoiseHistorySetMaxLen(100);
-
-#if CONFIG_STORE_HISTORY
-    /* Load command history from filesystem */
-    linenoiseHistoryLoad(HISTORY_PATH);
-#endif
 }
 
 void *led_status_thread(void *p)
@@ -761,14 +732,6 @@ void app_main(void)
     register_system();
 
     register_router();
-
-#if CONFIG_STORE_HISTORY
-    initialize_filesystem();
-    ESP_LOGI(TAG, "Command history enabled");
-#else
-    ESP_LOGI(TAG, "Command history disabled");
-#endif
-
     fillMac();
     get_config_param_str("ssid", &ssid);
     if (ssid == NULL)
@@ -885,10 +848,10 @@ void app_main(void)
     /* Prompt to be printed before each line.
      * This can be customized, made dynamic, etc.
      */
-    const char *prompt = LOG_COLOR_I "esp32> " LOG_RESET_COLOR;
+    const char *prompt = LOG_COLOR_I "esp32nre> " LOG_RESET_COLOR;
 
     printf("\n"
-           "ESP32 NAT ROUTER\n"
+           "ESP32 NAT ROUTER EXTENDED\n"
            "Type 'help' to get the list of commands.\n"
            "Use UP/DOWN arrows to navigate through command history.\n"
            "Press TAB when typing command name to auto-complete.\n");
@@ -913,7 +876,7 @@ void app_main(void)
         /* Since the terminal doesn't support escape sequences,
          * don't use color codes in the prompt.
          */
-        prompt = "esp32> ";
+        prompt = "esp32nre> ";
 #endif // CONFIG_LOG_COLORS
     }
 
@@ -930,11 +893,6 @@ void app_main(void)
         }
         /* Add the command to the history */
         linenoiseHistoryAdd(line);
-#if CONFIG_STORE_HISTORY
-        /* Save command history to filesystem */
-        linenoiseHistorySave(HISTORY_PATH);
-#endif
-
         /* Try to run the command */
         int ret;
         esp_err_t err = esp_console_run(line, &ret);
