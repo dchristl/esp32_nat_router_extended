@@ -694,7 +694,6 @@ static void setLogLevel(void)
     {
         loglevel = "i";
     }
-    ESP_LOGE(TAG, "loglevel is %c", loglevel[0]);
     switch (loglevel[0])
     {
     case 'n':
