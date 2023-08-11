@@ -169,6 +169,7 @@ show
 | cer   | str        | Content of the WPA Enterprise certificate |
 | ota_url   | str        | Url to the binary for OTA-Updates |
 | canary   | i32        | Use the canary/nightly builds for OTA-Updates  |
+| loglevel   | str        | Sets the loglevel. Valid values: n -> log off; d -> log debug; v-> log verbose; i -> log info (default) |
 
 
 # DNS
@@ -187,3 +188,4 @@ Before that by default the DNS-Server which is offerd to clients connecting to t
 | Component config > ESP-TLS > Skip server certificate verification by default | Activated   | For OTA-Updates       |
 | Component config > ESP HTTPS OTA > Allow HTTP for OTA | Activated   | For OTA-Updates with custom urls       |
 | Component config > HTTP-Server > Max HTTP Request Header Length   | 6144   | Max size for post requests (i.e. certificate)    |
+| Component config > Log output > Maximum log verbosity  | Verbose   | To change the log level dynamically    |

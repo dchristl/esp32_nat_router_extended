@@ -715,6 +715,36 @@ bool checkForResetPinAndReset()
     return false;
 }
 
+static void setLogLevel(void)
+{
+    char *loglevel = NULL;
+    get_config_param_str("loglevel", &loglevel);
+    if (loglevel == NULL)
+    {
+        loglevel = "i";
+    }
+    ESP_LOGE(TAG, "loglevel is %c", loglevel[0]);
+    switch (loglevel[0])
+    {
+    case 'n':
+        ESP_LOGE(TAG, "Disabling log");
+        esp_log_level_set("*", ESP_LOG_NONE);
+        break;
+    case 'd':
+        ESP_LOGI(TAG, "Setting log to debug");
+        esp_log_level_set("*", ESP_LOG_DEBUG);
+        break;
+    case 'v':
+        ESP_LOGI(TAG, "Setting log to verbose");
+        esp_log_level_set("*", ESP_LOG_VERBOSE);
+        break;
+    case 'i':
+    default:
+        esp_log_level_set("*", ESP_LOG_INFO);
+        break;
+    }
+}
+
 void app_main(void)
 {
     initialize_nvs();
@@ -723,6 +753,8 @@ void app_main(void)
     {
         return;
     }
+    setLogLevel();
+
     initialize_console();
     /* Register commands */
     esp_console_register_help_command();

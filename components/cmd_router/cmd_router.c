@@ -56,7 +56,7 @@ esp_err_t get_config_param_str(char *name, char **param)
         {
             *param = (char *)malloc(len);
             err = nvs_get_str(nvs, name, *param, &len);
-            ESP_LOGD(TAG, "%s %s", name, *param);
+            ESP_LOGI(TAG, "%s %s", name, *param);
         }
         else
         {
