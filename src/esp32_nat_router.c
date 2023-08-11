@@ -73,7 +73,7 @@ esp_netif_t *wifiSTA;
 
 httpd_handle_t start_webserver(void);
 
-static const char *TAG = "ESP32 NAT router";
+static const char *TAG = "ESP32NRE";
 
 /* Console command history can be stored to and loaded from a file.
  * The easiest way to do this is to use FATFS filesystem on top of
