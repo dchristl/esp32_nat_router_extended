@@ -37,7 +37,7 @@ esp_err_t favicon_get_handler(httpd_req_t *req)
     extern const char favicon_ico_end[] asm("_binary_favicon_ico_end");
     const size_t favicon_ico_size = (favicon_ico_end - favicon_ico_start);
     httpd_resp_set_type(req, "image/x-icon");
-    ESP_LOGI(TAG_HANDLER, "Requesting favicon");
+    ESP_LOGD(TAG_HANDLER, "Requesting favicon");
     closeHeader(req);
     return httpd_resp_send(req, favicon_ico_start, favicon_ico_size);
 }

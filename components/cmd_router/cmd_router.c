@@ -56,7 +56,7 @@ esp_err_t get_config_param_str(char *name, char **param)
         {
             *param = (char *)malloc(len);
             err = nvs_get_str(nvs, name, *param, &len);
-            ESP_LOGI(TAG, "%s %s", name, *param);
+            ESP_LOGD(TAG, "%s %s", name, *param);
         }
         else
         {
@@ -114,7 +114,7 @@ esp_err_t get_config_param_blob2(char *name, uint8_t *blob, size_t blob_len)
                 return ESP_ERR_NVS_INVALID_LENGTH;
             }
             err = nvs_get_blob(nvs, name, blob, &len);
-            ESP_LOGI(TAG, "%s: %d", name, len);
+            ESP_LOGD(TAG, "%s: %d", name, len);
         }
         else
         {
@@ -138,7 +138,7 @@ esp_err_t get_config_param_int(char *name, int32_t *param)
     {
         if ((err = nvs_get_i32(nvs, name, param)) == ESP_OK)
         {
-            ESP_LOGI(TAG, "%s %ld", name, *param);
+            ESP_LOGD(TAG, "%s %ld", name, *param);
         }
         else
         {

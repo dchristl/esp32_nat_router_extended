@@ -227,7 +227,7 @@ void updateVersion()
     if (err == ESP_OK && handler_data->http_code == 200)
     {
         ESP_LOGI(TAG, "Version and changelog download succesful. File size is: %d Bytes", file_size);
-        file_buffer[file_size] = '\0'; // Terminate the string on the correct length
+        file_buffer[file_size - 1] = '\0'; // Terminate the string on the correct length
         char *rest = file_buffer;
         char *line;
         int lineNumber = 1;
@@ -337,7 +337,7 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     }
 
     determineChipType(chip_type);
-    ESP_LOGI(TAG, "Chip Type: %s\n", chip_type);
+    ESP_LOGD(TAG, "Chip Type: %s\n", chip_type);
     char customUrl[200];
     char label[20];
     getOtaUrl(customUrl, label);
