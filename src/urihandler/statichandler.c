@@ -18,7 +18,7 @@ esp_err_t styles_download_get_handler(httpd_req_t *req)
 {
     extern const unsigned char styles_start[] asm("_binary_styles_67aa3b0203355627b525be2ea57be7bf_css_start");
     httpd_resp_set_type(req, "text/css");
-    ESP_LOGI(TAG_HANDLER, "Requesting style.css");
+    ESP_LOGD(TAG_HANDLER, "Requesting style");
     return download(req, (const char *)styles_start);
 }
 
@@ -26,7 +26,7 @@ esp_err_t jquery_get_handler(httpd_req_t *req)
 {
     extern const unsigned char jquery_js_start[] asm("_binary_jquery_8a1045d9cbf50b52a0805c111ba08e94_js_start");
     httpd_resp_set_type(req, "text/javascript");
-    ESP_LOGI(TAG_HANDLER, "Requesting jquery");
+    ESP_LOGD(TAG_HANDLER, "Requesting jquery");
     return download(req, (const char *)jquery_js_start);
 }
 
