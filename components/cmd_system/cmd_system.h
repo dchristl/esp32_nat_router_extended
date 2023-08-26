@@ -16,14 +16,14 @@ extern "C"
 #ifndef CMD_SYSTEM_H
 #define CMD_SYSTEM_H
 
-   extern const char *GLOBAL_VERSION;
    extern const char *GLOBAL_HASH;
-   extern const char *GLOBAL_BUILD_DATE;
 #endif
 
    // Register system functions
    void register_system(void);
    void determineChipType(char chip_type[30]);
+   const char *get_project_version();
+   const char *get_project_build_date();
 
 #ifdef __cplusplus
 }

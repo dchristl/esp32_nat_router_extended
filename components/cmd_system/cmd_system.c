@@ -25,15 +25,14 @@
 #include "esp_chip_info.h"
 #include "esp_flash.h"
 #include "soc/soc_caps.h"
+#include "esp_app_desc.h"
 
 #ifdef CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
 #define WITH_TASKS_INFO 1
 #endif
 
 static const char *TAG = "cmd_system";
-const char *GLOBAL_VERSION = "DEV-VERSION";
 const char *GLOBAL_HASH = "96ad523";
-const char *GLOBAL_BUILD_DATE = "01.01.1970";
 
 static void register_free(void);
 static void register_heap(void);
@@ -57,6 +56,17 @@ void register_system(void)
     register_tasks();
 #endif
 }
+const char *get_project_version()
+{
+    const esp_app_desc_t *app_desc = esp_app_get_description();
+    return app_desc->version;
+}
+
+const char *get_project_build_date()
+{
+    const esp_app_desc_t *app_desc = esp_app_get_description();
+    return app_desc->date;
+}
 
 /* 'version' command */
 static int get_version(int argc, char **argv)
@@ -68,19 +78,22 @@ static int get_version(int argc, char **argv)
     esp_chip_info(&info);
     uint32_t size_flash_chip;
     esp_flash_get_size(NULL, &size_flash_chip);
-    printf("App version:\t%s-%s\r\n", GLOBAL_VERSION, GLOBAL_HASH);
-    printf("Build date:\t%s\r\n", GLOBAL_BUILD_DATE);
-    printf("IDF version:\t%s\r\n", esp_get_idf_version());
+    const esp_app_desc_t *app_desc = esp_app_get_description();
+
+    printf("App name:\t%s\r\n", app_desc->project_name);
+    printf("App version:\t%s-%s\r\n", app_desc->version, GLOBAL_HASH);
+    printf("IDF version:\t%s\r\n", app_desc->idf_ver);
+    printf("Build date:\t%s %s\r\n", app_desc->date, app_desc->time);
     printf("Chip info:\r\n");
-    printf("\t\tmodel:%s\r\n", chip_type);
-    printf("\t\tcores:%d\r\n", info.cores);
-    printf("\t\tfeature:%s%s%s%s%ld%s\r\n",
+    printf("\t\tmodel: %s\r\n", chip_type);
+    printf("\t\tcores: %d\r\n", info.cores);
+    printf("\t\tfeature: %s%s%s%s%ld%s\r\n",
            info.features & CHIP_FEATURE_WIFI_BGN ? "/802.11bgn" : "",
            info.features & CHIP_FEATURE_BLE ? "/BLE" : "",
            info.features & CHIP_FEATURE_BT ? "/BT" : "",
-           info.features & CHIP_FEATURE_EMB_FLASH ? "/Embedded-Flash:" : "/External-Flash:",
+           info.features & CHIP_FEATURE_EMB_FLASH ? "/Embedded-Flash: " : "/External-Flash: ",
            size_flash_chip / (1024 * 1024), " MB");
-    printf("\t\trevision number:%d\r\n", info.revision);
+    printf("\t\trevision number: %d\r\n", info.revision);
     return 0;
 }
 

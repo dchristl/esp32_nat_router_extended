@@ -16,9 +16,11 @@ esp_err_t about_get_handler(httpd_req_t *req)
     extern const char about_end[] asm("_binary_about_html_end");
     const size_t about_html_size = (about_end - about_start);
 
-    char *about_page = malloc(about_html_size + strlen(GLOBAL_VERSION) + strlen(GLOBAL_HASH) + strlen(GLOBAL_BUILD_DATE) + 1);
+    const char *project_version = get_project_version();
+    const char *project_build_date = get_project_build_date();
+    char *about_page = malloc(about_html_size + strlen(project_version) + strlen(GLOBAL_HASH) + strlen(project_build_date) + 1);
 
-    sprintf(about_page, about_start, GLOBAL_VERSION, GLOBAL_HASH, GLOBAL_BUILD_DATE);
+    sprintf(about_page, about_start, project_version, GLOBAL_HASH, project_build_date);
 
     closeHeader(req);
 
