@@ -39,7 +39,7 @@ jobs:
             echo "The version file has no linebreak at the end"
             exit 1
           fi                
-      - name: Update version, hash, and date in Global properties
+      - name: Update hash in Global properties
         run: |
           sed -i -e 's|*GLOBAL_HASH = "\(.*\)";|*GLOBAL_HASH = "'"$(git rev-parse --short HEAD)"'";|g'   components/cmd_system/cmd_system.c  
           sed -i -e 's/DEV-VERSION/${{ env.VERSION }}/g' CMakeLists.txt    
