@@ -14,7 +14,7 @@ def shrinkHtml():
             file = open(os.path.join(directory, f))
             html = file.read().replace("\n", " ")
             file.close()
-            minified = htmlmin.minify(html, remove_empty_space=True)
+            minified = htmlmin.minify(html, remove_empty_space=True, remove_optional_attribute_quotes=False)
             print(minified)
             with open(os.path.join(directory, f), "w") as myfile:
                 myfile.write(minified)

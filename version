@@ -1,4 +1,4 @@
-7.7.0-DEV
+6.3.1-DEV
 
 Fixed wrong version in cli
-Adding Wireguard VPN
+Fixed view issues when spaces are used in SSID
