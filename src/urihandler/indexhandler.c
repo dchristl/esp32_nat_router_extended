@@ -83,18 +83,6 @@ esp_err_t index_get_handler(httpd_req_t *req)
         hiddenSSID = "";
     }
 
-    int32_t forceWEP = 0;
-    char *useWEP = NULL;
-    get_config_param_int("force_wep", &forceWEP);
-    if (forceWEP == 1)
-    {
-        useWEP = "checked";
-    }
-    else
-    {
-        useWEP = "";
-    }
-
     size_t size = strlen(ap_ssid) + strlen(ap_passwd) + strlen(displayLockButton);
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
@@ -164,7 +152,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
         cer = "";
     }
 
-    size = size + strlen(wpa2CB) + strlen(wpa2Input) + strlen(sta_identity) + strlen(sta_user) + strlen(cer) + strlen(displayResult) + strlen(scanButtonWidth) + strlen(displayLockButton) + strlen(displayRelockButton) + strlen(hiddenSSID) + strlen(useWEP);
+    size = size + strlen(wpa2CB) + strlen(wpa2Input) + strlen(sta_identity) + strlen(sta_user) + strlen(cer) + strlen(displayResult) + strlen(scanButtonWidth) + strlen(displayLockButton) + strlen(displayRelockButton);
     ESP_LOGI(TAG, "Allocating additional %d bytes for config page.", config_html_size + size);
 
     char *config_page = malloc(config_html_size + size);
@@ -172,11 +160,11 @@ esp_err_t index_get_handler(httpd_req_t *req)
 
     if (appliedSSID != NULL && strlen(appliedSSID) > 0)
     {
-        sprintf(config_page, config_start, connect_count, hiddenSSID, useWEP, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", scanButtonWidth, displayResult, displayLockButton, displayRelockButton);
+        sprintf(config_page, config_start, connect_count, hiddenSSID, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, appliedSSID, wpa2Input, sta_identity, sta_user, cer, "", scanButtonWidth, displayResult, displayLockButton, displayRelockButton);
     }
     else
     {
-        sprintf(config_page, config_start, connect_count, hiddenSSID, useWEP, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, scanButtonWidth, displayResult, displayLockButton, displayRelockButton);
+        sprintf(config_page, config_start, connect_count, hiddenSSID, ap_ssid, ap_passwd, textColor, wifiOff, wifiOn, db, wpa2CB, ssid, wpa2Input, sta_identity, sta_user, cer, passwd, scanButtonWidth, displayResult, displayLockButton, displayRelockButton);
     }
 
     closeHeader(req);

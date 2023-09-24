@@ -38,17 +38,6 @@ void setApByQuery(char *urlContent, nvs_handle_t nvs)
     {
         nvs_erase_key(nvs, "ssid_hidden");
     }
-
-    readUrlParameterIntoBuffer(urlContent, "wep", param, contentLength);
-    if (strcmp(param, "on") == 0)
-    {
-        ESP_LOGI(TAG, "Forcein usage oF WEP.");
-        ESP_ERROR_CHECK(nvs_set_i32(nvs, "force_wep", 1));
-    }
-    else
-    {
-        nvs_erase_key(nvs, "force_wep");
-    }
 }
 
 void setStaByQuery(char *urlContent, nvs_handle_t nvs)

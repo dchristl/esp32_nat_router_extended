@@ -151,7 +151,6 @@ show
 | ap_ssid      | str       |SSID of the AP network|
 | ap_passwd   | str        | Password of the AP network|
 | ssid_hidden   | i32        | Hide the AP SSID |
-| force_wep   | i32        | Force the usage of WEP instead of WPA |
 | ssid      | str       |SSID of the STA network|
 | keep_alive   | i32        | Keep the connection alive|
 | led_disabled   | i32        | Is the LED disabled|
