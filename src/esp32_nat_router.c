@@ -327,20 +327,14 @@ void setTxPower()
 
 void set3rdOctet()
 {
-    char *octet = NULL;
-    get_config_param_str("octet", &octet);
-    if (octet != NULL)
+    int32_t octet = -1;
+    get_config_param_int("octet", &octet);
+
+    if (octet >= 0 && octet <= 255)
     {
-        char *endptr;
-        long num = strtol(octet, &endptr, 10);
-        if (*endptr == '\0' && octet != endptr)
-        {
-            if (num >= 0 && num <= 255)
-            {
-                return;
-            }
-        }
+        return;
     }
+
     ESP_LOGI(TAG, "3rd octet not set or invalid. Setting to default. ");
     nvs_handle_t nvs;
     ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));

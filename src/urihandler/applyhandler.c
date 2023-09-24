@@ -326,6 +326,18 @@ void applyAdvancedConfig(char *buf)
         nvs_erase_key(nvs, "hostname");
     }
 
+    readUrlParameterIntoBuffer(buf, "octet", param, contentLength);
+    int octet = atoi(param);
+    if (strlen(param) > 0 && octet >= 0 && octet <= 255)
+    {
+        ESP_LOGI(TAG, "Set third octet to: %d", octet);
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "octet", octet));
+    }
+    else
+    {
+        ESP_LOGW(TAG, "Invalid octet parameter. Will be erased");
+        nvs_erase_key(nvs, "octet");
+    }
     readUrlParameterIntoBuffer(buf, "txpower", param, contentLength);
     int txPower = atoi(param);
     if (txPower >= 8 && txPower <= 84)
