@@ -183,7 +183,6 @@ Before that by default the DNS-Server which is offerd to clients connecting to t
 | Component config > LWIP > Enable copy between Layer2 and Layer3 packets.     | Activated       ||
 | Component config > LWIP > Enable IP forwarding     | Activated       ||
 | Component config > LWIP > Enable NAT (new/experimental)    | Activated       ||
-| Component config > LWIP > Enable NAT (new/experimental)    | Activated       ||
 | Component config > ESP-TLS > Allow potentially insecure options    | Activated       |For OTA-Updates|
 | Component config > ESP-TLS > Skip server certificate verification by default | Activated   | For OTA-Updates       |
 | Component config > ESP HTTPS OTA > Allow HTTP for OTA | Activated   | For OTA-Updates with custom urls       |
