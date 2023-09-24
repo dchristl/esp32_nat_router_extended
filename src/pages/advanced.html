@@ -161,6 +161,12 @@
                                                 name=netmask value=classa %s> <label class=form-check-label for=classa>
                                                 Class A (255.0.0.0). ESP 32 NAT
                                                 Router address is 10.0.4.1.</label> </div>
+                                <div class="form-check mt-2"> <input class=form-check-input type=radio id=custommask
+                                                name=netmask value=custom %s> <label class=form-check-label
+                                                for=custommask> Custom </label> <input class="form-control mt-2" id=mask
+                                                maxlength=15 name=mask
+                                                placeholder="IPv4 address in format 123.123.123.123" type=text value=%s>
+                                </div>
                                 <div class="alert alert-warning mt-2" role=alert>This overrides the netmask of the
                                         device and can be
                                         used if upstream network uses a non class C mask. The setting can be used for
