@@ -19,12 +19,16 @@
         <form action="apply" method="POST"> <input name="func" type="hidden" value="config" />
             <h2>AP Settings (the new network)</h2> <a class="btn" href="/clients"><span class="text-info"><span
                         id="clients">%d</span> client(s) connected</span></a>
-
-
-            <div class="form-check form-switch mt-4">
+            <div class="row mt-4"></div>
+            <div class="form-check form-switch form-check-inline">
                 <input class="form-check-input" type="checkbox" id="ssid_hidden" name="ssid_hidden" %s>
                 <label class="form-check-label" for="ssid_hidden">Hide the SSID</label>
             </div>
+            <div class="form-check form-switch form-check-inline">
+                <input class="form-check-input" type="checkbox" id="wep" name="wep" %s>
+                <label class="form-check-label" for="wep">Force WEP</label>
+            </div>
+
             <div class="form-group row mt-4"> <label class="col-3" for="ap_ssid">SSID</label>
                 <div class="col-9"> <input class="form-control" id="ap_ssid" maxlength="32" name="ap_ssid"
                         placeholder="SSID of the new network" type="text" value="%s" /> </div>
