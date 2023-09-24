@@ -82,6 +82,7 @@ esp_err_t portmap_get_handler(httpd_req_t *req)
     ESP_ERROR_CHECK(httpd_resp_send_chunk(req, portmap_page, HTTPD_RESP_USE_STRLEN));
 
     free(portmap_page);
+    free(defaultIP);
 
     // Finalize
     closeHeader(req);
@@ -120,7 +121,7 @@ void addPortmapEntry(char *urlContent)
     strncpy(resultIP, defaultIP, strlen(defaultIP) - 1);
     resultIP[strlen(defaultIP) - 1] = '\0';
     strcat(resultIP, param);
-
+    free(defaultIP);
     uint32_t int_ip = ipaddr_addr(resultIP);
     if (int_ip == IPADDR_NONE)
     {

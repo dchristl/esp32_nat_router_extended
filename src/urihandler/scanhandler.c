@@ -6,7 +6,6 @@
 
 static const char *TAG = "ScanHandler";
 
-
 void fillInfoData(char **db, char **textColor)
 {
     *db = realloc(*db, 5);
@@ -36,7 +35,7 @@ esp_err_t scan_download_get_handler(httpd_req_t *req)
 
     httpd_req_to_sockfd(req);
 
-    const char *defaultIP = getDefaultIPByNetmask();
+    char *defaultIP = getDefaultIPByNetmask();
 
     extern const char scan_start[] asm("_binary_scan_html_start");
     extern const char scan_end[] asm("_binary_scan_html_end");
@@ -53,5 +52,6 @@ esp_err_t scan_download_get_handler(httpd_req_t *req)
     esp_err_t ret = httpd_resp_send(req, scan_page, HTTPD_RESP_USE_STRLEN);
     fillNodes();
     free(scan_page);
+    free(defaultIP);
     return ret;
 }

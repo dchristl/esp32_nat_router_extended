@@ -150,9 +150,9 @@ char *getRedirectUrl(httpd_req_t *req)
     strcpy(str, "http://");
     if (strcmp(host, DEFAULT_AP_IP_CLASS_A) == 0 || strcmp(host, DEFAULT_AP_IP_CLASS_B) == 0 || strcmp(host, DEFAULT_AP_IP_CLASS_C) == 0)
     {
-        char* defaultIP = getDefaultIPByNetmask();
+        char *defaultIP = getDefaultIPByNetmask();
         strcat(str, defaultIP);
-        free(defaultIP)
+        free(defaultIP);
     }
     else
     {

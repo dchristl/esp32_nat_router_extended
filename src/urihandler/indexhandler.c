@@ -14,6 +14,7 @@ bool isWrongHost(httpd_req_t *req)
     httpd_req_get_hdr_value_str(req, "Host", host, buf_len);
     bool out = strcmp(host, currentIP) != 0;
     free(host);
+    free(currentIP);
     return out;
 }
 

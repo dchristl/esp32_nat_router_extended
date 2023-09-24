@@ -26,7 +26,7 @@
                                                 value="%s" />
                                 </div>
                                 <div class="col-3" style="padding-right: 0;">
-                                        <label for="octet">Third octet of IP</label>
+                                        <label for="octet">Third octet</label>
                                         <input class="form-control mt-2" type="number" id="octet" maxlength="3"
                                                 name="octet" placeholder="4" type="text" value="%d" min="0" max="255" />
                                 </div>
@@ -34,7 +34,8 @@
                                         assigned to the router to make it easier to identify and access on a network.
                                         <br />
                                         The third octet instructs the router which IP address to use. Valid values range
-                                        from 0 to 255 and are used in the third position within the IP address.
+                                        from 0 to 255 and are used in the third position within the IP address. This
+                                        changes both the IP of the router and the IP of all connected clients.
                                 </div>
 
                         </div>
@@ -190,15 +191,14 @@
                                                 name=netmask value=custom %s> <label class=form-check-label
                                                 for=custommask> Custom </label> <input class="form-control mt-2" id=mask
                                                 maxlength=15 name=mask
-                                                placeholder="IPv4 address in format 123.123.123.123" type=text value=%s>
+                                                placeholder="IPv4 address in format 255.255.255.255" type=text value=%s>
                                 </div>
                                 <div class="alert alert-warning mt-2" role=alert>This overrides the netmask of the
                                         device and can be
                                         used if upstream network uses a non class C mask. The setting can be used for
                                         communication with
-                                        clients connected to the upstream network. This changes the default IP address
-                                        of the device and the
-                                        IPs of the connected clients to the corresponding IP range.</div>
+                                        clients connected to the upstream network. This changes both the IP of the
+                                        router and the IP of all connected clients.</div>
                         </div>
                         <div class="form-group row col-4 offset-4 mt-4"> <input class="btn btn-primary" type=submit
                                         value="Apply changes"> </div> <input type=hidden value=x name=x>

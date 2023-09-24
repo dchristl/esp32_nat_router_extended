@@ -622,8 +622,10 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
         ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &ap_config));
     }
     esp_ip_addr_t dnsserver;
-    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(getDefaultIPByNetmask());
+    char *defaultIP = getDefaultIPByNetmask();
+    dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(defaultIP);
     setDnsServer(wifiAP, &dnsserver);
+    free(defaultIP);
 
     xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
                         pdFALSE, pdTRUE, JOIN_TIMEOUT_MS / portTICK_PERIOD_MS);
@@ -796,7 +798,9 @@ void app_main(void)
     get_config_param_str("ap_ip", &ap_ip);
     if (ap_ip == NULL)
     {
-        ap_ip = param_set_default(getDefaultIPByNetmask());
+        char *defaultIP = getDefaultIPByNetmask();
+        ap_ip = param_set_default(defaultIP);
+        free(defaultIP);
     }
 
     get_config_param_str("sta_user", &sta_user);
