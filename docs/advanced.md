@@ -164,7 +164,7 @@ show
 | result_shown   | i32        | Counter how many times the result was already shown (>3 = delete result)|
 | txpower   | i32        | How much tx power should be used (between 8 and 84), larger, more power|
 | lower_bandwith   | i32        | Use a lower bandwith (40 Mhz), but prefer more stable network|
-| netmask   | str        | Value of the network class to use (classa, classb or classc)  |
+| netmask   | str        | Value of the network class to use (i.e. 255.255.255.0 or 255.255.255.128)  |
 | sta_identity   | str        | Identity for WPA enterprise |
 | sta_user   | str        | WPA Enterprise username|
 | cer   | str        | Content of the WPA Enterprise certificate |

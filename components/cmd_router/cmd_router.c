@@ -175,15 +175,26 @@ esp_err_t erase_key(char *name)
 char *getDefaultIPByNetmask()
 {
     char *netmask = getNetmask();
-    if (strcmp(netmask, DEFAULT_NETMASK_CLASS_A) == 0)
+
+    char *netmask_to_compare = "255.255.255.";
+    if (strncmp(netmask, netmask_to_compare, strlen(netmask_to_compare)) == 0)
     {
-        return DEFAULT_AP_IP_CLASS_A;
+
+        ESP_LOGE(TAG, "IP: %s", DEFAULT_AP_IP_CLASS_C);
+        return DEFAULT_AP_IP_CLASS_C;
     }
-    else if (strcmp(netmask, DEFAULT_NETMASK_CLASS_B) == 0)
+
+    netmask_to_compare = "255.255.";
+    if (strncmp(netmask, netmask_to_compare, strlen(netmask_to_compare)) == 0)
     {
+        ESP_LOGE(TAG, "IP: %s", DEFAULT_AP_IP_CLASS_B);
         return DEFAULT_AP_IP_CLASS_B;
     }
-    return DEFAULT_AP_IP_CLASS_C;
+    else
+    {
+        ESP_LOGE(TAG, "IP: %s", DEFAULT_AP_IP_CLASS_A);
+        return DEFAULT_AP_IP_CLASS_A;
+    }
 }
 
 char *getNetmask()

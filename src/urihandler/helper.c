@@ -142,6 +142,7 @@ bool is_valid_subnet_mask(char *subnet_mask)
     if ((inverted_mask & (inverted_mask + 1)) != 0)
     {
         ESP_LOGE(TAG, "%s is not a valid subnet mask. The bits after the last 1 have to be zero.", subnet_mask);
+        return false;
     }
 
     return true;

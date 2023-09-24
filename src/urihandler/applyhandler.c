@@ -294,10 +294,24 @@ void applyAdvancedConfig(char *buf)
             ESP_LOGI(TAG, "Netmask set to Class B");
             ESP_ERROR_CHECK(nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_B));
         }
-        else
+        else if (strcmp("classc", param) == 0)
         {
             ESP_LOGI(TAG, "Netmask set to Class C");
             ESP_ERROR_CHECK(nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_C));
+        }
+        else
+        {
+            readUrlParameterIntoBuffer(buf, "mask", param, contentLength);
+            if (is_valid_subnet_mask(param))
+            {
+                ESP_LOGI(TAG, "Netmask set to %s", param);
+                ESP_ERROR_CHECK(nvs_set_str(nvs, "netmask", param));
+            }
+            else
+            {
+                ESP_LOGW(TAG, "Invalid custom subnetmask. Setting to default.");
+                ESP_ERROR_CHECK(nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_C));
+            }
         }
     }
     readUrlParameterIntoBuffer(buf, "hostname", param, contentLength);
