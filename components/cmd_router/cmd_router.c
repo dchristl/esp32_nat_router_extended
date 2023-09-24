@@ -174,23 +174,31 @@ esp_err_t erase_key(char *name)
 
 char *getDefaultIPByNetmask()
 {
+
+    char *result = (char *)malloc(15);
     char *netmask = getNetmask();
+
+    int32_t octet = 4;
+    get_config_param_int("octet", &octet);
 
     char *netmask_to_compare = "255.255.255.";
     if (strncmp(netmask, netmask_to_compare, strlen(netmask_to_compare)) == 0)
     {
-
-        return DEFAULT_AP_IP_CLASS_C;
+        sprintf(result, DEFAULT_AP_IP_CLASS_C, octet);
+        return result;
     }
 
     netmask_to_compare = "255.255.";
     if (strncmp(netmask, netmask_to_compare, strlen(netmask_to_compare)) == 0)
     {
-        return DEFAULT_AP_IP_CLASS_B;
+
+        sprintf(result, DEFAULT_AP_IP_CLASS_B, octet);
+        return result;
     }
     else
     {
-        return DEFAULT_AP_IP_CLASS_A;
+        sprintf(result, DEFAULT_AP_IP_CLASS_A, octet);
+        return result;
     }
 }
 
