@@ -325,6 +325,29 @@ void setTxPower()
     }
 }
 
+void set3rdOctet()
+{
+    char *octet = NULL;
+    get_config_param_str("octet", &octet);
+    if (octet != NULL)
+    {
+        char *endptr;
+        long num = strtol(octet, &endptr, 10);
+        if (*endptr == '\0' && octet != endptr)
+        {
+            if (num >= 0 && num <= 255)
+            {
+                return;
+            }
+        }
+    }
+    ESP_LOGI(TAG, "3rd octet not set or invalid. Setting to default. ");
+    nvs_handle_t nvs;
+    ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    ESP_ERROR_CHECK(nvs_set_i32(nvs, "octet", 4));
+    ESP_ERROR_CHECK(nvs_commit(nvs));
+}
+
 void setHostName()
 {
     char *hostName = NULL;
@@ -547,6 +570,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     }
 
     setHostName();
+    set3rdOctet();
 
     int32_t hiddenSSID = 0;
     get_config_param_int("ssid_hidden", &hiddenSSID);

@@ -19,13 +19,27 @@
                         <h2>Misc</h2>
 
                         <div class="form-group row mt-2">
-                                <div class="col-6" style="padding-left: 0;">
+                                <div class="col-9" style="padding-left: 0;">
                                         <label for="hostname">Hostname</label>
                                         <input class="form-control mt-2" id="hostname" maxlength="250" name="hostname"
                                                 placeholder="Hostname, will be regenerated if empty" type="text"
                                                 value="%s" />
                                 </div>
-                                <div class="col-4" style="padding-right: 0;">
+                                <div class="col-3" style="padding-right: 0;">
+                                        <label for="octet">3rd octet</label>
+                                        <input class="form-control mt-2" type="number" id="octet" maxlength="3"
+                                                name="octet" placeholder="4" type="text" value="%d" min="0" max="255" />
+                                </div>
+                                <div class="alert alert-light mt-2" role=alert>The hostname is a user-friendly label
+                                        assigned to the router to make it easier to identify and access on a network.
+                                        <br />
+                                        The third octet instructs the router which IP address to use. Valid values range
+                                        from 0 to 255 and are used in the third position within the IP address.
+                                </div>
+
+                        </div>
+                        <div class="form-group row mt-2">
+                                <div class="col-6" style="padding-left: 0;">
                                         <label for="txpower">Tx power/ WiFi range</label>
                                         <select class="form-select mt-2" aria-label="Select the transmission power"
                                                 title="Select the transmission power" name="txpower" id="txpower">
@@ -34,16 +48,27 @@
                                                 <option value="80" %s>High</option>
                                         </select>
                                 </div>
-                                <div class="col-2" style="padding-right: 0;">
+                                <div class="col-6" style="padding-right: 0;">
                                         <label for="bandwith">Bandwith</label>
                                         <select class="form-select mt-2" aria-label="Select the bandwith"
                                                 title="Select the bandwith" name="bandwith" id="bandwith">
-                                                <option value="0" %s>20 Mhz(high)</option>
-                                                <option value="1" %s>40 Mhz(low, more stable)</option>
+                                                <option value="0" %s>20 Mhz (high)</option>
+                                                <option value="1" %s>40 Mhz (low)</option>
                                         </select>
                                 </div>
-                        </div>
 
+                                <div class="alert alert-light mt-2" role=alert>
+                                        The transmission power determines how strong the AP (Access Point) network is.
+                                        Higher values mean greater range.
+                                        <br />
+                                        The bandwidth affects the speed of the connection between the router and
+                                        clients. The higher the value, the slower it
+                                        becomes. Higher values also imply greater stability, especially in the
+                                        case of frequent network interruptions.
+
+                                </div>
+
+                        </div>
                         <div class="form-group row mt-2">
                                 <div class="form-check form-switch"> <input class=form-check-input type=checkbox
                                                 id=ledenabled name=ledenabled %s> <label class=form-check-label
@@ -151,16 +176,16 @@
                                                 value=classc %s>
                                         <label class=form-check-label for=classc> Class C (255.255.255.0). ESP 32 NAT
                                                 Router address is
-                                                192.168.4.1.</label>
+                                                192.168.%d.1.</label>
                                 </div>
                                 <div class="form-check mt-2"> <input class=form-check-input type=radio id=classb
                                                 name=netmask value=classb %s> <label class=form-check-label for=classb>
                                                 Class B (255.255.0.0). ESP 32 NAT
-                                                Router address is 172.16.4.1.</label> </div>
+                                                Router address is 172.16.%d.1.</label> </div>
                                 <div class="form-check mt-2"> <input class=form-check-input type=radio id=classa
                                                 name=netmask value=classa %s> <label class=form-check-label for=classa>
                                                 Class A (255.0.0.0). ESP 32 NAT
-                                                Router address is 10.0.4.1.</label> </div>
+                                                Router address is 10.0.%d.1.</label> </div>
                                 <div class="form-check mt-2"> <input class=form-check-input type=radio id=custommask
                                                 name=netmask value=custom %s> <label class=form-check-label
                                                 for=custommask> Custom </label> <input class="form-control mt-2" id=mask

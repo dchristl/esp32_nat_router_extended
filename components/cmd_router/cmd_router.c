@@ -180,19 +180,16 @@ char *getDefaultIPByNetmask()
     if (strncmp(netmask, netmask_to_compare, strlen(netmask_to_compare)) == 0)
     {
 
-        ESP_LOGE(TAG, "IP: %s", DEFAULT_AP_IP_CLASS_C);
         return DEFAULT_AP_IP_CLASS_C;
     }
 
     netmask_to_compare = "255.255.";
     if (strncmp(netmask, netmask_to_compare, strlen(netmask_to_compare)) == 0)
     {
-        ESP_LOGE(TAG, "IP: %s", DEFAULT_AP_IP_CLASS_B);
         return DEFAULT_AP_IP_CLASS_B;
     }
     else
     {
-        ESP_LOGE(TAG, "IP: %s", DEFAULT_AP_IP_CLASS_A);
         return DEFAULT_AP_IP_CLASS_A;
     }
 }
