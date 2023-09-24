@@ -25,13 +25,21 @@
                                                 placeholder="Hostname, will be regenerated if empty" type="text"
                                                 value="%s" />
                                 </div>
-                                <div class="col-6" style="padding-right: 0;">
-                                        <label for="txpower">Transmission power/ WiFi range</label>
+                                <div class="col-4" style="padding-right: 0;">
+                                        <label for="txpower">Tx power/ WiFi range</label>
                                         <select class="form-select mt-2" aria-label="Select the transmission power"
                                                 title="Select the transmission power" name="txpower" id="txpower">
                                                 <option value="8" %s>Low</option>
                                                 <option value="52" %s>Medium</option>
                                                 <option value="80" %s>High</option>
+                                        </select>
+                                </div>
+                                <div class="col-2" style="padding-right: 0;">
+                                        <label for="bandwith">Bandwith</label>
+                                        <select class="form-select mt-2" aria-label="Select the bandwith"
+                                                title="Select the bandwith" name="bandwith" id="bandwith">
+                                                <option value="0" %s>20 Mhz(high)</option>
+                                                <option value="1" %s>40 Mhz(low, more stable)</option>
                                         </select>
                                 </div>
                         </div>

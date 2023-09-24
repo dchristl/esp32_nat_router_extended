@@ -73,6 +73,20 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
         highSelected = "selected";
     }
 
+    int32_t bandwith = 0;
+    get_config_param_int("lower_bandwith", &bandwith);
+    char *bwLow, *bwHigh = NULL;
+    if (bandwith == 1)
+    {
+        bwLow = "selected";
+        bwHigh = "";
+    }
+    else
+    {
+        bwLow = "";
+        bwHigh = "selected";
+    }
+
     get_config_param_int("keep_alive", &keepAlive);
     if (keepAlive == 1)
     {
@@ -159,7 +173,7 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
         classCCB = "checked";
     }
 
-    u_int size = advanced_html_size + strlen(aliveCB) + strlen(ledCB) + strlen(natCB) + strlen(currentDNS) + strlen(currentMAC) + 3 * strlen("checked") + strlen(customDNSIP) + 2 * strlen(defaultMAC) + strlen(customMac) + strlen(netmask) + strlen(hostName) + strlen("selected");
+    u_int size = advanced_html_size + strlen(aliveCB) + strlen(ledCB) + strlen(natCB) + strlen(currentDNS) + strlen(currentMAC) + 3 * strlen("checked") + strlen(customDNSIP) + 2 * strlen(defaultMAC) + strlen(customMac) + strlen(netmask) + strlen(hostName) + 2 * strlen("selected");
     ESP_LOGI(TAG, "Allocating additional %d bytes for advanced page.", size);
     char *advanced_page = malloc(size);
 
@@ -168,7 +182,7 @@ esp_err_t advanced_download_get_handler(httpd_req_t *req)
 
     subMac[strlen(subMac) - 2] = '\0';
 
-    sprintf(advanced_page, advanced_start, hostName, lowSelected, mediumSelected, highSelected, ledCB, aliveCB, natCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC, defMacCB, defaultMAC, rndMacCB, subMac, customMacCB, customMac, netmask, classCCB, classBCB, classACB);
+    sprintf(advanced_page, advanced_start, hostName, lowSelected, mediumSelected, highSelected, bwHigh, bwLow, ledCB, aliveCB, natCB, currentDNS, defCB, cloudCB, adguardCB, customCB, customDNSIP, currentMAC, defMacCB, defaultMAC, rndMacCB, subMac, customMacCB, customMac, netmask, classCCB, classBCB, classACB);
 
     closeHeader(req);
     esp_err_t ret = httpd_resp_send(req, advanced_page, HTTPD_RESP_USE_STRLEN);

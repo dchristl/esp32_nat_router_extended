@@ -174,43 +174,43 @@ void applyAdvancedConfig(char *buf)
     if (strlen(param) > 0)
     {
         ESP_LOGI(TAG, "keep alive will be enabled");
-        nvs_set_i32(nvs, "keep_alive", 1);
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "keep_alive", 1));
     }
     else
     {
         ESP_LOGI(TAG, "keep alive will be disabled");
-        nvs_set_i32(nvs, "keep_alive", 0);
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "keep_alive", 0));
     }
 
     readUrlParameterIntoBuffer(buf, "ledenabled", param, contentLength);
     if (strlen(param) > 0)
     {
         ESP_LOGI(TAG, "ON Board LED will be enabled");
-        nvs_set_i32(nvs, "led_disabled", 0);
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "led_disabled", 0));
     }
     else
     {
         ESP_LOGI(TAG, "ON Board LED will be disabled");
-        nvs_set_i32(nvs, "led_disabled", 1);
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "led_disabled", 1));
     }
 
     readUrlParameterIntoBuffer(buf, "natenabled", param, contentLength);
     if (strlen(param) > 0)
     {
         ESP_LOGI(TAG, "NAT will be enabled");
-        nvs_set_i32(nvs, "nat_disabled", 0);
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "nat_disabled", 0));
     }
     else
     {
         ESP_LOGI(TAG, "NAT will be disabled");
-        nvs_set_i32(nvs, "nat_disabled", 1);
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "nat_disabled", 1));
     }
 
     readUrlParameterIntoBuffer(buf, "wsenabled", param, contentLength);
     if (strlen(param) == 0)
     {
         ESP_LOGI(TAG, "Webserver will be disabled");
-        nvs_set_i32(nvs, "lock", 1);
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "lock", 1));
     }
 
     readUrlParameterIntoBuffer(buf, "custommac", param, contentLength);
@@ -221,7 +221,7 @@ void applyAdvancedConfig(char *buf)
         if (strcmp("random", param) == 0)
         {
             ESP_LOGI(TAG, "MAC address set to random");
-            nvs_set_str(nvs, "custom_mac", param);
+            ESP_ERROR_CHECK(nvs_set_str(nvs, "custom_mac", param));
         }
         else if (strlen(macaddress) > 0)
         {
@@ -229,7 +229,7 @@ void applyAdvancedConfig(char *buf)
             if (success)
             {
                 ESP_LOGI(TAG, "MAC address set to: %s", macaddress);
-                nvs_set_str(nvs, "custom_mac", macaddress);
+                ESP_ERROR_CHECK(nvs_set_str(nvs, "custom_mac", macaddress));
             }
             else
             {
@@ -263,7 +263,7 @@ void applyAdvancedConfig(char *buf)
                     addr->addr = ipasInt;
                     esp_ip4addr_ntoa(addr, customDnsParam, 16);
                     ESP_LOGI(TAG, "DNS set to: %s", customDnsParam);
-                    nvs_set_str(nvs, "custom_dns", customDnsParam);
+                    ESP_ERROR_CHECK(nvs_set_str(nvs, "custom_dns", customDnsParam));
                 }
             }
             else
@@ -274,7 +274,7 @@ void applyAdvancedConfig(char *buf)
         else
         {
             ESP_LOGI(TAG, "DNS set to: %s", param);
-            nvs_set_str(nvs, "custom_dns", param);
+            ESP_ERROR_CHECK(nvs_set_str(nvs, "custom_dns", param));
         }
     }
     else
@@ -287,24 +287,24 @@ void applyAdvancedConfig(char *buf)
         if (strcmp("classa", param) == 0)
         {
             ESP_LOGI(TAG, "Netmask set to Class A");
-            nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_A);
+            ESP_ERROR_CHECK(nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_A));
         }
         else if (strcmp("classb", param) == 0)
         {
             ESP_LOGI(TAG, "Netmask set to Class B");
-            nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_B);
+            ESP_ERROR_CHECK(nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_B));
         }
         else
         {
             ESP_LOGI(TAG, "Netmask set to Class C");
-            nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_C);
+            ESP_ERROR_CHECK(nvs_set_str(nvs, "netmask", DEFAULT_NETMASK_CLASS_C));
         }
     }
     readUrlParameterIntoBuffer(buf, "hostname", param, contentLength);
     if (strlen(param) > 0)
     {
         ESP_LOGI(TAG, "Set hostname to: %s", param);
-        nvs_set_str(nvs, "hostname", param);
+        ESP_ERROR_CHECK(nvs_set_str(nvs, "hostname", param));
     }
     else
     {
@@ -317,7 +317,18 @@ void applyAdvancedConfig(char *buf)
     if (txPower >= 8 && txPower <= 84)
     {
         ESP_LOGI(TAG, "Setting Wifi tx power to %d.", txPower);
-        nvs_set_i32(nvs, "txpower", txPower);
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "txpower", txPower));
+    }
+    readUrlParameterIntoBuffer(buf, "bandwith", param, contentLength);
+    int useLowerBandwith = atoi(param);
+    if (useLowerBandwith == 1)
+    {
+        ESP_LOGI(TAG, "Using lower bandwith with 40 MHz");
+        ESP_ERROR_CHECK(nvs_set_i32(nvs, "lower_bandwith", 1));
+    }
+    else
+    {
+        nvs_erase_key(nvs, "lower_bandwith");
     }
 
     nvs_commit(nvs);

@@ -538,6 +538,14 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
+    int32_t isLowerBandwith = 0;
+    get_config_param_int("lower_bandwith", &isLowerBandwith);
+    if (isLowerBandwith == 1)
+    {
+        ESP_LOGI(TAG, "Setting the bandwith to 40 MHz");
+        ESP_ERROR_CHECK(esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT40));
+    }
+
     setHostName();
 
     int32_t hiddenSSID = 0;
