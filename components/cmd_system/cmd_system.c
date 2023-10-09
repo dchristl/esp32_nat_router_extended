@@ -251,6 +251,7 @@ static int deep_sleep(int argc, char **argv)
     rtc_gpio_isolate(GPIO_NUM_12);
 #endif // WITH_TASKS_INFO
     esp_deep_sleep_start();
+    return 0;
 }
 
 static void register_deep_sleep(void)
