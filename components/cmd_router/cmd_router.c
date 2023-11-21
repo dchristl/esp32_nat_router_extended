@@ -675,12 +675,12 @@ static struct
 {
     struct arg_str *add_del;
     struct arg_str *ip_addr;
-    struct arg_int *mac_addr;
+    struct arg_str *mac_addr;
     struct arg_end *end;
 } static_ip_args;
 
 /* 'static_ip' command */
-int static_ip(int argc, char **argv)
+int set_static_ip(int argc, char **argv)
 {
 
     // TODO: Add handling for cmd args
@@ -742,8 +742,8 @@ int static_ip(int argc, char **argv)
 
 static void register_static_ip(void)
 {
-    static_ip_args.add_del = arg_str1(NULL, NULL, "[add|del]", "add or delete static IP assignment")
-    static_ip_args.ip_addr = arg_str1(NULL, NULL, "<ip_address>", "IP Address (ex. 192.168.4.2)")
+    static_ip_args.add_del = arg_str1(NULL, NULL, "[add|del]", "add or delete static IP assignment");
+    static_ip_args.ip_addr = arg_str1(NULL, NULL, "<ip_address>", "IP Address (ex. 192.168.4.2)");
     static_ip_args.mac_addr = arg_str1(NULL, NULL, "<mac_address>", "MAC Address (ex. AA:BB:CC:DD:EE:FF)");
     static_ip_args.end = arg_end(3);
 
@@ -751,7 +751,7 @@ static void register_static_ip(void)
         .command = "static_ip",
         .help = "Set/Unset a static IP assignment",
         .hint = NULL,
-        .func = &static_ip,
-        .argtable = &static_ip_arg};
+        .func = &set_static_ip,
+        .argtable = &static_ip_args};
     ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
