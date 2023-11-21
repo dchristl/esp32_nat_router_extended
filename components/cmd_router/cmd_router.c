@@ -669,3 +669,89 @@ static void register_show(void)
     };
     ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
+
+/** Arguments used by 'static_ip' function */
+static struct
+{
+    struct arg_str *add_del;
+    struct arg_str *ip_addr;
+    struct arg_int *mac_addr;
+    struct arg_end *end;
+} static_ip_args;
+
+/* 'static_ip' command */
+int static_ip(int argc, char **argv)
+{
+
+    // TODO: Add handling for cmd args
+    //      Look at portmap for example
+
+    // int nerrors = arg_parse(argc, argv, (void **)&portmap_args);
+    // if (nerrors != 0)
+    // {
+    //     arg_print_errors(stderr, portmap_args.end, argv[0]);
+    //     return ESP_FAIL;
+    // }
+
+    // bool add;
+    // if (strcmp((char *)portmap_args.add_del->sval[0], "add") == 0)
+    // {
+    //     add = true;
+    // }
+    // else if (strcmp((char *)portmap_args.add_del->sval[0], "del") == 0)
+    // {
+    //     add = false;
+    // }
+    // else
+    // {
+    //     ESP_LOGW(TAG, "Must be 'add' or 'del");
+    //     return ESP_FAIL;
+    // }
+
+    // uint8_t tcp_udp;
+    // if (strcmp((char *)portmap_args.TCP_UDP->sval[0], "TCP") == 0)
+    // {
+    //     tcp_udp = PROTO_TCP;
+    // }
+    // else if (strcmp((char *)portmap_args.TCP_UDP->sval[0], "UDP") == 0)
+    // {
+    //     tcp_udp = PROTO_UDP;
+    // }
+    // else
+    // {
+    //     ESP_LOGW(TAG, "Must be 'TCP' or 'UDP'");
+    //     return ESP_FAIL;
+    // }
+
+    // uint16_t ext_port = portmap_args.ext_port->ival[0];
+    // uint32_t int_ip = ipaddr_addr((char *)portmap_args.int_ip->sval[0]);
+    // uint16_t int_port = portmap_args.int_port->ival[0];
+
+    // if (add)
+    // {
+    //     ESP_ERROR_CHECK(add_portmap(tcp_udp, ext_port, int_ip, int_port));
+    // }
+    // else
+    // {
+    //     ESP_ERROR_CHECK(del_portmap(tcp_udp, ext_port, int_ip, int_port));
+    // }
+
+    return ESP_OK;
+}
+
+
+static void register_static_ip(void)
+{
+    static_ip_args.add_del = arg_str1(NULL, NULL, "[add|del]", "add or delete static IP assignment")
+    static_ip_args.ip_addr = arg_str1(NULL, NULL, "<ip_address>", "IP Address (ex. 192.168.4.2)")
+    static_ip_args.mac_addr = arg_str1(NULL, NULL, "<mac_address>", "MAC Address (ex. AA:BB:CC:DD:EE:FF)");
+    static_ip_args.end = arg_end(3);
+
+    const esp_console_cmd_t cmd = {
+        .command = "static_ip",
+        .help = "Set/Unset a static IP assignment",
+        .hint = NULL,
+        .func = &static_ip,
+        .argtable = &static_ip_arg};
+    ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
+}
