@@ -79,104 +79,39 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
 void addStaticIPEntry(char *urlContent)
 {
 
-    // TODO: WILL NEED TO MODIFY AS NEEDED FOR STATIC IP LOGIC
-    int i = 0;
+    // TODO: WILL NEED MORE LOGGING/ERROR CHECKING
+    size_t contentLength = 64;
+    char ip_addr[contentLength];
+    char mac_addr[contentLength];
 
-    // size_t contentLength = 64;
-    // char param[contentLength];
-    // readUrlParameterIntoBuffer(urlContent, "protocol", param, contentLength);
-    // uint8_t tcp_udp;
-    // if (strcmp(param, "tcp") == 0)
-    // {
-    //     tcp_udp = PROTO_TCP;
-    // }
-    // else
-    // {
-    //     tcp_udp = PROTO_UDP;
-    // }
-    // readUrlParameterIntoBuffer(urlContent, "eport", param, contentLength);
-    // char *endptr;
-    // uint16_t ext_port = (uint16_t)strtoul(param, &endptr, 10);
-    // if (ext_port < 1 || *endptr != '\0')
-    // {
-    //     ESP_LOGW(TAG, "External port out of range");
-    //     return;
-    // }
-
-    // readUrlParameterIntoBuffer(urlContent, "ip", param, contentLength);
-    // char *defaultIP = getDefaultIPByNetmask();
-    // char resultIP[strlen(defaultIP) + strlen(param)];
-    // strncpy(resultIP, defaultIP, strlen(defaultIP) - 1);
-    // resultIP[strlen(defaultIP) - 1] = '\0';
-    // strcat(resultIP, param);
-    // free(defaultIP);
-    // uint32_t int_ip = ipaddr_addr(resultIP);
-    // if (int_ip == IPADDR_NONE)
-    // {
-    //     ESP_LOGW(TAG, "Invalid IP");
-    //     return;
-    // }
-    // readUrlParameterIntoBuffer(urlContent, "iport", param, contentLength);
-    // uint16_t int_port = (uint16_t)strtoul(param, &endptr, 10);
-
-    // if (int_port < 1 || *endptr != '\0')
-    // {
-    //     ESP_LOGW(TAG, "Internal port out of range");
-    //     return;
-    // }
-
-    // add_portmap(tcp_udp, ext_port, int_ip, int_port);
+    readUrlParameterIntoBuffer(urlContent, "ipaddr", ip_addr, contentLength);
+    if (strlen(ip_addr) > 0)
+    {
+        readUrlParameterIntoBuffer(urlContent, "macaddr", mac_addr, contentLength);
+        if (strlen(mac_addr) > 0)
+        {
+            add_static_ip(ip_addr, mac_addr);
+        }
+    }
 }
 
 void delStaticIPEntry(char *urlContent)
 {
 
     // TODO: WILL NEED TO MODIFY AS NEEDED FOR STATIC IP LOGIC
-    int i = 0;
-
-    // size_t contentLength = 64;
-    // char param[contentLength];
-    // readUrlParameterIntoBuffer(urlContent, "entry", param, contentLength);
-
-    // const char delimiter[] = "_";
-
-    // char *token = strtok(param, delimiter);
-    // uint8_t tcp_udp;
-    // if (strcmp(token, "TCP") == 0)
-    // {
-    //     tcp_udp = PROTO_TCP;
-    // }
-    // else
-    // {
-    //     tcp_udp = PROTO_UDP;
-    // }
-
-    // token = strtok(NULL, delimiter);
-    // char *endptr;
-    // uint16_t ext_port = (uint16_t)strtoul(token, &endptr, 10);
-    // if (ext_port < 1 || *endptr != '\0')
-    // {
-    //     ESP_LOGW(TAG, "External port out of range");
-    //     return;
-    // }
-    // token = strtok(NULL, delimiter);
-    // uint32_t int_ip = ipaddr_addr(token);
-    // if (int_ip == IPADDR_NONE)
-    // {
-    //     ESP_LOGW(TAG, "Invalid IP");
-    //     return;
-    // }
-
-    // token = strtok(NULL, delimiter);
-    // uint16_t int_port = (uint16_t)strtoul(token, &endptr, 10);
-
-    // if (int_port < 1 || *endptr != '\0')
-    // {
-    //     ESP_LOGW(TAG, "Internal port out of range");
-    //     return;
-    // }
-
-    // del_portmap(tcp_udp, ext_port, int_ip, int_port);
+    size_t contentLength = 64;
+    char ip_addr[contentLength];
+    char mac_addr[contentLength];
+    
+    readUrlParameterIntoBuffer(urlContent, "ipaddr", ip_addr, contentLength);
+    if (strlen(ip_addr) > 0)
+    {
+        readUrlParameterIntoBuffer(urlContent, "macaddr", mac_addr, contentLength);
+        if (strlen(mac_addr) > 0)
+        {
+            del_static_ip(ip_addr, mac_addr);
+        }
+    }
 }
 
 
@@ -213,6 +148,4 @@ esp_err_t clients_post_handler(httpd_req_t *req)
     httpd_resp_set_status(req, "302 Found");
     httpd_resp_set_hdr(req, "Location", "/portmap");
     return httpd_resp_send(req, NULL, 0);
-
-    return NULL;
 }
