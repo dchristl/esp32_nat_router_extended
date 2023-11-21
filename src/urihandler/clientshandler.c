@@ -13,6 +13,7 @@
 static const char *TAG = "ClientsHandler";
 
 const char *CLIENT_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
+const char *STATIC_IP_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
 
 esp_err_t clients_download_get_handler(httpd_req_t *req)
 {
@@ -54,6 +55,8 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
         strcat(result, "<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>");
     }
 
+    // TODO: ADD LOGIC TO LOAD STATIC IP ASSIGNMENTS
+
     httpd_req_to_sockfd(req);
     extern const char clients_start[] asm("_binary_clients_html_start");
     extern const char clients_end[] asm("_binary_clients_html_end");
@@ -69,4 +72,147 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
     free(clients_page);
     ESP_LOGI(TAG, "Requesting clients page");
     return ret;
+}
+
+void addStaticIPEntry(char *urlContent)
+{
+
+    // TODO: WILL NEED TO MODIFY AS NEEDED FOR STATIC IP LOGIC
+    int i = 0;
+
+    // size_t contentLength = 64;
+    // char param[contentLength];
+    // readUrlParameterIntoBuffer(urlContent, "protocol", param, contentLength);
+    // uint8_t tcp_udp;
+    // if (strcmp(param, "tcp") == 0)
+    // {
+    //     tcp_udp = PROTO_TCP;
+    // }
+    // else
+    // {
+    //     tcp_udp = PROTO_UDP;
+    // }
+    // readUrlParameterIntoBuffer(urlContent, "eport", param, contentLength);
+    // char *endptr;
+    // uint16_t ext_port = (uint16_t)strtoul(param, &endptr, 10);
+    // if (ext_port < 1 || *endptr != '\0')
+    // {
+    //     ESP_LOGW(TAG, "External port out of range");
+    //     return;
+    // }
+
+    // readUrlParameterIntoBuffer(urlContent, "ip", param, contentLength);
+    // char *defaultIP = getDefaultIPByNetmask();
+    // char resultIP[strlen(defaultIP) + strlen(param)];
+    // strncpy(resultIP, defaultIP, strlen(defaultIP) - 1);
+    // resultIP[strlen(defaultIP) - 1] = '\0';
+    // strcat(resultIP, param);
+    // free(defaultIP);
+    // uint32_t int_ip = ipaddr_addr(resultIP);
+    // if (int_ip == IPADDR_NONE)
+    // {
+    //     ESP_LOGW(TAG, "Invalid IP");
+    //     return;
+    // }
+    // readUrlParameterIntoBuffer(urlContent, "iport", param, contentLength);
+    // uint16_t int_port = (uint16_t)strtoul(param, &endptr, 10);
+
+    // if (int_port < 1 || *endptr != '\0')
+    // {
+    //     ESP_LOGW(TAG, "Internal port out of range");
+    //     return;
+    // }
+
+    // add_portmap(tcp_udp, ext_port, int_ip, int_port);
+}
+
+void delStaticIPEntry(char *urlContent)
+{
+
+    // TODO: WILL NEED TO MODIFY AS NEEDED FOR STATIC IP LOGIC
+    int i = 0;
+
+    // size_t contentLength = 64;
+    // char param[contentLength];
+    // readUrlParameterIntoBuffer(urlContent, "entry", param, contentLength);
+
+    // const char delimiter[] = "_";
+
+    // char *token = strtok(param, delimiter);
+    // uint8_t tcp_udp;
+    // if (strcmp(token, "TCP") == 0)
+    // {
+    //     tcp_udp = PROTO_TCP;
+    // }
+    // else
+    // {
+    //     tcp_udp = PROTO_UDP;
+    // }
+
+    // token = strtok(NULL, delimiter);
+    // char *endptr;
+    // uint16_t ext_port = (uint16_t)strtoul(token, &endptr, 10);
+    // if (ext_port < 1 || *endptr != '\0')
+    // {
+    //     ESP_LOGW(TAG, "External port out of range");
+    //     return;
+    // }
+    // token = strtok(NULL, delimiter);
+    // uint32_t int_ip = ipaddr_addr(token);
+    // if (int_ip == IPADDR_NONE)
+    // {
+    //     ESP_LOGW(TAG, "Invalid IP");
+    //     return;
+    // }
+
+    // token = strtok(NULL, delimiter);
+    // uint16_t int_port = (uint16_t)strtoul(token, &endptr, 10);
+
+    // if (int_port < 1 || *endptr != '\0')
+    // {
+    //     ESP_LOGW(TAG, "Internal port out of range");
+    //     return;
+    // }
+
+    // del_portmap(tcp_udp, ext_port, int_ip, int_port);
+}
+
+
+esp_err_t clients_post_handler(httpd_req_t *req)
+{
+
+    // TODO: WILL NEED TO MODIFY AS NEEDED FOR STATIC IP LOGIC
+
+    // if (isLocked())
+    // {
+    //     return redirectToLock(req);
+    // }
+    // httpd_req_to_sockfd(req);
+
+    // size_t content_len = req->content_len;
+    // char buf[content_len];
+
+    // if (fill_post_buffer(req, buf, content_len) == ESP_OK)
+    // {
+    //     char funcParam[4];
+
+    //     ESP_LOGI(TAG, "getting content %s", buf);
+
+    //     readUrlParameterIntoBuffer(buf, "func", funcParam, 4);
+
+    //     if (strcmp(funcParam, "add") == 0)
+    //     {
+    //         addStaticIPEntry(buf);
+    //     }
+    //     if (strcmp(funcParam, "del") == 0)
+    //     {
+    //         delStaticIPEntry(buf);
+    //     }
+    // }
+
+    // httpd_resp_set_status(req, "302 Found");
+    // httpd_resp_set_hdr(req, "Location", "/portmap");
+    // return httpd_resp_send(req, NULL, 0);
+
+    return NULL;
 }

@@ -80,6 +80,12 @@ static httpd_uri_t clients_page_download = {
     .handler = clients_download_get_handler,
     .user_ctx = NULL};
 
+    static httpd_uri_t clients_post_download = {
+        .uri = "/clients",
+        .method = HTTP_POST,
+        .handler = clients_post_handler,
+        .user_ctx = NULL};
+
 static httpd_uri_t ota_page_download = {
     .uri = "/ota",
     .method = HTTP_GET,
@@ -201,6 +207,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &apig);
         httpd_register_uri_handler(server, &advanced_page_download);
         httpd_register_uri_handler(server, &clients_page_download);
+        httpd_register_uri_handler(server, &clients_post_download);
         httpd_register_uri_handler(server, &ota_page_download);
         httpd_register_uri_handler(server, &ota_page_post);
         httpd_register_uri_handler(server, &otalog_page_download);
