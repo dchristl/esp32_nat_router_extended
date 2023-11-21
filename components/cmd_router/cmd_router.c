@@ -175,7 +175,6 @@ esp_err_t erase_key(char *name)
 
 char *getDefaultIPByNetmask()
 {
-
     char *result = (char *)malloc(15);
     char *netmask = getNetmask();
 
@@ -684,7 +683,6 @@ static struct
 /* 'static_ip' command */
 int set_static_ip(int argc, char **argv)
 {
-
     int nerrors = arg_parse(argc, argv, (void **)&static_ip_args);
     if (nerrors != 0)
     {
@@ -721,7 +719,6 @@ int set_static_ip(int argc, char **argv)
 
     return ESP_OK;
 }
-
 
 static void register_static_ip(void)
 {

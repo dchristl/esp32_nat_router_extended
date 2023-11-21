@@ -274,7 +274,6 @@ bool isDnsStarted()
 
 uint16_t getConnectCount()
 {
-
     wifi_sta_list_t wifi_sta_list;
     memset(&wifi_sta_list, 0, sizeof(wifi_sta_list));
 

@@ -56,6 +56,7 @@ void register_system(void)
     register_tasks();
 #endif
 }
+
 const char *get_project_version()
 {
     const esp_app_desc_t *app_desc = esp_app_get_description();

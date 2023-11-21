@@ -160,7 +160,6 @@ static void print_blob(const char *blob, size_t len)
     printf("\n");
 }
 
-
 static esp_err_t set_value_in_nvs(const char *key, const char *str_type, const char *str_value)
 {
     esp_err_t err;
@@ -502,7 +501,6 @@ int erase_ns(int argc, char **argv)
 {
     return erase_namespace(argc, argv);
 }
-
 
 static int list_entries(int argc, char **argv)
 {

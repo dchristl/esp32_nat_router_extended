@@ -141,7 +141,6 @@ bool str2mac(const char *mac)
 
 char *getRedirectUrl(httpd_req_t *req)
 {
-
     size_t buf_len = 16;
     char *host = malloc(buf_len);
     httpd_req_get_hdr_value_str(req, "Host", host, buf_len);
@@ -365,7 +364,6 @@ void applyAdvancedConfig(char *buf)
 
 esp_err_t apply_get_handler(httpd_req_t *req)
 {
-
     if (isLocked())
     {
         return redirectToLock(req);

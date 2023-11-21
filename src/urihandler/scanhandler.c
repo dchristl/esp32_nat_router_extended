@@ -1,4 +1,3 @@
-
 #include "handler.h"
 #include "scan.h"
 
@@ -27,7 +26,6 @@ void fillInfoData(char **db, char **textColor)
 
 esp_err_t scan_download_get_handler(httpd_req_t *req)
 {
-
     if (isLocked())
     {
         return redirectToLock(req);

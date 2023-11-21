@@ -15,7 +15,6 @@ static const char *TAG = "ClientsHandler";
 const char *CLIENT_TEMPLATE = "<tr><td>%s</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
 const char *STATIC_IP_TEMPLATE = "<tr><td>%s</td><td>%s</td><td style='text-transform: uppercase;'>%s</td><form action='/clients' method='POST'><input type='hidden' name='func' value='del'><input type='hidden' name='entry' value='%s'> <button title='Remove' name='remove' class='btn btn-light'> <svg version='2.0' width='16' height='16'> <use href='#trash' /> </svg> </form> </td></tr>";
 
-
 esp_err_t clients_download_get_handler(httpd_req_t *req)
 {
     if (isLocked())
@@ -77,7 +76,6 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
 
 void addStaticIPEntry(char *urlContent)
 {
-
     // TODO: WILL NEED MORE LOGGING/ERROR CHECKING
     size_t contentLength = 64;
     char ip_addr[contentLength];
@@ -96,7 +94,6 @@ void addStaticIPEntry(char *urlContent)
 
 void delStaticIPEntry(char *urlContent)
 {
-
     // TODO: WILL NEED MORE LOGGING/ERROR CHECKING
     size_t contentLength = 64;
     char ip_addr[contentLength];
@@ -113,10 +110,8 @@ void delStaticIPEntry(char *urlContent)
     }
 }
 
-
 esp_err_t clients_post_handler(httpd_req_t *req)
 {
-
     if (isLocked())
     {
         return redirectToLock(req);

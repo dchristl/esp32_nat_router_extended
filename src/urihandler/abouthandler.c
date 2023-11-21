@@ -4,7 +4,6 @@ static const char *TAG = "AboutHandler";
 
 esp_err_t about_get_handler(httpd_req_t *req)
 {
-
     ESP_LOGI(TAG, "Requesting about page");
     if (isLocked())
     {

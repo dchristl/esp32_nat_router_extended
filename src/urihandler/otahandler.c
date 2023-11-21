@@ -265,6 +265,7 @@ void updateVersion()
     }
     esp_http_client_cleanup(client);
 }
+
 esp_err_t otalog_get_handler(httpd_req_t *req)
 {
 
