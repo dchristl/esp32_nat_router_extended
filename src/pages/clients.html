@@ -36,12 +36,16 @@
                     <th class=fw-bold>#</th>
                     <th class=fw-bold>IP Address</th>
                     <th class=fw-bold>MAC</th>
+                    <th class=fw-bold>Action</th>
                 </tr>
             </thead>
             <tbody class=text-center> %s </tbody>
         </table>
     </div>
-    <h3>Add Static IP Assignment</h3>
+    <div class=container>
+        <div class="row text-center">
+            <h1>Add Static IP Assignments</h1>
+        </div>
         <form action="staticip" method="POST" class="text-center">
             <input name="func" type="hidden" value="add" />
             <div class="form-group row mt-2">
@@ -60,13 +64,8 @@
             </div>
             <div class="alert alert-warning mt-4" role=alert>
                 Static IP Assignment ensures devices connecting to the ESP32 receive the same IP address each time they connect.
-                To configure this, the following settings need to be chosen:
-                <ul class="text-start">
-                    <li>Static IP: 192.168.4.2</li>
-                    <li>MAC Address: AA:BB:CC:DD:EE:FF</li>
-                </ul>
-                When the device with MAC Address "AA:BB:CC:DD:EE:FF" connects to the ESP32, it will always receive the IP Address
-                "192.168.4.2".
+                The IP address defined above will always be given to the client with the MAC address defined above. To delete an
+                assignment, click the delete icon from the Static IP Assignment table.
             </div>
         </form>
         <form action=apply class=p-2 method=POST>

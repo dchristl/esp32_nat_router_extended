@@ -12,8 +12,9 @@
 
 static const char *TAG = "ClientsHandler";
 
-const char *CLIENT_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
-const char *STATIC_IP_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
+const char *CLIENT_TEMPLATE = "<tr><td>%s</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
+const char *STATIC_IP_TEMPLATE = "<tr><td>%s</td><td>%s</td><td style='text-transform: uppercase;'>%s</td><form action='/clients' method='POST'><input type='hidden' name='func' value='del'><input type='hidden' name='entry' value='%s'> <button title='Remove' name='remove' class='btn btn-light'> <svg version='2.0' width='16' height='16'> <use href='#trash' /> </svg> </form> </td></tr>";
+
 
 esp_err_t clients_download_get_handler(httpd_req_t *req)
 {
@@ -56,6 +57,7 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
     }
 
     // TODO: ADD LOGIC TO LOAD STATIC IP ASSIGNMENTS
+    // TODO: LOGIC NEEDS TO POPULATE THE DELETE BUTTON?
 
     httpd_req_to_sockfd(req);
     extern const char clients_start[] asm("_binary_clients_html_start");
@@ -181,38 +183,36 @@ void delStaticIPEntry(char *urlContent)
 esp_err_t clients_post_handler(httpd_req_t *req)
 {
 
-    // TODO: WILL NEED TO MODIFY AS NEEDED FOR STATIC IP LOGIC
+    if (isLocked())
+    {
+        return redirectToLock(req);
+    }
+    httpd_req_to_sockfd(req);
 
-    // if (isLocked())
-    // {
-    //     return redirectToLock(req);
-    // }
-    // httpd_req_to_sockfd(req);
+    size_t content_len = req->content_len;
+    char buf[content_len];
 
-    // size_t content_len = req->content_len;
-    // char buf[content_len];
+    if (fill_post_buffer(req, buf, content_len) == ESP_OK)
+    {
+        char funcParam[4];
 
-    // if (fill_post_buffer(req, buf, content_len) == ESP_OK)
-    // {
-    //     char funcParam[4];
+        ESP_LOGI(TAG, "getting content %s", buf);
 
-    //     ESP_LOGI(TAG, "getting content %s", buf);
+        readUrlParameterIntoBuffer(buf, "func", funcParam, 4);
 
-    //     readUrlParameterIntoBuffer(buf, "func", funcParam, 4);
+        if (strcmp(funcParam, "add") == 0)
+        {
+            addStaticIPEntry(buf);
+        }
+        if (strcmp(funcParam, "del") == 0)
+        {
+            delStaticIPEntry(buf);
+        }
+    }
 
-    //     if (strcmp(funcParam, "add") == 0)
-    //     {
-    //         addStaticIPEntry(buf);
-    //     }
-    //     if (strcmp(funcParam, "del") == 0)
-    //     {
-    //         delStaticIPEntry(buf);
-    //     }
-    // }
-
-    // httpd_resp_set_status(req, "302 Found");
-    // httpd_resp_set_hdr(req, "Location", "/portmap");
-    // return httpd_resp_send(req, NULL, 0);
+    httpd_resp_set_status(req, "302 Found");
+    httpd_resp_set_hdr(req, "Location", "/portmap");
+    return httpd_resp_send(req, NULL, 0);
 
     return NULL;
 }
