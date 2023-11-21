@@ -945,3 +945,6 @@ void app_main(void)
         linenoiseFree(line);
     }
 }
+
+// TODO: Add static IP get/set methods
+// TODO: Add method to check if client mac needs a static IP
