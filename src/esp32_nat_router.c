@@ -211,6 +211,59 @@ esp_err_t del_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
     return ESP_OK;
 }
 
+esp_err_t add_static_ip(const char *ip_address, const char *mac_address)
+{
+    // nvs_handle_t nvs;
+
+    // for (int i = 0; i < PORTMAP_MAX; i++)
+    // {
+    //     if (!portmap_tab[i].valid)
+    //     {
+    //         portmap_tab[i].proto = proto;
+    //         portmap_tab[i].mport = mport;
+    //         portmap_tab[i].daddr = daddr;
+    //         portmap_tab[i].dport = dport;
+    //         portmap_tab[i].valid = 1;
+
+    //         ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    //         ESP_ERROR_CHECK(nvs_set_blob(nvs, "portmap_tab", portmap_tab, sizeof(portmap_tab)));
+    //         ESP_ERROR_CHECK(nvs_commit(nvs));
+    //         ESP_LOGI(TAG, "New portmap table stored.");
+
+    //         nvs_close(nvs);
+
+    //         ip_portmap_add(proto, my_ip, mport, daddr, dport);
+
+    //         return ESP_OK;
+    //     }
+    // }
+    return ESP_ERR_NO_MEM;
+}
+
+esp_err_t del_static_ip(const char *ip_address, const char *mac_address)
+{
+    // nvs_handle_t nvs;
+
+    // for (int i = 0; i < PORTMAP_MAX; i++)
+    // {
+    //     if (portmap_tab[i].valid && portmap_tab[i].mport == mport && portmap_tab[i].proto == proto && portmap_tab[i].dport == dport && portmap_tab[i].daddr == daddr)
+    //     {
+    //         portmap_tab[i].valid = 0;
+
+    //         ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+    //         ESP_ERROR_CHECK(nvs_set_blob(nvs, "portmap_tab", portmap_tab, sizeof(portmap_tab)));
+    //         ESP_ERROR_CHECK(nvs_commit(nvs));
+    //         ESP_LOGI(TAG, "New portmap table stored.");
+
+    //         nvs_close(nvs);
+
+    //         ip_portmap_remove(proto, mport);
+    //         return ESP_OK;
+    //     }
+    // }
+    return ESP_OK;
+}
+
 static void initialize_console(void)
 {
     /* Drain stdout before reconfiguring it */
@@ -946,5 +999,4 @@ void app_main(void)
     }
 }
 
-// TODO: Add static IP get/set methods
 // TODO: Add method to check if client mac needs a static IP

@@ -43,6 +43,7 @@ static void register_set_ap(void);
 static void register_set_ap_ip(void);
 static void register_show(void);
 static void register_portmap(void);
+static void register_static_ip(void);
 
 esp_err_t get_config_param_str(char *name, char **param)
 {
@@ -261,6 +262,7 @@ void register_router(void)
     register_set_ap_ip();
     register_portmap();
     register_show();
+    register_static_ip();
 }
 
 /** Arguments used by 'set_sta' function */
@@ -683,58 +685,39 @@ static struct
 int set_static_ip(int argc, char **argv)
 {
 
-    // TODO: Add handling for cmd args
-    //      Look at portmap for example
+    int nerrors = arg_parse(argc, argv, (void **)&static_ip_args);
+    if (nerrors != 0)
+    {
+        arg_print_errors(stderr, static_ip_args.end, argv[0]);
+        return ESP_FAIL;
+    }
 
-    // int nerrors = arg_parse(argc, argv, (void **)&portmap_args);
-    // if (nerrors != 0)
-    // {
-    //     arg_print_errors(stderr, portmap_args.end, argv[0]);
-    //     return ESP_FAIL;
-    // }
+    bool add;
+    if (strcmp((char *)static_ip_args.add_del->sval[0], "add") == 0)
+    {
+        add = true;
+    }
+    else if (strcmp((char *)static_ip_args.add_del->sval[0], "del") == 0)
+    {
+        add = false;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "Must be 'add' or 'del");
+        return ESP_FAIL;
+    }
 
-    // bool add;
-    // if (strcmp((char *)portmap_args.add_del->sval[0], "add") == 0)
-    // {
-    //     add = true;
-    // }
-    // else if (strcmp((char *)portmap_args.add_del->sval[0], "del") == 0)
-    // {
-    //     add = false;
-    // }
-    // else
-    // {
-    //     ESP_LOGW(TAG, "Must be 'add' or 'del");
-    //     return ESP_FAIL;
-    // }
+    char *ip_address = (char *)static_ip_args.ip_addr->sval[0];
+    char *mac_address = (char *)static_ip_args.mac_addr->sval[0];
 
-    // uint8_t tcp_udp;
-    // if (strcmp((char *)portmap_args.TCP_UDP->sval[0], "TCP") == 0)
-    // {
-    //     tcp_udp = PROTO_TCP;
-    // }
-    // else if (strcmp((char *)portmap_args.TCP_UDP->sval[0], "UDP") == 0)
-    // {
-    //     tcp_udp = PROTO_UDP;
-    // }
-    // else
-    // {
-    //     ESP_LOGW(TAG, "Must be 'TCP' or 'UDP'");
-    //     return ESP_FAIL;
-    // }
-
-    // uint16_t ext_port = portmap_args.ext_port->ival[0];
-    // uint32_t int_ip = ipaddr_addr((char *)portmap_args.int_ip->sval[0]);
-    // uint16_t int_port = portmap_args.int_port->ival[0];
-
-    // if (add)
-    // {
-    //     ESP_ERROR_CHECK(add_portmap(tcp_udp, ext_port, int_ip, int_port));
-    // }
-    // else
-    // {
-    //     ESP_ERROR_CHECK(del_portmap(tcp_udp, ext_port, int_ip, int_port));
-    // }
+    if (add)
+    {
+        ESP_ERROR_CHECK(add_static_ip(ip_address, mac_address));
+    }
+    else
+    {
+        ESP_ERROR_CHECK(del_static_ip(ip_address, mac_address));
+    }
 
     return ESP_OK;
 }

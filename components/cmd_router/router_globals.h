@@ -54,6 +54,8 @@ extern "C"
    void print_portmap_tab();
    esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
    esp_err_t del_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
+   esp_err_t add_static_ip(const char *ip_address, const char *mac_address);
+   esp_err_t del_static_ip(const char *ip_address, const char *mac_address);
 
    char *getDefaultIPByNetmask();
    char *getNetmask();
