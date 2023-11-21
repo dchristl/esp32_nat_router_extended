@@ -57,7 +57,6 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
     }
 
     // TODO: ADD LOGIC TO LOAD STATIC IP ASSIGNMENTS
-    // TODO: LOGIC NEEDS TO POPULATE THE DELETE BUTTON?
 
     httpd_req_to_sockfd(req);
     extern const char clients_start[] asm("_binary_clients_html_start");
@@ -98,7 +97,7 @@ void addStaticIPEntry(char *urlContent)
 void delStaticIPEntry(char *urlContent)
 {
 
-    // TODO: WILL NEED TO MODIFY AS NEEDED FOR STATIC IP LOGIC
+    // TODO: WILL NEED MORE LOGGING/ERROR CHECKING
     size_t contentLength = 64;
     char ip_addr[contentLength];
     char mac_addr[contentLength];
