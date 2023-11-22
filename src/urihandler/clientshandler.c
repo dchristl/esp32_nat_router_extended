@@ -30,8 +30,8 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
 
     esp_wifi_ap_get_sta_list_with_ip(&wifi_sta_list, &adapter_sta_list);
 
-    char result[1000];
-    strcpy(result, "");
+    char connected_result[1000];
+    strcpy(connected_result, "");
     if (wifi_sta_list.num > 0)
     {
         for (int i = 0; i < adapter_sta_list.num; i++)
@@ -47,24 +47,44 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
             sprintf(currentMAC, "%x:%x:%x:%x:%x:%x", station.mac[0], station.mac[1], station.mac[2], station.mac[3], station.mac[4], station.mac[5]);
 
             sprintf(template, CLIENT_TEMPLATE, i + 1, str_ip, currentMAC);
-            strcat(result, template);
+            strcat(connected_result, template);
         }
     }
     else
     {
-        strcat(result, "<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>");
+        strcat(connected_result, "<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>");
     }
 
-    // TODO: ADD LOGIC TO LOAD STATIC IP ASSIGNMENTS
+    // static_mappings = get_static_mappings() (needs to be some sort of list)
+    // char static_result[1000];
+    // strcpy(result, "");
+    // if static_mappings.num > 0
+    //     for static_mapping (need index/count)
+    //         char delParam[50];
+    //         sprintf(delParam, "%s_%s_%s", index, ip_addr, mac_addr);
+    //         
+    //         char *template = malloc(strlen(STATIC_IP_TEMPLATE) + 100);
+    //         // static_mapping = do_something_to_get_mapping() (should have ip and mac)
+    //         //    look at using esp_netif_pair_mac_ip_t from above
+    //         char mapping_ip[16];
+    //         esp_ip4addr_ntoa(&(static_mapping.ip), mapping_ip, IP4ADDR_STRLEN_MAX )
+    //         char mapping_mac[18];
+    //         sprintf(mapping_mac, "%x:%x:%x:%x:%x:%x", static_mapping.mac[0], static_mapping.mac[1],
+    //                                                   static_mapping.mac[2], static_mapping.mac[3],
+    //                                                   static_mapping.mac[4], static_mapping.mac[5]);
+    //         sprintf(template, STATIC_IP_TEMPLATE, i + 1, mapping_ip, mapping_map);
+    //         strcat(static_result, template);
+    // else
+    //     strcat(static_result, "<tr class='text-danger'><td colspan='3'>No static IP assignments</td></tr>");
 
     httpd_req_to_sockfd(req);
     extern const char clients_start[] asm("_binary_clients_html_start");
     extern const char clients_end[] asm("_binary_clients_html_end");
     const size_t clients_html_size = (clients_end - clients_start);
 
-    int size = clients_html_size + strlen(result);
+    int size = clients_html_size + strlen(connected_result); // + strlen(static_result)
     char *clients_page = malloc(size - 2);
-    sprintf(clients_page, clients_start, result);
+    sprintf(clients_page, clients_start, connected_result); // , static_result);
 
     closeHeader(req);
 
@@ -76,7 +96,6 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
 
 void addStaticIPEntry(char *urlContent)
 {
-    // TODO: WILL NEED MORE LOGGING/ERROR CHECKING
     size_t contentLength = 64;
     char ip_addr[contentLength];
     char mac_addr[contentLength];
@@ -94,7 +113,6 @@ void addStaticIPEntry(char *urlContent)
 
 void delStaticIPEntry(char *urlContent)
 {
-    // TODO: WILL NEED MORE LOGGING/ERROR CHECKING
     size_t contentLength = 64;
     char ip_addr[contentLength];
     char mac_addr[contentLength];
