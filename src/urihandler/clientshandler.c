@@ -55,6 +55,7 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
         strcat(connected_result, "<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>");
     }
 
+    // TODO: REVIEW THIS AGAINST PORTMAP PROCESS
     // static_mappings = get_static_mappings() (needs to be some sort of list)
     // char static_result[1000];
     // strcpy(result, "");

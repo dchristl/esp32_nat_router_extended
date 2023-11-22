@@ -54,11 +54,22 @@ extern "C"
    void print_portmap_tab();
    esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
    esp_err_t del_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
-   esp_err_t add_static_ip(const char *ip_address, const char *mac_address);
-   esp_err_t del_static_ip(const char *ip_address, const char *mac_address);
+
 
    char *getDefaultIPByNetmask();
    char *getNetmask();
+
+#define STATIC_IP_MAX 8
+   struct static_ip_mapping
+   {
+      char *ip_addr;
+      char *mac_addr;
+      u8_t valid;
+   };
+   extern struct static_ip_mapping static_ip_mappings[STATIC_IP_MAX];
+
+   esp_err_t add_static_ip(char *ip_address, char *mac_address);
+   esp_err_t del_static_ip(char *ip_address, char *mac_address);
 
 #define DEFAULT_NETMASK_CLASS_A "255.0.0.0"
 #define DEFAULT_NETMASK_CLASS_B "255.255.0.0"

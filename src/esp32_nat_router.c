@@ -67,6 +67,7 @@ uint32_t my_ip;
 uint32_t my_ap_ip;
 
 struct portmap_table_entry portmap_tab[PORTMAP_MAX];
+struct static_ip_mapping static_ip_mappings[STATIC_IP_MAX];
 
 esp_netif_t *wifiAP;
 esp_netif_t *wifiSTA;
@@ -211,56 +212,54 @@ esp_err_t del_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
     return ESP_OK;
 }
 
-esp_err_t add_static_ip(const char *ip_address, const char *mac_address)
+esp_err_t add_static_ip(char *ip_address, char *mac_address)
 {
-    // nvs_handle_t nvs;
+    nvs_handle_t nvs;
 
-    // for (int i = 0; i < PORTMAP_MAX; i++)
-    // {
-    //     if (!portmap_tab[i].valid)
-    //     {
-    //         portmap_tab[i].proto = proto;
-    //         portmap_tab[i].mport = mport;
-    //         portmap_tab[i].daddr = daddr;
-    //         portmap_tab[i].dport = dport;
-    //         portmap_tab[i].valid = 1;
+    for (int i = 0; i < STATIC_IP_MAX; i++)
+    {
+         if (!static_ip_mappings[i].valid)
+         {
+             static_ip_mappings[i].ip_addr = ip_address;
+             static_ip_mappings[i].mac_addr = mac_address;
+             static_ip_mappings[i].valid = 1;
 
-    //         ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
-    //         ESP_ERROR_CHECK(nvs_set_blob(nvs, "portmap_tab", portmap_tab, sizeof(portmap_tab)));
-    //         ESP_ERROR_CHECK(nvs_commit(nvs));
-    //         ESP_LOGI(TAG, "New portmap table stored.");
+             ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+             ESP_ERROR_CHECK(nvs_set_blob(nvs, "static_ip_mappings", static_ip_mappings, sizeof(static_ip_mappings)));
+             ESP_ERROR_CHECK(nvs_commit(nvs));
+             ESP_LOGI(TAG, "New static IP mappings stored.");
 
-    //         nvs_close(nvs);
+             nvs_close(nvs);
 
-    //         ip_portmap_add(proto, my_ip, mport, daddr, dport);
+             // ip_portmap_add(proto, my_ip, mport, daddr, dport);
 
-    //         return ESP_OK;
-    //     }
-    // }
+             return ESP_OK;
+         }
+    }
     return ESP_ERR_NO_MEM;
 }
 
-esp_err_t del_static_ip(const char *ip_address, const char *mac_address)
+esp_err_t del_static_ip(char *ip_address, char *mac_address)
 {
-    // nvs_handle_t nvs;
+    nvs_handle_t nvs;
 
-    // for (int i = 0; i < PORTMAP_MAX; i++)
-    // {
-    //     if (portmap_tab[i].valid && portmap_tab[i].mport == mport && portmap_tab[i].proto == proto && portmap_tab[i].dport == dport && portmap_tab[i].daddr == daddr)
-    //     {
-    //         portmap_tab[i].valid = 0;
+    for (int i = 0; i < STATIC_IP_MAX; i++)
+    {
+        if (static_ip_mappings[i].valid && static_ip_mappings[i].ip_addr == ip_address && static_ip_mappings[i].mac_addr == mac_address)
+        {
+            static_ip_mappings[i].valid = 0;
 
-    //         ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
-    //         ESP_ERROR_CHECK(nvs_set_blob(nvs, "portmap_tab", portmap_tab, sizeof(portmap_tab)));
-    //         ESP_ERROR_CHECK(nvs_commit(nvs));
-    //         ESP_LOGI(TAG, "New portmap table stored.");
+            ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
+            ESP_ERROR_CHECK(nvs_set_blob(nvs, "static_ip_mappings", static_ip_mappings, sizeof(static_ip_mappings)));
+            ESP_ERROR_CHECK(nvs_commit(nvs));
+            ESP_LOGI(TAG, "New static IP mappings stored.");
 
-    //         nvs_close(nvs);
+            nvs_close(nvs);
 
-    //         ip_portmap_remove(proto, mport);
-    //         return ESP_OK;
-    //     }
-    // }
+            // ip_portmap_remove(proto, mport);
+            return ESP_OK;
+        }
+    }
     return ESP_OK;
 }
 
