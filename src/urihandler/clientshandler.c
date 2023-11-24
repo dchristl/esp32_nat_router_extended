@@ -57,37 +57,41 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
         strcat(connected_result, "<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>");
     }
 
-    // TODO: REVIEW THIS AGAINST PORTMAP PROCESS
-    // static_mappings = get_static_mappings() (needs to be some sort of list)
-    // char static_result[1000];
-    // strcpy(result, "");
-    // if static_mappings.num > 0
-    //     for static_mapping (need index/count)
-    //         char delParam[50];
-    //         sprintf(delParam, "%s_%s_%s", index, ip_addr, mac_addr);
-    //         
-    //         char *template = malloc(strlen(STATIC_IP_TEMPLATE) + 100);
-    //         // static_mapping = do_something_to_get_mapping() (should have ip and mac)
-    //         //    look at using esp_netif_pair_mac_ip_t from above
-    //         char mapping_ip[16];
-    //         esp_ip4addr_ntoa(&(static_mapping.ip), mapping_ip, IP4ADDR_STRLEN_MAX )
-    //         char mapping_mac[18];
-    //         sprintf(mapping_mac, "%x:%x:%x:%x:%x:%x", static_mapping.mac[0], static_mapping.mac[1],
-    //                                                   static_mapping.mac[2], static_mapping.mac[3],
-    //                                                   static_mapping.mac[4], static_mapping.mac[5]);
-    //         sprintf(template, STATIC_IP_TEMPLATE, i + 1, mapping_ip, mapping_map);
-    //         strcat(static_result, template);
-    // else
-    //     strcat(static_result, "<tr class='text-danger'><td colspan='3'>No static IP assignments</td></tr>");
+    char static_result[1000];
+    strcpy(static_result, "");
+    if (false)
+    {
+        // Something like
+        //     for static_mapping (need index/count)
+        //         char delParam[50];
+        //         sprintf(delParam, "%s_%s_%s", index, ip_addr, mac_addr);
+        //         
+        //         char *template = malloc(strlen(STATIC_IP_TEMPLATE) + 100);
+        //         // static_mapping = do_something_to_get_mapping() (should have ip and mac)
+        //         //    look at using esp_netif_pair_mac_ip_t from above
+        //         char mapping_ip[16];
+        //         esp_ip4addr_ntoa(&(static_mapping.ip), mapping_ip, IP4ADDR_STRLEN_MAX )
+        //         char mapping_mac[18];
+        //         sprintf(mapping_mac, "%x:%x:%x:%x:%x:%x", static_mapping.mac[0], static_mapping.mac[1],
+        //                                                   static_mapping.mac[2], static_mapping.mac[3],
+        //                                                   static_mapping.mac[4], static_mapping.mac[5]);
+        //         sprintf(template, STATIC_IP_TEMPLATE, i + 1, mapping_ip, mapping_map);
+        //         strcat(static_result, template);
+        int i = 0;
+    }
+    else
+    {
+        strcat(static_result, "<tr class='text-danger'><td colspan='4'>No static IP assignments</td></tr>");
+    }
 
     httpd_req_to_sockfd(req);
     extern const char clients_start[] asm("_binary_clients_html_start");
     extern const char clients_end[] asm("_binary_clients_html_end");
     const size_t clients_html_size = (clients_end - clients_start);
 
-    int size = clients_html_size + strlen(connected_result) + strlen("<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>"); // + strlen(static_result)
+    int size = clients_html_size + strlen(connected_result) + strlen(static_result);
     char *clients_page = malloc(size);
-    sprintf(clients_page, clients_start, connected_result, "<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>"); // , static_result);
+    sprintf(clients_page, clients_start, connected_result, static_result);
 
     closeHeader(req);
 
@@ -104,7 +108,7 @@ void addStaticIPEntry(char *urlContent)
     char ip_addr[contentLength];
     char mac_addr[contentLength];
 
-    readUrlParameterIntoBuffer(urlContent, "ipaddr", ip_addr, contentLength);
+    readUrlParameterIntoBuffer(urlContent, "staticip", ip_addr, contentLength);
     if (strlen(ip_addr) > 0)
     {
         readUrlParameterIntoBuffer(urlContent, "macaddr", mac_addr, contentLength);
@@ -121,7 +125,7 @@ void delStaticIPEntry(char *urlContent)
     char ip_addr[contentLength];
     char mac_addr[contentLength];
     
-    readUrlParameterIntoBuffer(urlContent, "ipaddr", ip_addr, contentLength);
+    readUrlParameterIntoBuffer(urlContent, "staticip", ip_addr, contentLength);
     if (strlen(ip_addr) > 0)
     {
         readUrlParameterIntoBuffer(urlContent, "macaddr", mac_addr, contentLength);
@@ -162,6 +166,6 @@ esp_err_t clients_post_handler(httpd_req_t *req)
     }
 
     httpd_resp_set_status(req, "302 Found");
-    httpd_resp_set_hdr(req, "Location", "/portmap");
+    httpd_resp_set_hdr(req, "Location", "/clients");
     return httpd_resp_send(req, NULL, 0);
 }
