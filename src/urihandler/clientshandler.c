@@ -85,9 +85,9 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
     extern const char clients_end[] asm("_binary_clients_html_end");
     const size_t clients_html_size = (clients_end - clients_start);
 
-    int size = clients_html_size + strlen(connected_result); // + strlen(static_result)
-    char *clients_page = malloc(size - 2);
-    sprintf(clients_page, clients_start, connected_result); // , static_result);
+    int size = clients_html_size + strlen(connected_result) + strlen("<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>"); // + strlen(static_result)
+    char *clients_page = malloc(size);
+    sprintf(clients_page, clients_start, connected_result, "<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>"); // , static_result);
 
     closeHeader(req);
 
