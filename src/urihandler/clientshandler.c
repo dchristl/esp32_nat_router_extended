@@ -12,8 +12,8 @@
 
 static const char *TAG = "ClientsHandler";
 
-const char *CLIENT_TEMPLATE = "<tr><td>%s</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
-const char *STATIC_IP_TEMPLATE = "<tr><td>%s</td><td>%s</td><td style='text-transform: uppercase;'>%s</td><form action='/clients' method='POST'><input type='hidden' name='func' value='del'><input type='hidden' name='entry' value='%s'> <button title='Remove' name='remove' class='btn btn-light'> <svg version='2.0' width='16' height='16'> <use href='#trash' /> </svg> </form> </td></tr>";
+const char *CLIENT_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
+const char *STATIC_IP_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td><form action='/clients' method='POST'><input type='hidden' name='func' value='del'><input type='hidden' name='entry' value='%s'> <button title='Remove' name='remove' class='btn btn-light'> <svg version='2.0' width='16' height='16'> <use href='#trash' /> </svg> </form> </td></tr>";
 
 esp_err_t clients_download_get_handler(httpd_req_t *req)
 {
@@ -30,7 +30,6 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
     esp_wifi_ap_get_sta_list(&wifi_sta_list);
 
     esp_wifi_ap_get_sta_list_with_ip(&wifi_sta_list, &adapter_sta_list);
-    ESP_LOGI(TAG, "DEBUG MADE IT THIS FAR");
 
     char connected_result[1000];
     strcpy(connected_result, "");
@@ -50,6 +49,7 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
 
             sprintf(template, CLIENT_TEMPLATE, i + 1, str_ip, currentMAC);
             strcat(connected_result, template);
+
         }
     }
     else
@@ -94,6 +94,7 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
     esp_err_t ret = httpd_resp_send(req, clients_page, HTTPD_RESP_USE_STRLEN);
     free(clients_page);
     ESP_LOGI(TAG, "Requesting clients page");
+
     return ret;
 }
 
