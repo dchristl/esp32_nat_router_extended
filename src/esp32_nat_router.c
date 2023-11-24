@@ -67,7 +67,7 @@ uint32_t my_ip;
 uint32_t my_ap_ip;
 
 struct portmap_table_entry portmap_tab[PORTMAP_MAX];
-struct static_ip_mapping static_ip_mappings[STATIC_IP_MAX];
+struct static_ip_mapping static_maps[STATIC_IP_MAX];
 
 esp_netif_t *wifiAP;
 esp_netif_t *wifiSTA;
@@ -159,6 +159,38 @@ esp_err_t get_portmap_tab()
     return err;
 }
 
+esp_err_t get_static_maps()
+{
+    esp_err_t err;
+    nvs_handle_t nvs;
+    size_t len;
+
+    err = nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs);
+    if (err != ESP_OK)
+    {
+        return err;
+    }
+    err = nvs_get_blob(nvs, "static_maps", NULL, &len);
+    if (err == ESP_OK)
+    {
+        if (len != sizeof(static_maps))
+        {
+            err = ESP_ERR_NVS_INVALID_LENGTH;
+        }
+        else
+        {
+            err = nvs_get_blob(nvs, "static_maps", static_maps, &len);
+            if (err != ESP_OK)
+            {
+                memset(static_maps, 0, sizeof(static_maps));
+            }
+        }
+    }
+    nvs_close(nvs);
+
+    return err;
+}
+
 esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport)
 {
     nvs_handle_t nvs;
@@ -218,14 +250,14 @@ esp_err_t add_static_ip(char *ip_address, char *mac_address)
 
     for (int i = 0; i < STATIC_IP_MAX; i++)
     {
-         if (!static_ip_mappings[i].valid)
+         if (!static_maps[i].valid)
          {
-             static_ip_mappings[i].ip_addr = ip_address;
-             static_ip_mappings[i].mac_addr = mac_address;
-             static_ip_mappings[i].valid = 1;
+             static_maps[i].ip_addr = ip_address;
+             static_maps[i].mac_addr = mac_address;
+             static_maps[i].valid = 1;
 
              ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
-             ESP_ERROR_CHECK(nvs_set_blob(nvs, "static_ip_mappings", static_ip_mappings, sizeof(static_ip_mappings)));
+             ESP_ERROR_CHECK(nvs_set_blob(nvs, "static_maps", static_maps, sizeof(static_maps)));
              ESP_ERROR_CHECK(nvs_commit(nvs));
              ESP_LOGI(TAG, "New static IP mappings stored.");
 
@@ -245,12 +277,12 @@ esp_err_t del_static_ip(char *ip_address, char *mac_address)
 
     for (int i = 0; i < STATIC_IP_MAX; i++)
     {
-        if (static_ip_mappings[i].valid && static_ip_mappings[i].ip_addr == ip_address && static_ip_mappings[i].mac_addr == mac_address)
+        if (static_maps[i].valid && static_maps[i].ip_addr == ip_address && static_maps[i].mac_addr == mac_address)
         {
-            static_ip_mappings[i].valid = 0;
+            static_maps[i].valid = 0;
 
             ESP_ERROR_CHECK(nvs_open(PARAM_NAMESPACE, NVS_READWRITE, &nvs));
-            ESP_ERROR_CHECK(nvs_set_blob(nvs, "static_ip_mappings", static_ip_mappings, sizeof(static_ip_mappings)));
+            ESP_ERROR_CHECK(nvs_set_blob(nvs, "static_maps", static_maps, sizeof(static_maps)));
             ESP_ERROR_CHECK(nvs_commit(nvs));
             ESP_LOGI(TAG, "New static IP mappings stored.");
 
@@ -884,6 +916,7 @@ void app_main(void)
     }
 
     get_portmap_tab();
+    get_static_maps();
 
     // Setup WIFI
     wifi_init(ssid, passwd, static_ip, subnet_mask, gateway_addr, ap_ssid, ap_passwd, ap_ip, sta_user, sta_identity);
