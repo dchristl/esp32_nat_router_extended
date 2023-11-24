@@ -17,6 +17,7 @@ const char *STATIC_IP_TEMPLATE = "<tr><td>%s</td><td>%s</td><td style='text-tran
 
 esp_err_t clients_download_get_handler(httpd_req_t *req)
 {
+
     if (isLocked())
     {
         return redirectToLock(req);
@@ -29,6 +30,7 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
     esp_wifi_ap_get_sta_list(&wifi_sta_list);
 
     esp_wifi_ap_get_sta_list_with_ip(&wifi_sta_list, &adapter_sta_list);
+    ESP_LOGI(TAG, "DEBUG MADE IT THIS FAR");
 
     char connected_result[1000];
     strcpy(connected_result, "");
