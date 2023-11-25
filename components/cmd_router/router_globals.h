@@ -66,7 +66,7 @@ extern "C"
       char *mac_addr;
       u8_t valid;
    };
-   extern struct static_ip_mapping static_ip_mappings[STATIC_IP_MAX];
+   extern struct static_ip_mapping static_maps[STATIC_IP_MAX];
 
    esp_err_t add_static_ip(char *ip_address, char *mac_address);
    esp_err_t del_static_ip(char *ip_address, char *mac_address);

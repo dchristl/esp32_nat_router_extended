@@ -59,27 +59,18 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
 
     char static_result[1000];
     strcpy(static_result, "");
-    if (false)
+    for (int i = 0; i < STATIC_IP_MAX; i++)
     {
-        // Something like
-        //     for static_mapping (need index/count)
-        //         char delParam[50];
-        //         sprintf(delParam, "%s_%s_%s", index, ip_addr, mac_addr);
-        //         
-        //         char *template = malloc(strlen(STATIC_IP_TEMPLATE) + 100);
-        //         // static_mapping = do_something_to_get_mapping() (should have ip and mac)
-        //         //    look at using esp_netif_pair_mac_ip_t from above
-        //         char mapping_ip[16];
-        //         esp_ip4addr_ntoa(&(static_mapping.ip), mapping_ip, IP4ADDR_STRLEN_MAX )
-        //         char mapping_mac[18];
-        //         sprintf(mapping_mac, "%x:%x:%x:%x:%x:%x", static_mapping.mac[0], static_mapping.mac[1],
-        //                                                   static_mapping.mac[2], static_mapping.mac[3],
-        //                                                   static_mapping.mac[4], static_mapping.mac[5]);
-        //         sprintf(template, STATIC_IP_TEMPLATE, i + 1, mapping_ip, mapping_map);
-        //         strcat(static_result, template);
-        int i = 0;
+        if (static_maps[i].valid)
+        {
+            char delParam[50];
+            sprintf(delParam, "%s_%s", static_maps[i].ip_addr, static_maps[i].mac_addr);
+
+            sprintf(static_result, STATIC_IP_TEMPLATE, static_maps[i].ip_addr, static_maps[i].mac_addr, delParam);
+        }
     }
-    else
+    
+    if (strlen(static_result) > 0)
     {
         strcat(static_result, "<tr class='text-danger'><td colspan='4'>No static IP assignments</td></tr>");
     }

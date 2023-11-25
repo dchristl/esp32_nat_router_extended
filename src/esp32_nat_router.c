@@ -263,7 +263,7 @@ esp_err_t add_static_ip(char *ip_address, char *mac_address)
 
              nvs_close(nvs);
 
-             // ip_portmap_add(proto, my_ip, mport, daddr, dport);
+             // TODO: ip_portmap_add(proto, my_ip, mport, daddr, dport);
 
              return ESP_OK;
          }
@@ -288,7 +288,7 @@ esp_err_t del_static_ip(char *ip_address, char *mac_address)
 
             nvs_close(nvs);
 
-            // ip_portmap_remove(proto, mport);
+            // TODO: ip_portmap_remove(proto, mport);
             return ESP_OK;
         }
     }
@@ -1030,5 +1030,3 @@ void app_main(void)
         linenoiseFree(line);
     }
 }
-
-// TODO: Add method to check if client mac needs a static IP
