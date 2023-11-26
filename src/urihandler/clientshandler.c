@@ -13,7 +13,7 @@
 static const char *TAG = "ClientsHandler";
 
 const char *CLIENT_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td></tr>";
-const char *STATIC_IP_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td><form action='/clients' method='POST'><input type='hidden' name='func' value='del'><input type='hidden' name='entry' value='%s'> <button title='Remove' name='remove' class='btn btn-light'> <svg version='2.0' width='16' height='16'> <use href='#trash' /> </svg> </form> </td></tr>";
+const char *STATIC_IP_TEMPLATE = "<tr><td>%i</td><td>%s</td><td style='text-transform: uppercase;'>%s</td><td><form action='/clients' method='POST'><input type='hidden' name='func' value='del'><input type='hidden' name='entry' value='%s'><button title='Remove' name='remove' class='btn btn-light'><svg version='2.0' width='16' height='16'><use href='#trash'/></svg></button></input></input></form></td></tr>";
 
 esp_err_t clients_download_get_handler(httpd_req_t *req)
 {
@@ -56,21 +56,24 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
     {
         strcat(connected_result, "<tr class='text-danger'><td colspan='3'>No clients connected</td></tr>");
     }
-
     char static_result[1000];
     strcpy(static_result, "");
     for (int i = 0; i < STATIC_IP_MAX; i++)
     {
-        if (static_maps[i].valid)
+        char *ip_addr = static_maps[i].ip_addr;
+        char *mac_addr = static_maps[i].mac_addr;
+        
+        if (static_maps[i].valid && strlen(ip_addr) > 0 && strlen(mac_addr) > 0)
         {
             char delParam[50];
-            sprintf(delParam, "%s_%s", static_maps[i].ip_addr, static_maps[i].mac_addr);
-
-            sprintf(static_result, STATIC_IP_TEMPLATE, static_maps[i].ip_addr, static_maps[i].mac_addr, delParam);
+            sprintf(delParam, "%s_%s", ip_addr, mac_addr);
+            ESP_LOGI(TAG, "DEBUG MADE IT HERE1");
+            sprintf(static_result, STATIC_IP_TEMPLATE, i, ip_addr, mac_addr, delParam);
+            ESP_LOGI(TAG, "%s", static_result);
         }
     }
     
-    if (strlen(static_result) > 0)
+    if (strlen(static_result) == 0)
     {
         strcat(static_result, "<tr class='text-danger'><td colspan='4'>No static IP assignments</td></tr>");
     }
@@ -113,17 +116,22 @@ void addStaticIPEntry(char *urlContent)
 void delStaticIPEntry(char *urlContent)
 {
     size_t contentLength = 64;
-    char ip_addr[contentLength];
-    char mac_addr[contentLength];
+    char del_param[contentLength];
     
-    readUrlParameterIntoBuffer(urlContent, "staticip", ip_addr, contentLength);
-    if (strlen(ip_addr) > 0)
+    readUrlParameterIntoBuffer(urlContent, "entry", del_param, contentLength);
+
+    ESP_LOGI(TAG, "entry %s", del_param);
+
+    const char delimiter[] = "_";
+
+    char *ip_addr = strtok(del_param, delimiter);    
+    char *mac_addr = strtok(del_param, delimiter);
+
+    ESP_LOGI(TAG, "del %s %s", ip_addr, mac_addr);
+
+    if (strlen(ip_addr) > 0 && strlen(mac_addr) > 0)
     {
-        readUrlParameterIntoBuffer(urlContent, "macaddr", mac_addr, contentLength);
-        if (strlen(mac_addr) > 0)
-        {
-            del_static_ip(ip_addr, mac_addr);
-        }
+        del_static_ip(ip_addr, mac_addr);
     }
 }
 

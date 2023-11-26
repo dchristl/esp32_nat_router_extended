@@ -55,7 +55,6 @@ extern "C"
    esp_err_t add_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
    esp_err_t del_portmap(u8_t proto, u16_t mport, u32_t daddr, u16_t dport);
 
-
    char *getDefaultIPByNetmask();
    char *getNetmask();
 
@@ -66,6 +65,7 @@ extern "C"
       char *mac_addr;
       u8_t valid;
    };
+   
    extern struct static_ip_mapping static_maps[STATIC_IP_MAX];
 
    esp_err_t add_static_ip(char *ip_address, char *mac_address);
