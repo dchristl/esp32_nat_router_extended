@@ -18,7 +18,7 @@
 #include "esp_vfs_fat.h"
 #include "nvs.h"
 #include "nvs_flash.h"
-#include "esp_wpa2.h"
+#include "esp_eap_client.h"
 #include "esp_event.h"
 
 #include "freertos/event_groups.h"
@@ -472,16 +472,16 @@ void setWpaEnterprise(const char *sta_identity, const char *sta_user, const char
 
     if (sta_identity != NULL && strlen(sta_identity) > 0)
     {
-        ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)sta_identity, strlen(sta_identity)));
+        ESP_ERROR_CHECK(esp_eap_client_set_identity((uint8_t *)sta_identity, strlen(sta_identity)));
     }
 
     if (sta_user != NULL && strlen(sta_user) != 0)
     {
-        ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_username((uint8_t *)sta_user, strlen(sta_user)));
+        ESP_ERROR_CHECK(esp_eap_client_set_username((uint8_t *)sta_user, strlen(sta_user)));
     }
     if (password != NULL && strlen(password) > 0)
     {
-        ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_password((uint8_t *)password, strlen(password)));
+        ESP_ERROR_CHECK(esp_eap_client_set_password((uint8_t *)password, strlen(password)));
     }
     ESP_LOGI(TAG, "Reading WPA certificate");
 
@@ -492,14 +492,14 @@ void setWpaEnterprise(const char *sta_identity, const char *sta_user, const char
     if (cer != NULL && strlen(cer) != 0)
     {
         ESP_LOGI(TAG, "Setting WPA certificate with length %d\n%s", len, cer);
-        ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_set_ca_cert((uint8_t *)cer, strlen(cer)));
+        ESP_ERROR_CHECK(esp_eap_client_set_ca_cert((uint8_t *)cer, strlen(cer)));
     }
     else
     {
         ESP_LOGI(TAG, "No certificate used");
     }
 
-    ESP_ERROR_CHECK(esp_wifi_sta_wpa2_ent_enable());
+    ESP_ERROR_CHECK(esp_wifi_sta_enterprise_enable());
 }
 
 void wifi_init(const char *ssid, const char *passwd, const char *static_ip, const char *subnet_mask, const char *gateway_addr, const char *ap_ssid, const char *ap_passwd, const char *ap_ip, const char *sta_user, const char *sta_identity)
