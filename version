@@ -1,4 +1,5 @@
-7.0.0-DEV
+6.5.0
 
-Compiled against ESP-IDF 5.1.2
+Compiled against latest ESP-IDF (5.1.2)
 Replaced deprecated features
+Some internal improvements
