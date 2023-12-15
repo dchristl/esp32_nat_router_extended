@@ -1,6 +1,5 @@
-6.4.0
+6.5.0
 
-Updated to latest ESP-IDF 5.1.1
-Added support for setting bandwidth
-Added support for custom subnetmask
-Added support for custom third octet in router's IP
+Compiled against latest ESP-IDF (5.1.2)
+Replaced deprecated features
+Some internal improvements
