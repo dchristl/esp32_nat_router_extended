@@ -1,4 +1,3 @@
 7.0.0-DEV
 
-Compiled against ESP-IDF 5.1.2
-Replaced deprecated features
+Improved deep_sleep

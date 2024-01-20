@@ -228,16 +228,16 @@ static int deep_sleep(int argc, char **argv)
     if (deep_sleep_args.wakeup_gpio_num->count)
     {
         int io_num = deep_sleep_args.wakeup_gpio_num->ival[0];
-        if (!GPIO_IS_VALID_DIGITAL_IO_PAD(io_num))
+        if (!GPIO_IS_VALID_GPIO(io_num))
         {
-            ESP_LOGE(TAG, "GPIO %d is not an RTC IO", io_num);
+            ESP_LOGE(TAG, "GPIO %d is not a valid IO", io_num);
             return 1;
         }
-        int level = 0;
+        int level = ESP_EXT1_WAKEUP_ALL_LOW;
         if (deep_sleep_args.wakeup_gpio_level->count)
         {
             level = deep_sleep_args.wakeup_gpio_level->ival[0];
-            if (level != 0 && level != 1)
+            if (level != ESP_EXT1_WAKEUP_ALL_LOW && level != ESP_EXT1_WAKEUP_ANY_HIGH)
             {
                 ESP_LOGE(TAG, "Invalid wakeup level: %d", level);
                 return 1;
