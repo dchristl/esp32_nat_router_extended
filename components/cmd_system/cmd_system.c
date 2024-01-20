@@ -228,7 +228,7 @@ static int deep_sleep(int argc, char **argv)
     if (deep_sleep_args.wakeup_gpio_num->count)
     {
         int io_num = deep_sleep_args.wakeup_gpio_num->ival[0];
-        if (!rtc_gpio_is_valid_gpio(io_num))
+        if (!GPIO_IS_VALID_DIGITAL_IO_PAD(io_num))
         {
             ESP_LOGE(TAG, "GPIO %d is not an RTC IO", io_num);
             return 1;
@@ -245,15 +245,16 @@ static int deep_sleep(int argc, char **argv)
         }
         ESP_LOGI(TAG, "Enabling wakeup on GPIO%d, wakeup on %s level",
                  io_num, level ? "HIGH" : "LOW");
-        ESP_ERROR_CHECK(esp_sleep_enable_wifi_wakeup());
-    }
-#if SOC_RTCIO_HOLD_SUPPORTED
-    rtc_gpio_isolate(GPIO_NUM_12);
-#endif // WITH_TASKS_INFO
-    esp_deep_sleep_start();
-    return 0;
-}
 
+#if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32S2)
+        ESP_ERROR_CHECK(esp_sleep_enable_ext1_wakeup(1ULL << io_num, level));
+#endif
+    }
+#if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32S2)
+    rtc_gpio_isolate(GPIO_NUM_12);
+#endif
+    esp_deep_sleep_start();
+}
 static void register_deep_sleep(void)
 {
     deep_sleep_args.wakeup_time =
