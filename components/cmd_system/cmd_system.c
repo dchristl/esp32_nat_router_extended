@@ -233,11 +233,11 @@ static int deep_sleep(int argc, char **argv)
             ESP_LOGE(TAG, "GPIO %d is not a valid IO", io_num);
             return 1;
         }
-        int level = ESP_EXT1_WAKEUP_ALL_LOW;
+        int level = 0;
         if (deep_sleep_args.wakeup_gpio_level->count)
         {
             level = deep_sleep_args.wakeup_gpio_level->ival[0];
-            if (level != ESP_EXT1_WAKEUP_ALL_LOW && level != ESP_EXT1_WAKEUP_ANY_HIGH)
+            if (level != 0 && level != 1)
             {
                 ESP_LOGE(TAG, "Invalid wakeup level: %d", level);
                 return 1;
