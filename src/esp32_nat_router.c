@@ -75,7 +75,6 @@ httpd_handle_t start_webserver(void);
 
 static const char *TAG = "ESP32NRE";
 
-
 char *ssid = NULL;
 char *passwd = NULL;
 char *static_ip = NULL;
@@ -578,7 +577,11 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     if (isLowerBandwith == 1)
     {
         ESP_LOGI(TAG, "Setting the bandwith to 40 MHz");
-        ESP_ERROR_CHECK(esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT40));
+        esp_err_t err = esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT40);
+        if (err == ESP_ERR_INVALID_ARG)
+        {
+            ESP_LOGE(TAG, "Setting the bandwith to 40 MHz failed. Interface doesn't support it.");
+        }
     }
 
     setHostName();
@@ -663,8 +666,6 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     setTxPower();
     start_dns_server();
 }
-
-
 
 char *param_set_default(const char *def_val)
 {
