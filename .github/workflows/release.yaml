@@ -94,10 +94,19 @@ jobs:
           mkdir -p release
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
-      # - name: Delete old drafts
-      #   uses: hugo19941994/delete-draft-releases@v1.0.0
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build ESP32 C6 firmware
+        run: platformio run -e esp32-c6
+      - name: Build one binary for ESP32 C6
+        run: |
+          folder=.pio/build/esp32-c6
+          chip=esp32c6
+          mkdir -p release/ota/ESP32-C6/
+          cp $folder/firmware.bin release/ota/ESP32-C6/firmware.bin 
+          mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x0 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+          mkdir -p release/
+          zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
       - name: Create draft release
         uses: "marvinpinto/action-automatic-releases@latest"
         if: github.ref == 'refs/heads/master'

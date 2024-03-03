@@ -399,6 +399,9 @@ void determineChipType(char chip_type[30])
     case CHIP_ESP32C3:
         sprintf(chip_type, "%s", "ESP32-C3");
         break;
+    case CHIP_ESP32C6:
+        sprintf(chip_type, "%s", "ESP32-C6");
+        break;
     default:
         int chip_model = chip_info.model;
         sprintf(chip_type, "%s (%d)", "Unknown/Unsupported", chip_model);
