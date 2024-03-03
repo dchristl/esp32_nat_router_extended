@@ -75,6 +75,21 @@ httpd_handle_t start_webserver(void);
 
 static const char *TAG = "ESP32NRE";
 
+char *ssid = NULL;
+char *passwd = NULL;
+char *static_ip = NULL;
+char *subnet_mask = NULL;
+char *gateway_addr = NULL;
+char *ap_ssid = NULL;
+char *lock_pass = NULL;
+
+char *ap_passwd = NULL;
+char *ap_ip = NULL;
+
+/* WPA2 settings */
+char *sta_identity = NULL;
+char *sta_user = NULL;
+
 static void initialize_nvs(void)
 {
     esp_err_t err = nvs_flash_init();
@@ -407,18 +422,20 @@ void fillMac()
 
 void setDnsServer(esp_netif_t *network, esp_ip_addr_t *dnsIP)
 {
+    if ((strlen(static_ip) == 0) && (strlen(subnet_mask) == 0) && (strlen(gateway_addr) == 0))
+    {
+        esp_netif_dns_info_t dns_info = {0};
+        memset(&dns_info, 8, sizeof(dns_info));
+        dns_info.ip = *dnsIP;
+        dns_info.ip.type = IPADDR_TYPE_V4;
 
-    esp_netif_dns_info_t dns_info = {0};
-    memset(&dns_info, 8, sizeof(dns_info));
-    dns_info.ip = *dnsIP;
-    dns_info.ip.type = IPADDR_TYPE_V4;
-
-    esp_netif_dhcps_stop(network);
-    ESP_ERROR_CHECK(esp_netif_set_dns_info(wifiAP, ESP_NETIF_DNS_MAIN, &dns_info));
-    dhcps_offer_t opt_val = OFFER_DNS; // supply a dns server via dhcps
-    esp_netif_dhcps_option(network, ESP_NETIF_OP_SET, ESP_NETIF_DOMAIN_NAME_SERVER, &opt_val, sizeof(opt_val));
-    esp_netif_dhcps_start(network);
-    ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dns_info.ip.u_addr.ip4)));
+        esp_netif_dhcps_stop(network);
+        ESP_ERROR_CHECK(esp_netif_set_dns_info(wifiAP, ESP_NETIF_DNS_MAIN, &dns_info));
+        dhcps_offer_t opt_val = OFFER_DNS; // supply a dns server via dhcps
+        esp_netif_dhcps_option(network, ESP_NETIF_OP_SET, ESP_NETIF_DOMAIN_NAME_SERVER, &opt_val, sizeof(opt_val));
+        esp_netif_dhcps_start(network);
+        ESP_LOGI(TAG, "set dns to: " IPSTR, IP2STR(&(dns_info.ip.u_addr.ip4)));
+    }
 }
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
@@ -560,7 +577,11 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     if (isLowerBandwith == 1)
     {
         ESP_LOGI(TAG, "Setting the bandwith to 40 MHz");
-        ESP_ERROR_CHECK(esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT40));
+        esp_err_t err = esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT40);
+        if (err == ESP_ERR_INVALID_ARG)
+        {
+            ESP_LOGE(TAG, "Setting the bandwith to 40 MHz failed. Interface doesn't support it.");
+        }
     }
 
     setHostName();
@@ -583,7 +604,7 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
         .ap = {
             .authmode = WIFI_AUTH_WPA2_WPA3_PSK,
             .ssid_hidden = hiddenSSID,
-            .max_connection = 10,
+            .max_connection = 15,
             .beacon_interval = 100,
             .pairwise_cipher = WIFI_CIPHER_TYPE_CCMP}};
 
@@ -624,7 +645,9 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     esp_ip_addr_t dnsserver;
     char *defaultIP = getDefaultIPByNetmask();
     dnsserver.u_addr.ip4.addr = esp_ip4addr_aton(defaultIP);
+
     setDnsServer(wifiAP, &dnsserver);
+
     free(defaultIP);
 
     xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
@@ -643,21 +666,6 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     setTxPower();
     start_dns_server();
 }
-
-char *ssid = NULL;
-char *passwd = NULL;
-char *static_ip = NULL;
-char *subnet_mask = NULL;
-char *gateway_addr = NULL;
-char *ap_ssid = NULL;
-char *lock_pass = NULL;
-
-char *ap_passwd = NULL;
-char *ap_ip = NULL;
-
-/* WPA2 settings */
-char *sta_identity = NULL;
-char *sta_user = NULL;
 
 char *param_set_default(const char *def_val)
 {

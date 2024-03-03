@@ -228,12 +228,12 @@ static int deep_sleep(int argc, char **argv)
     if (deep_sleep_args.wakeup_gpio_num->count)
     {
         int io_num = deep_sleep_args.wakeup_gpio_num->ival[0];
-        if (!rtc_gpio_is_valid_gpio(io_num))
+        if (!GPIO_IS_VALID_GPIO(io_num))
         {
-            ESP_LOGE(TAG, "GPIO %d is not an RTC IO", io_num);
+            ESP_LOGE(TAG, "GPIO %d is not a valid IO", io_num);
             return 1;
         }
-        int level = 0;
+        int level = 1;
         if (deep_sleep_args.wakeup_gpio_level->count)
         {
             level = deep_sleep_args.wakeup_gpio_level->ival[0];
@@ -245,15 +245,20 @@ static int deep_sleep(int argc, char **argv)
         }
         ESP_LOGI(TAG, "Enabling wakeup on GPIO%d, wakeup on %s level",
                  io_num, level ? "HIGH" : "LOW");
-        ESP_ERROR_CHECK(esp_sleep_enable_wifi_wakeup());
-    }
-#if SOC_RTCIO_HOLD_SUPPORTED
-    rtc_gpio_isolate(GPIO_NUM_12);
-#endif // WITH_TASKS_INFO
-    esp_deep_sleep_start();
-    return 0;
-}
 
+#if defined(SOC_PM_SUPPORT_EXT1_WAKEUP)
+        ESP_ERROR_CHECK(esp_sleep_enable_ext1_wakeup(1ULL << io_num, level));
+#endif
+#if defined(SOC_GPIO_SUPPORT_DEEPSLEEP_WAKEUP)
+        ESP_ERROR_CHECK(esp_deep_sleep_enable_gpio_wakeup(1ULL << io_num, level));
+#endif
+    }
+
+#if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32S2)
+    rtc_gpio_isolate(GPIO_NUM_12);
+#endif
+    esp_deep_sleep_start();
+}
 static void register_deep_sleep(void)
 {
     deep_sleep_args.wakeup_time =
@@ -393,6 +398,9 @@ void determineChipType(char chip_type[30])
         break;
     case CHIP_ESP32C3:
         sprintf(chip_type, "%s", "ESP32-C3");
+        break;
+    case CHIP_ESP32C6:
+        sprintf(chip_type, "%s", "ESP32-C6");
         break;
     default:
         int chip_model = chip_info.model;
