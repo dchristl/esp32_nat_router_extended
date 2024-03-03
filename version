@@ -1,5 +1,6 @@
-6.5.0
+7.0.0-DEV
 
-Compiled against latest ESP-IDF (5.1.2)
-Replaced deprecated features
-Some internal improvements
+Added ESP32-C6 firmware
+Improved deep_sleep
+Fixed deep_sleep for ESP32 C3
+
