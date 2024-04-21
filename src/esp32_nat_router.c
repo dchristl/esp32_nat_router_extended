@@ -49,7 +49,7 @@
 #if CONFIG_IDF_TARGET_ESP32
 #define RESET_PIN GPIO_NUM_23
 #else
-#define RESET_PIN GPIO_NUM_12
+#define RESET_PIN GPIO_NUM_18
 #endif
 
 #define RESET_PIN_MASK ((1ULL << RESET_PIN))

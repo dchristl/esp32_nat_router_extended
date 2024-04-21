@@ -14,7 +14,7 @@ static const char *TAG = "ApplyHandler";
 
 void setApByQuery(char *urlContent, nvs_handle_t nvs)
 {
-    size_t contentLength = 64;
+    size_t contentLength = 600; //passwords are max 64 characters, but special characters (i.e € = 9 character) are a lot more url encoded 
     char param[contentLength];
     readUrlParameterIntoBuffer(urlContent, "ap_ssid", param, contentLength);
     ESP_ERROR_CHECK(nvs_set_str(nvs, "ap_ssid", param));
@@ -43,7 +43,7 @@ void setApByQuery(char *urlContent, nvs_handle_t nvs)
 void setStaByQuery(char *urlContent, nvs_handle_t nvs)
 {
 
-    size_t contentLength = 64;
+    size_t contentLength = 600;
     char param[contentLength];
     readUrlParameterIntoBuffer(urlContent, "ssid", param, contentLength);
     ESP_ERROR_CHECK(nvs_set_str(nvs, "ssid", param));
