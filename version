@@ -1,6 +1,3 @@
-7.1.0-DEV
+7.2.0-DEV
 
-Added ESP32-C6 firmware
-Improved deep_sleep
-Fixed deep_sleep for ESP32 C3
-
+Nothing new 
