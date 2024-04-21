@@ -1,4 +1,4 @@
-7.1.0-DEV
+7.1.0
 
 Fixed saving of long passwords with many special characters
 Updated to latest idf-framework version 5.2.1
