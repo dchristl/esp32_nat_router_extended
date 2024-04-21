@@ -1,5 +1,4 @@
-7.0.0
+7.1.0
 
-Added ESP32-C6 firmware
-Improved deep_sleep
-Fixed deep_sleep for ESP32 C3
+Fixed saving of long passwords with many special characters
+Updated to latest idf-framework version 5.2.1
