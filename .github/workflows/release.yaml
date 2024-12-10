@@ -94,6 +94,19 @@ jobs:
           mkdir -p release
           zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
           zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
+      - name: Build ESP32 S3 firmware
+        run: platformio run -e esp32-s3
+      - name: Build one binary for ESP32 S3
+        run: |
+          folder=.pio/build/esp32-s3
+          chip=esp32s3
+          mkdir -p release/ota/ESP32-S3/
+          cp $folder/firmware.bin release/ota/ESP32-S3/firmware.bin 
+          mv $folder/firmware.bin $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          esptool.py --chip $chip merge_bin -o $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin --flash_freq keep --flash_size keep 0x1000 $folder/bootloader.bin 0x10000 $folder/${chip}nat_extended_v${{ env.VERSION }}.bin 0x8000 $folder/partitions.bin
+          mkdir -p release
+          zip -j release/${chip}nat_extended_update_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_v${{ env.VERSION }}.bin
+          zip -j release/${chip}nat_extended_full_v${{ env.VERSION }}.zip $folder/${chip}nat_extended_full_v${{ env.VERSION }}.bin
       - name: Build ESP32 C6 firmware
         run: platformio run -e esp32-c6
       - name: Build one binary for ESP32 C6
