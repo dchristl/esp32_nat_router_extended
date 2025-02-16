@@ -1,4 +1,4 @@
-7.2.0-DEV
+7.2.0
 
 Fixed Wifi scanning for newer esp-idf-versions
 Updated to newest esp-idf-version
