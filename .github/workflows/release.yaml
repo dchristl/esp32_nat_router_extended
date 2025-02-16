@@ -160,6 +160,7 @@ jobs:
       - name: Upload firmwares to build
         uses: actions/upload-artifact@v4
         with:
+            name: firmwares
             path: |
                release/*.zip      
  

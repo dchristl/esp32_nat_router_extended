@@ -1,3 +1,5 @@
 7.2.0-DEV
 
-no changes
+Fixed Wifi scanning for newer esp-idf-versions
+Updated to newest esp-idf-version
+Replaced deprecated features
