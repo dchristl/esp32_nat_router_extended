@@ -6,6 +6,7 @@
 */
 
 #include "cc.h"
+#include "esp_wifi.h"
 
 #pragma once
 
@@ -15,6 +16,8 @@ extern "C"
 #endif
 
 #define PARAM_NAMESPACE "esp32_nat"
+
+
 
 #define PROTO_TCP 6
 #define PROTO_UDP 17
@@ -36,11 +39,13 @@ extern "C"
    extern char *ap_ssid;
    extern char *ap_passwd;
 
+  
    extern bool ap_connect;
 
    extern uint32_t my_ip;
    extern uint32_t my_ap_ip;
 
+   extern esp_netif_t *wifiSTA;
    int set_sta(int argc, char **argv);
    int set_sta_static(int argc, char **argv);
    int set_ap(int argc, char **argv);
