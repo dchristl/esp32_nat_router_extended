@@ -1,3 +1,5 @@
-7.1.1
+7.2.0
 
-Rolling back esp-idf because of scan problems
+Fixed Wifi scanning for newer esp-idf-versions
+Updated to newest esp-idf-version
+Replaced deprecated features
