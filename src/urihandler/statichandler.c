@@ -14,20 +14,31 @@ esp_err_t download(httpd_req_t *req, const char *fileStart)
     return httpd_resp_send(req, fileStart, HTTPD_RESP_USE_STRLEN);
 }
 
+esp_err_t download_bin(httpd_req_t *req, const unsigned char *fileStart, const unsigned char *fileEnd, int gzip)
+{
+    httpd_resp_set_hdr(req, "Cache-Control", "max-age=31536000");
+    if(gzip)
+        httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
+    closeHeader(req);
+    return httpd_resp_send(req, (const char *)fileStart, fileEnd - fileStart);
+}
+
 esp_err_t styles_download_get_handler(httpd_req_t *req)
 {
-    extern const unsigned char styles_start[] asm("_binary_styles_67aa3b0203355627b525be2ea57be7bf_css_start");
+    extern const unsigned char styles_start[] asm("_binary_styles_67aa3b0203355627b525be2ea57be7bf_css_gz_start");
+    extern const unsigned char styles_end[] asm("_binary_styles_67aa3b0203355627b525be2ea57be7bf_css_gz_end");
     httpd_resp_set_type(req, "text/css");
     ESP_LOGD(TAG_HANDLER, "Requesting style");
-    return download(req, (const char *)styles_start);
+    return download_bin(req, styles_start, styles_end, 1);
 }
 
 esp_err_t jquery_get_handler(httpd_req_t *req)
 {
-    extern const unsigned char jquery_js_start[] asm("_binary_jquery_8a1045d9cbf50b52a0805c111ba08e94_js_start");
+    extern const unsigned char jquery_js_start[] asm("_binary_jquery_8a1045d9cbf50b52a0805c111ba08e94_js_gz_start");
+    extern const unsigned char jquery_js_end[] asm("_binary_jquery_8a1045d9cbf50b52a0805c111ba08e94_js_gz_end");
     httpd_resp_set_type(req, "text/javascript");
     ESP_LOGD(TAG_HANDLER, "Requesting jquery");
-    return download(req, (const char *)jquery_js_start);
+    return download_bin(req, jquery_js_start, jquery_js_end, 1);
 }
 
 // Handler to download a "favicon.ico" file kept on the server

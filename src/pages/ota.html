@@ -2,60 +2,60 @@
 <html lang=en>
 
 <head>
-    <link rel="shortcut icon" type=image/x-icon href=favicon.ico>
-    <meta charset=utf-8>
-    <meta http-equiv=X-UA-Compatible content="IE=edge">
-    <meta name=viewport content="width=device-width, initial-scale=1">
-    <link rel=stylesheet href=styles-67aa3b0203355627b525be2ea57be7bf.css>
-    <title>OTA Update</title>
+	<link rel="shortcut icon" type=image/x-icon href=favicon.ico>
+	<meta charset=utf-8>
+	<meta http-equiv=X-UA-Compatible content="IE=edge">
+	<meta name=viewport content="width=device-width, initial-scale=1">
+	<link rel=stylesheet href=styles-67aa3b0203355627b525be2ea57be7bf.css>
+	<title>OTA Update</title>
 </head>
 
 <body>
-    <div class=container>
-        <div class="row text-center">
-            <h1>OTA Update</h1>
-        </div>
-        <table class="table table-striped">
-            <tbody class=text-center>
-                <tr>
-                    <th>Current version</th>
-                    <th>%s</th>
-                </tr>
-                <tr>
-                    <th>Latest version</th>
-                    <th>%s</th>
-                </tr>
-                <tr>
-                    <th class="align-middle">Changelog</th>
-                    <th class="text-start">
-                        <ul>%s</ul>
-                    </th>
-                </tr>
-                <tr>
-                    <th>Update Source</th>
-                    <th><a href="%s" title="Source">%s</a></th>
-                </tr>
-                <tr>
-                    <th>Chip type</th>
-                    <th>%s</th>
-                </tr>
-            </tbody>
-        </table>
+	<div class=container>
+		<div class="row text-center">
+			<h1>OTA Update</h1>
+		</div>
+		<table class="table table-striped">
+			<tbody class=text-center>
+				<tr>
+					<th>Current version</th>
+					<th>%s</th>
+				</tr>
+				<tr>
+					<th>Latest version</th>
+					<th>%s</th>
+				</tr>
+				<tr>
+					<th class="align-middle">Changelog</th>
+					<th class="text-start">
+						<ul>%s</ul>
+					</th>
+				</tr>
+				<tr>
+					<th>Update Source</th>
+					<th><a href="%s" title="Source">%s</a></th>
+				</tr>
+				<tr>
+					<th>Chip type</th>
+					<th>%s</th>
+				</tr>
+			</tbody>
+		</table>
 
-        <form action=/ota method=POST>
-            <div class="form-group row col-4 offset-4 mt-2">
-                <input type="hidden" name="func" value="versioncheck">
-                <input type=submit value="Refresh latest OTA infos" class="btn btn-primary">
-            </div>
-        </form>
-        <form action=/otalog method=POST>
-            <div class="form-group row col-4 offset-4 mt-2">
-                <input type="hidden" name="func" value="update">
-                <input type=submit value="Install latest version" class="btn btn-warning">
-            </div>
-        </form>
-        <div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
-    </div>
+		<form action=/ota method=POST>
+			<div class="form-group row col-4 offset-4 mt-2">
+				<input type="hidden" name="func" value="versioncheck">
+				<input type=submit value="Refresh latest OTA infos" class="btn btn-primary">
+			</div>
+		</form>
+		<form action=/otalog method=POST>
+			<div class="form-group row col-4 offset-4 mt-2">
+				<input type="hidden" name="func" value="update">
+				<input type=submit value="Install latest version" class="btn btn-warning">
+			</div>
+		</form>
+		<div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
+	</div>
 </body>
 
 </html>

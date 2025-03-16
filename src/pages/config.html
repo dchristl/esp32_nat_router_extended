@@ -2,177 +2,177 @@
 <html lang="en">
 
 <head>
-    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
-    <meta charset="utf-8" />
-    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
-    <meta content="width=device-width, initial-scale=1" name="viewport" />
-    <link href="styles-67aa3b0203355627b525be2ea57be7bf.css" rel="stylesheet" />
-    <title>Configuration</title>
+	<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+	<meta charset="utf-8" />
+	<meta content="IE=edge" http-equiv="X-UA-Compatible" />
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<link href="styles-67aa3b0203355627b525be2ea57be7bf.css" rel="stylesheet" />
+	<title>Configuration</title>
 </head>
 
 <body>
-    <div class="container">
-        <div class="row text-center p-3">
-            <h1>ESP32 NAT Router Config <a href="/about" class="btn btn-light float-end" title="About">?</a></h1>
-        </div>
+	<div class="container">
+		<div class="row text-center p-3">
+			<h1>ESP32 NAT Router Config <a href="/about" class="btn btn-light float-end" title="About">?</a></h1>
+		</div>
 
-        <form action="apply" method="POST"> <input name="func" type="hidden" value="config" />
-            <h2>AP Settings (the new network)</h2> <a class="btn" href="/clients"><span class="text-info"><span
-                        id="clients">%d</span> client(s) connected</span></a>
+		<form action="apply" method="POST"> <input name="func" type="hidden" value="config" />
+			<h2>AP Settings (the new network)</h2> <a class="btn" href="/clients"><span class="text-info"><span
+						id="clients">%d</span> client(s) connected</span></a>
 
 
-            <div class="form-check form-switch mt-4">
-                <input class="form-check-input" type="checkbox" id="ssid_hidden" name="ssid_hidden" %s>
-                <label class="form-check-label" for="ssid_hidden">Hide the SSID</label>
-            </div>
-            <div class="form-group row mt-4"> <label class="col-3" for="ap_ssid">SSID</label>
-                <div class="col-9"> <input class="form-control" id="ap_ssid" maxlength="32" name="ap_ssid"
-                        placeholder="SSID of the new network" type="text" value="%s" /> </div>
-            </div>
-            <div class="form-group row mt-2"> <label class="col-3" for="ap_password">Password</label>
-                <div class="col-9">
-                    <div class="input-group"> <input class="form-control col-9" id="ap_password" maxlength="64"
-                            name="ap_password" placeholder="Password of the new network" type="password" value="%s" />
-                        <span class="input-group-text password" style="cursor: pointer;" title="show password"><svg
-                                xmlns=http://www.w3.org/2000/svg width="16" height="16" fill="currentColor"
-                                class="bi bi-eye" viewBox="0 0 16 16">
-                                <path
-                                    d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
-                                <path
-                                    d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
-                            </svg></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group row col-9 offset-3"> <small class="form-text text-muted">Password less than 8 chars =
-                    open</small> </div>
+			<div class="form-check form-switch mt-4">
+				<input class="form-check-input" type="checkbox" id="ssid_hidden" name="ssid_hidden" %s>
+				<label class="form-check-label" for="ssid_hidden">Hide the SSID</label>
+			</div>
+			<div class="form-group row mt-4"> <label class="col-3" for="ap_ssid">SSID</label>
+				<div class="col-9"> <input class="form-control" id="ap_ssid" maxlength="32" name="ap_ssid"
+						placeholder="SSID of the new network" type="text" value="%s" /> </div>
+			</div>
+			<div class="form-group row mt-2"> <label class="col-3" for="ap_password">Password</label>
+				<div class="col-9">
+					<div class="input-group"> <input class="form-control col-9" id="ap_password" maxlength="64"
+							name="ap_password" placeholder="Password of the new network" type="password" value="%s" />
+						<span class="input-group-text password" style="cursor: pointer;" title="show password"><svg
+								xmlns=http://www.w3.org/2000/svg width="16" height="16" fill="currentColor"
+								class="bi bi-eye" viewBox="0 0 16 16">
+								<path
+									d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+								<path
+									d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+							</svg></span>
+					</div>
+				</div>
+			</div>
+			<div class="form-group row col-9 offset-3"> <small class="form-text text-muted">Password less than 8 chars =
+					open</small> </div>
 
-            <h2 class="mt-2">STA Settings (uplink WiFi network)</h2>
-            <p id="sta" class="text-%s"><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'
-                    fill='currentColor' id="wifi_off" class='bi bi-wifi-off' viewBox='0 0 16 16' style="display: %s;">
-                    <path
-                        d='M10.706 3.294A12.545 12.545 0 0 0 8 3C5.259 3 2.723 3.882.663 5.379a.485.485 0 0 0-.048.736.518.518 0 0 0 .668.05A11.448 11.448 0 0 1 8 4c.63 0 1.249.05 1.852.148l.854-.854zM8 6c-1.905 0-3.68.56-5.166 1.526a.48.48 0 0 0-.063.745.525.525 0 0 0 .652.065 8.448 8.448 0 0 1 3.51-1.27L8 6zm2.596 1.404.785-.785c.63.24 1.227.545 1.785.907a.482.482 0 0 1 .063.745.525.525 0 0 1-.652.065 8.462 8.462 0 0 0-1.98-.932zM8 10l.933-.933a6.455 6.455 0 0 1 2.013.637c.285.145.326.524.1.75l-.015.015a.532.532 0 0 1-.611.09A5.478 5.478 0 0 0 8 10zm4.905-4.905.747-.747c.59.3 1.153.645 1.685 1.03a.485.485 0 0 1 .047.737.518.518 0 0 1-.668.05 11.493 11.493 0 0 0-1.811-1.07zM9.02 11.78c.238.14.236.464.04.66l-.707.706a.5.5 0 0 1-.707 0l-.707-.707c-.195-.195-.197-.518.04-.66A1.99 1.99 0 0 1 8 11.5c.374 0 .723.102 1.021.28zm4.355-9.905a.53.53 0 0 1 .75.75l-10.75 10.75a.53.53 0 0 1-.75-.75l10.75-10.75z' />
-                </svg>
-                <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-wifi'
-                    id="wifi_on" viewBox='0 0 16 16' style="display: %s;">
-                    <path
-                        d='M15.384 6.115a.485.485 0 0 0-.047-.736A12.444 12.444 0 0 0 8 3C5.259 3 2.723 3.882.663 5.379a.485.485 0 0 0-.048.736.518.518 0 0 0 .668.05A11.448 11.448 0 0 1 8 4c2.507 0 4.827.802 6.716 2.164.205.148.49.13.668-.049z' />
-                    <path
-                        d='M13.229 8.271a.482.482 0 0 0-.063-.745A9.455 9.455 0 0 0 8 6c-1.905 0-3.68.56-5.166 1.526a.48.48 0 0 0-.063.745.525.525 0 0 0 .652.065A8.46 8.46 0 0 1 8 7a8.46 8.46 0 0 1 4.576 1.336c.206.132.48.108.653-.065zm-2.183 2.183c.226-.226.185-.605-.1-.75A6.473 6.473 0 0 0 8 9c-1.06 0-2.062.254-2.946.704-.285.145-.326.524-.1.75l.015.015c.16.16.407.19.611.09A5.478 5.478 0 0 1 8 10c.868 0 1.69.201 2.42.56.203.1.45.07.61-.091l.016-.015zM9.06 12.44c.196-.196.198-.52-.04-.66A1.99 1.99 0 0 0 8 11.5a1.99 1.99 0 0 0-1.02.28c-.238.14-.236.464-.04.66l.706.706a.5.5 0 0 0 .707 0l.707-.707z' />
-                </svg> (signal strength: <span id="db">%s</span> db)
-            </p>
-            <div class="form-check form-switch mt-4">
-                <input class="form-check-input" type="checkbox" id="wpa2enabled" %s>
-                <label class="form-check-label" for="wpa2enabled">WPA2 Enterprise</label>
-            </div>
-            <div class="form-group row mt-4"> <label class="col-3" for="ssid">SSID</label>
-                <div class="col-9"> <input class="form-control" id="ssid" maxlength="32" name="ssid"
-                        placeholder="SSID of the existing network" type="text" value="%s" /> </div>
-            </div>
-            <span style="display: %s;" id="wpa2-container">
-                <div class="form-group row mt-2"> <label class="col-3" for="sta_identity">Identity</label>
-                    <div class="col-9"> <input class="form-control" id="sta_identity" maxlength="32" name="sta_identity"
-                            placeholder="WPA2 Enterprise identity" type="text" value="%s" /> </div>
-                </div>
-                <div class="form-group row mt-2"> <label class="col-3" for="sta_user">Username</label>
-                    <div class="col-9"> <input class="form-control" id="sta_user" maxlength="32" name="sta_user"
-                            placeholder="WPA2 Enterprise username" type="text" value="%s" /> </div>
-                </div>
-                <div class="form-group row mt-2"> <label class="col-3" for="cer">Certificate</label>
-                    <div class="col-9">
-                        <textarea class="form-control" id="cer" name="cer" rows="4" maxlength="5000"
-                            placeholder="The enterprise certificate. Usually: &#10;-----BEGIN CERTIFICATE-----&#10;XXXXXXXXXXXXXXXXXXXXXXXXXXX&#10;-----END CERTIFICATE-----">%s</textarea>
-                    </div>
-                </div>
+			<h2 class="mt-2">STA Settings (uplink WiFi network)</h2>
+			<p id="sta" class="text-%s"><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'
+					fill='currentColor' id="wifi_off" class='bi bi-wifi-off' viewBox='0 0 16 16' style="display: %s;">
+					<path
+						d='M10.706 3.294A12.545 12.545 0 0 0 8 3C5.259 3 2.723 3.882.663 5.379a.485.485 0 0 0-.048.736.518.518 0 0 0 .668.05A11.448 11.448 0 0 1 8 4c.63 0 1.249.05 1.852.148l.854-.854zM8 6c-1.905 0-3.68.56-5.166 1.526a.48.48 0 0 0-.063.745.525.525 0 0 0 .652.065 8.448 8.448 0 0 1 3.51-1.27L8 6zm2.596 1.404.785-.785c.63.24 1.227.545 1.785.907a.482.482 0 0 1 .063.745.525.525 0 0 1-.652.065 8.462 8.462 0 0 0-1.98-.932zM8 10l.933-.933a6.455 6.455 0 0 1 2.013.637c.285.145.326.524.1.75l-.015.015a.532.532 0 0 1-.611.09A5.478 5.478 0 0 0 8 10zm4.905-4.905.747-.747c.59.3 1.153.645 1.685 1.03a.485.485 0 0 1 .047.737.518.518 0 0 1-.668.05 11.493 11.493 0 0 0-1.811-1.07zM9.02 11.78c.238.14.236.464.04.66l-.707.706a.5.5 0 0 1-.707 0l-.707-.707c-.195-.195-.197-.518.04-.66A1.99 1.99 0 0 1 8 11.5c.374 0 .723.102 1.021.28zm4.355-9.905a.53.53 0 0 1 .75.75l-10.75 10.75a.53.53 0 0 1-.75-.75l10.75-10.75z' />
+				</svg>
+				<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-wifi'
+					id="wifi_on" viewBox='0 0 16 16' style="display: %s;">
+					<path
+						d='M15.384 6.115a.485.485 0 0 0-.047-.736A12.444 12.444 0 0 0 8 3C5.259 3 2.723 3.882.663 5.379a.485.485 0 0 0-.048.736.518.518 0 0 0 .668.05A11.448 11.448 0 0 1 8 4c2.507 0 4.827.802 6.716 2.164.205.148.49.13.668-.049z' />
+					<path
+						d='M13.229 8.271a.482.482 0 0 0-.063-.745A9.455 9.455 0 0 0 8 6c-1.905 0-3.68.56-5.166 1.526a.48.48 0 0 0-.063.745.525.525 0 0 0 .652.065A8.46 8.46 0 0 1 8 7a8.46 8.46 0 0 1 4.576 1.336c.206.132.48.108.653-.065zm-2.183 2.183c.226-.226.185-.605-.1-.75A6.473 6.473 0 0 0 8 9c-1.06 0-2.062.254-2.946.704-.285.145-.326.524-.1.75l.015.015c.16.16.407.19.611.09A5.478 5.478 0 0 1 8 10c.868 0 1.69.201 2.42.56.203.1.45.07.61-.091l.016-.015zM9.06 12.44c.196-.196.198-.52-.04-.66A1.99 1.99 0 0 0 8 11.5a1.99 1.99 0 0 0-1.02.28c-.238.14-.236.464-.04.66l.706.706a.5.5 0 0 0 .707 0l.707-.707z' />
+				</svg> (signal strength: <span id="db">%s</span> db)
+			</p>
+			<div class="form-check form-switch mt-4">
+				<input class="form-check-input" type="checkbox" id="wpa2enabled" %s>
+				<label class="form-check-label" for="wpa2enabled">WPA2 Enterprise</label>
+			</div>
+			<div class="form-group row mt-4"> <label class="col-3" for="ssid">SSID</label>
+				<div class="col-9"> <input class="form-control" id="ssid" maxlength="32" name="ssid"
+						placeholder="SSID of the existing network" type="text" value="%s" /> </div>
+			</div>
+			<span style="display: %s;" id="wpa2-container">
+				<div class="form-group row mt-2"> <label class="col-3" for="sta_identity">Identity</label>
+					<div class="col-9"> <input class="form-control" id="sta_identity" maxlength="32" name="sta_identity"
+							placeholder="WPA2 Enterprise identity" type="text" value="%s" /> </div>
+				</div>
+				<div class="form-group row mt-2"> <label class="col-3" for="sta_user">Username</label>
+					<div class="col-9"> <input class="form-control" id="sta_user" maxlength="32" name="sta_user"
+							placeholder="WPA2 Enterprise username" type="text" value="%s" /> </div>
+				</div>
+				<div class="form-group row mt-2"> <label class="col-3" for="cer">Certificate</label>
+					<div class="col-9">
+						<textarea class="form-control" id="cer" name="cer" rows="4" maxlength="5000"
+							placeholder="The enterprise certificate. Usually: &#10;-----BEGIN CERTIFICATE-----&#10;XXXXXXXXXXXXXXXXXXXXXXXXXXX&#10;-----END CERTIFICATE-----">%s</textarea>
+					</div>
+				</div>
 
-            </span>
-            <div class="form-group row mt-2"> <label class="col-3" for="password">Password</label>
-                <div class="col-9">
-                    <div class="input-group"> <input class="form-control" id="password" maxlength="64" name="password"
-                            placeholder="Password of the existing network" type="password" value="%s" /> <span
-                            class="input-group-text password" style="cursor: pointer;" title="show password"><svg
-                                xmlns=http://www.w3.org/2000/svg width="16" height="16" fill="currentColor"
-                                class="bi bi-eye" viewBox="0 0 16 16">
-                                <path
-                                    d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
-                                <path
-                                    d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+			</span>
+			<div class="form-group row mt-2"> <label class="col-3" for="password">Password</label>
+				<div class="col-9">
+					<div class="input-group"> <input class="form-control" id="password" maxlength="64" name="password"
+							placeholder="Password of the existing network" type="password" value="%s" /> <span
+							class="input-group-text password" style="cursor: pointer;" title="show password"><svg
+								xmlns=http://www.w3.org/2000/svg width="16" height="16" fill="currentColor"
+								class="bi bi-eye" viewBox="0 0 16 16">
+								<path
+									d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+								<path
+									d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
 
-                            </svg></span>
-                    </div>
-                </div> <input class="form-control" name="x" type="hidden" value="x" />
-            </div>
-            <div class="form-group row col-4 offset-4 mt-4"> <input class="btn btn-primary" type="submit"
-                    value="Apply" /> </div>
-        </form>
-        <h2 class="mt-2">Device Management</h2>
+							</svg></span>
+					</div>
+				</div> <input class="form-control" name="x" type="hidden" value="x" />
+			</div>
+			<div class="form-group row col-4 offset-4 mt-4"> <input class="btn btn-primary" type="submit"
+					value="Apply" /> </div>
+		</form>
+		<h2 class="mt-2">Device Management</h2>
 
-        <div class="form-group row col-4 offset-4 mt-2">
-            <a href="scan" class="btn btn-light col-%s" title="Wifi scan">Wifi Scan</a>
-            <a href="result" class="btn btn-light col-3" type="submit" title="last result" style="display: %s;"><svg
-                    xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                    class="bi bi-clock-history" viewBox="0 0 16 16">
-                    <path
-                        d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z" />
-                    <path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z" />
-                    <path
-                        d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z" />
-                </svg></a>
-        </div>
-        <div class="form-group row col-4 offset-4 mt-2">
-            <a href="/ota" class="btn btn-light">OTA Updates</a>
-        </div>
-        <div class="form-group row col-4 offset-4 mt-2">
-            <a href="/portmap" class="btn btn-light">Portmap configuration</a>
-        </div>
-        <a href="lock" class="btn btn-light col-4 offset-4 mt-2" style="display: %s" title="Lock interface">Lock
-            interface</a>
+		<div class="form-group row col-4 offset-4 mt-2">
+			<a href="scan" class="btn btn-light col-%s" title="Wifi scan">Wifi Scan</a>
+			<a href="result" class="btn btn-light col-3" type="submit" title="last result" style="display: %s;"><svg
+					xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+					class="bi bi-clock-history" viewBox="0 0 16 16">
+					<path
+						d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022l-.074.997zm2.004.45a7.003 7.003 0 0 0-.985-.299l.219-.976c.383.086.76.2 1.126.342l-.36.933zm1.37.71a7.01 7.01 0 0 0-.439-.27l.493-.87a8.025 8.025 0 0 1 .979.654l-.615.789a6.996 6.996 0 0 0-.418-.302zm1.834 1.79a6.99 6.99 0 0 0-.653-.796l.724-.69c.27.285.52.59.747.91l-.818.576zm.744 1.352a7.08 7.08 0 0 0-.214-.468l.893-.45a7.976 7.976 0 0 1 .45 1.088l-.95.313a7.023 7.023 0 0 0-.179-.483zm.53 2.507a6.991 6.991 0 0 0-.1-1.025l.985-.17c.067.386.106.778.116 1.17l-1 .025zm-.131 1.538c.033-.17.06-.339.081-.51l.993.123a7.957 7.957 0 0 1-.23 1.155l-.964-.267c.046-.165.086-.332.12-.501zm-.952 2.379c.184-.29.346-.594.486-.908l.914.405c-.16.36-.345.706-.555 1.038l-.845-.535zm-.964 1.205c.122-.122.239-.248.35-.378l.758.653a8.073 8.073 0 0 1-.401.432l-.707-.707z" />
+					<path d="M8 1a7 7 0 1 0 4.95 11.95l.707.707A8.001 8.001 0 1 1 8 0v1z" />
+					<path
+						d="M7.5 3a.5.5 0 0 1 .5.5v5.21l3.248 1.856a.5.5 0 0 1-.496.868l-3.5-2A.5.5 0 0 1 7 9V3.5a.5.5 0 0 1 .5-.5z" />
+				</svg></a>
+		</div>
+		<div class="form-group row col-4 offset-4 mt-2">
+			<a href="/ota" class="btn btn-light">OTA Updates</a>
+		</div>
+		<div class="form-group row col-4 offset-4 mt-2">
+			<a href="/portmap" class="btn btn-light">Portmap configuration</a>
+		</div>
+		<a href="lock" class="btn btn-light col-4 offset-4 mt-2" style="display: %s" title="Lock interface">Lock
+			interface</a>
 
-        <div class="form-group row col-4 offset-4 mt-2" style="display: %s">
-            <a href="lock" class="btn btn-light col-9" title="Change/Remove lock pass">Change/Remove lock
-                pass</a>
-            <a href="unlock" class="btn btn-light col-3" type="submit" title="Relock" style="display: block;"><svg
-                    xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock"
-                    viewBox="0 0 16 16">
-                    <path
-                        d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
-                </svg></a>
-        </div>
-        <a href="advanced" class="btn btn-warning col-4 offset-4 mt-5" title="Advanced">Advanced</a>
+		<div class="form-group row col-4 offset-4 mt-2" style="display: %s">
+			<a href="lock" class="btn btn-light col-9" title="Change/Remove lock pass">Change/Remove lock
+				pass</a>
+			<a href="unlock" class="btn btn-light col-3" type="submit" title="Relock" style="display: block;"><svg
+					xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock"
+					viewBox="0 0 16 16">
+					<path
+						d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+				</svg></a>
+		</div>
+		<a href="advanced" class="btn btn-warning col-4 offset-4 mt-5" title="Advanced">Advanced</a>
 
-    </div>
-    <script src="jquery-8a1045d9cbf50b52a0805c111ba08e94.js"></script>
-    <script>     $('.password').on('mousedown mouseup mouseout touchstart touchend', function mouseState(e) { var field = $(this).parent().find('input'); if (e.type == "mousedown" || e.type == "touchstart") { field.get(0).type = 'text'; } else { field.get(0).type = 'password'; } });</script>
-    <script>(function poll() {
-            $.ajax({
-                url: "/api", type: "GET", success: function (data) {
-                    $('#clients').text(data.clients);
-                    $('#db').text(data.strength);
-                    $('#sta').removeClass();
-                    $('#sta').addClass('text-' + data.text);
-                    if (typeof data.strength !== 'undefined' && data.strength < 0) {
-                        $('#wifi_off').hide();
-                        $('#wifi_on').css('display', 'inline-block');
-                    } else {
-                        $('#wifi_on').hide();
-                        $('#wifi_off').css('display', 'inline-block');
-                    }
+	</div>
+	<script src="jquery-8a1045d9cbf50b52a0805c111ba08e94.js"></script>
+	<script>     $('.password').on('mousedown mouseup mouseout touchstart touchend', function mouseState(e) { var field = $(this).parent().find('input'); if (e.type == "mousedown" || e.type == "touchstart") { field.get(0).type = 'text'; } else { field.get(0).type = 'password'; } });</script>
+	<script>(function poll() {
+			$.ajax({
+				url: "/api", type: "GET", success: function (data) {
+					$('#clients').text(data.clients);
+					$('#db').text(data.strength);
+					$('#sta').removeClass();
+					$('#sta').addClass('text-' + data.text);
+					if (typeof data.strength !== 'undefined' && data.strength < 0) {
+						$('#wifi_off').hide();
+						$('#wifi_on').css('display', 'inline-block');
+					} else {
+						$('#wifi_on').hide();
+						$('#wifi_off').css('display', 'inline-block');
+					}
 
-                }, dataType: "json", complete: setTimeout(function () {
-                    poll();
-                }, 3000), timeout: 3000
-            })
-        })();</script>
-    <script>     $('.password').on('mousedown mouseup mouseout touchstart touchend', function mouseState(e) { var field = $(this).parent().find('input'); if (e.type == "mousedown" || e.type == "touchstart") { field.get(0).type = 'text'; } else { field.get(0).type = 'password'; } });</script>
-    <script>$('#wpa2enabled').change(function () {
-            if ($(this).prop('checked')) {
-                $('#wpa2-container').show();
-                $('#wpa2-container input').prop('disabled', false);
-            } else {
-                $('#wpa2-container').hide();
-                $('#wpa2-container input').prop('disabled', true);
-            }
-        })</script>
+				}, dataType: "json", complete: setTimeout(function () {
+					poll();
+				}, 3000), timeout: 3000
+			})
+		})();</script>
+	<script>     $('.password').on('mousedown mouseup mouseout touchstart touchend', function mouseState(e) { var field = $(this).parent().find('input'); if (e.type == "mousedown" || e.type == "touchstart") { field.get(0).type = 'text'; } else { field.get(0).type = 'password'; } });</script>
+	<script>$('#wpa2enabled').change(function () {
+			if ($(this).prop('checked')) {
+				$('#wpa2-container').show();
+				$('#wpa2-container input').prop('disabled', false);
+			} else {
+				$('#wpa2-container').hide();
+				$('#wpa2-container input').prop('disabled', true);
+			}
+		})</script>
 </body>
 
 </html>
