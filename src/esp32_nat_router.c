@@ -577,12 +577,28 @@ void wifi_init(const char *ssid, const char *passwd, const char *static_ip, cons
     if (isLowerBandwith == 1)
     {
         ESP_LOGI(TAG, "Setting the bandwith to 40 MHz");
-        esp_err_t err = esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT40);
+        esp_err_t err = esp_wifi_set_bandwidth(ESP_IF_WIFI_AP, WIFI_BW_HT40);
         if (err == ESP_ERR_INVALID_ARG)
         {
             ESP_LOGE(TAG, "Setting the bandwith to 40 MHz failed. Interface doesn't support it.");
         }
     }
+    else if (isLowerBandwith == 0)
+    {
+        ESP_LOGI(TAG, "Setting the bandwith to 20 MHz");
+        esp_err_t err = esp_wifi_set_bandwidth(ESP_IF_WIFI_AP, WIFI_BW_HT20);
+        if (err == ESP_ERR_INVALID_ARG)
+        {
+            ESP_LOGE(TAG, "Setting the bandwith to 20 MHz failed. Interface doesn't support it.");
+        }
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Invalid bandwidth configuration: %ld", isLowerBandwith);
+    }
+
+    
+
 
     setHostName();
     set3rdOctet();
