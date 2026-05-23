@@ -42,6 +42,7 @@
 #include "lwip/lwip_napt.h"
 
 #include "router_globals.h"
+#include "liveness_watchdog.h"
 
 // On board LED
 #define BLINK_GPIO 2
@@ -444,20 +445,21 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
 
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
+        reconnect_backoff_reset();
         esp_wifi_connect();
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
         ESP_LOGI(TAG, "disconnected - retry to connect to the STA");
         ap_connect = false;
-        esp_wifi_connect();
-        ESP_LOGI(TAG, "retry to connect to the STA");
+        reconnect_backoff_schedule();
         xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(TAG, "Got IP: http://" IPSTR, IP2STR(&event->ip_info.ip));
+        reconnect_backoff_reset();
         stop_dns_server();
         ap_connect = true;
         my_ip = event->ip_info.ip.addr;
@@ -881,6 +883,8 @@ void app_main(void)
         ESP_LOGW(TAG, "'nvs_namespace esp32_nat'");
         ESP_LOGW(TAG, "'nvs_set lock i32 -v 0'");
     }
+
+    start_liveness_watchdog();
 
     /* Prompt to be printed before each line.
      * This can be customized, made dynamic, etc.
