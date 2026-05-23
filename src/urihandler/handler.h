@@ -50,6 +50,7 @@ esp_err_t ota_download_get_handler(httpd_req_t *req);
 esp_err_t otalog_get_handler(httpd_req_t *req);
 esp_err_t ota_post_handler(httpd_req_t *req);
 esp_err_t otalog_post_handler(httpd_req_t *req);
+esp_err_t uploadfw_post_handler(httpd_req_t *req);
 
 /* About-Handler */
 esp_err_t about_get_handler(httpd_req_t *req);

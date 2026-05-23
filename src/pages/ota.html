@@ -54,8 +54,50 @@
                 <input type=submit value="Install latest version" class="btn btn-warning">
             </div>
         </form>
+
+        <hr class="mt-5">
+        <div class="row text-center">
+            <h2>Upload custom firmware</h2>
+        </div>
+        <div class="form-group row col-8 offset-2 mt-2">
+            <input type="file" id="fwfile" accept=".bin" class="form-control">
+        </div>
+        <div class="form-group row col-4 offset-4 mt-2">
+            <button id="fwupload" class="btn btn-danger">Flash uploaded firmware</button>
+        </div>
+        <div class="form-group row col-8 offset-2 mt-2">
+            <progress id="fwprog" max="100" value="0" style="width:100%;display:none"></progress>
+            <div id="fwstatus" class="text-center mt-2"></div>
+        </div>
+
         <div class="form-group row col-4 offset-4 mt-5"> <a href=/ class="btn btn-light">Back</a> </div>
     </div>
+    <script>
+    (function(){
+        var btn=document.getElementById('fwupload');
+        var f=document.getElementById('fwfile');
+        var prog=document.getElementById('fwprog');
+        var st=document.getElementById('fwstatus');
+        btn.addEventListener('click',function(e){
+            e.preventDefault();
+            if(!f.files||!f.files[0]){st.textContent='Choose a .bin file first.';return;}
+            if(!confirm('Flash '+f.files[0].name+' ('+f.files[0].size+' bytes)? Device will reboot.'))return;
+            btn.disabled=true;prog.style.display='block';prog.value=0;st.textContent='Uploading...';
+            var xhr=new XMLHttpRequest();
+            xhr.open('POST','/uploadfw',true);
+            xhr.setRequestHeader('Content-Type','application/octet-stream');
+            xhr.upload.onprogress=function(ev){
+                if(ev.lengthComputable){prog.value=Math.round(ev.loaded*100/ev.total);st.textContent='Uploading... '+prog.value+'%';}
+            };
+            xhr.onload=function(){
+                if(xhr.status===200){st.textContent='OK - rebooting. Refresh in 30s.';prog.value=100;}
+                else{st.textContent='Failed ('+xhr.status+'): '+xhr.responseText;btn.disabled=false;}
+            };
+            xhr.onerror=function(){st.textContent='Network error during upload.';btn.disabled=false;};
+            xhr.send(f.files[0]);
+        });
+    })();
+    </script>
 </body>
 
 </html>
