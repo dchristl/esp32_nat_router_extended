@@ -9,6 +9,8 @@
 #include "router_globals.h"
 #include "esp_wifi.h"
 #include "esp_wifi_ap_get_sta_list.h"
+#include "lwip/etharp.h"
+#include <string.h>
 
 static const char *TAG = "ClientsHandler";
 
@@ -38,6 +40,27 @@ esp_err_t clients_download_get_handler(httpd_req_t *req)
 
             char *template = malloc(strlen(CLIENT_TEMPLATE) + 100);
             esp_netif_pair_mac_ip_t station = adapter_sta_list.sta[i];
+
+            // The IP comes from the AP DHCP-server lease table, so it's
+            // 0.0.0.0 for a station without a lease (static IP, or a lease
+            // lost across a reboot before the client renews). Fall back to
+            // the lwIP ARP table — the router has a MAC<->IP entry for any
+            // client it has exchanged traffic with.
+            if (station.ip.addr == 0)
+            {
+                for (size_t k = 0; k < ARP_TABLE_SIZE; k++)
+                {
+                    ip4_addr_t *arp_ip;
+                    struct netif *arp_netif;
+                    struct eth_addr *arp_eth;
+                    if (etharp_get_entry(k, &arp_ip, &arp_netif, &arp_eth) &&
+                        memcmp(arp_eth->addr, station.mac, 6) == 0)
+                    {
+                        station.ip.addr = arp_ip->addr;
+                        break;
+                    }
+                }
+            }
 
             char str_ip[16];
             esp_ip4addr_ntoa(&(station.ip), str_ip, IP4ADDR_STRLEN_MAX);
