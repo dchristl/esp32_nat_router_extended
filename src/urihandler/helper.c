@@ -1,7 +1,77 @@
 #include "helper.h"
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 static const char *TAG = "urihelper";
+
+char *html_escape(const char *src)
+{
+    if (src == NULL)
+    {
+        src = "";
+    }
+    size_t len = 0;
+    for (const char *p = src; *p != '\0'; p++)
+    {
+        switch (*p)
+        {
+        case '&':
+            len += 5; // &amp;
+            break;
+        case '<':
+        case '>':
+            len += 4; // &lt; / &gt;
+            break;
+        case '"':
+            len += 6; // &quot;
+            break;
+        case '\'':
+            len += 5; // &#39;
+            break;
+        default:
+            len += 1;
+            break;
+        }
+    }
+    char *out = malloc(len + 1);
+    if (out == NULL)
+    {
+        return NULL;
+    }
+    char *q = out;
+    for (const char *p = src; *p != '\0'; p++)
+    {
+        switch (*p)
+        {
+        case '&':
+            memcpy(q, "&amp;", 5);
+            q += 5;
+            break;
+        case '<':
+            memcpy(q, "&lt;", 4);
+            q += 4;
+            break;
+        case '>':
+            memcpy(q, "&gt;", 4);
+            q += 4;
+            break;
+        case '"':
+            memcpy(q, "&quot;", 6);
+            q += 6;
+            break;
+        case '\'':
+            memcpy(q, "&#39;", 5);
+            q += 5;
+            break;
+        default:
+            *q++ = *p;
+            break;
+        }
+    }
+    *q = '\0';
+    return out;
+}
 
 void preprocess_string(char *str)
 {

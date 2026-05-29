@@ -200,6 +200,18 @@
                                         clients connected to the upstream network. This changes both the IP of the
                                         router and the IP of all connected clients.</div>
                         </div>
+                        <h2>OTA update source</h2>
+                        <div class="form-group row mt-2">
+                                <label class="form-label" for="ota_url">Custom OTA URL</label>
+                                <input class="form-control mt-2" id="ota_url" maxlength="200" name="ota_url"
+                                                placeholder="https://example.com/path/ (leave blank for default)"
+                                                type="text" value="%s">
+                                <small class="form-text text-muted mt-2">Overrides the source URL used by the
+                                        "Install latest version" button on the <a href="/ota">OTA page</a>. If set,
+                                        the device fetches <code>firmware.bin</code> directly from this URL (chip
+                                        suffix is NOT appended). Leave blank to fall back to the upstream release
+                                        branch.</small>
+                        </div>
                         <div class="form-group row col-4 offset-4 mt-4"> <input class="btn btn-primary" type=submit
                                         value="Apply"> </div> <input type=hidden value=x name=x>
                 </form>

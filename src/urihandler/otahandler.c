@@ -347,9 +347,17 @@ esp_err_t ota_download_get_handler(httpd_req_t *req)
     char customUrl[200];
     char label[20];
     getOtaUrl(customUrl, label);
+    // HTML-escape ota_url (customUrl) before rendering it into the
+    // href="%s" attribute on the OTA page — it's user-controlled (editable
+    // on the Advanced page, persisted in NVS), so an unescaped value is
+    // stored XSS. label is a fixed string (Custom/Default/Canary build).
+    char *customUrlEsc = html_escape(customUrl);
+    if (customUrlEsc == NULL)
+        customUrlEsc = strdup("");
     const char *project_version = get_project_version();
-    char *ota_page = malloc(ota_html_size + strlen(project_version) + strlen(customUrl) + strlen(latest_version) + strlen(chip_type) + strlen(label) + strlen(changelog));
-    sprintf(ota_page, ota_start, project_version, latest_version, changelog, customUrl, label, chip_type);
+    char *ota_page = malloc(ota_html_size + strlen(project_version) + strlen(customUrlEsc) + strlen(latest_version) + strlen(chip_type) + strlen(label) + strlen(changelog));
+    sprintf(ota_page, ota_start, project_version, latest_version, changelog, customUrlEsc, label, chip_type);
+    free(customUrlEsc);
 
     closeHeader(req);
 

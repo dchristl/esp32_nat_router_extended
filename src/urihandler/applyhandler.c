@@ -328,6 +328,23 @@ void applyAdvancedConfig(char *buf)
         nvs_erase_key(nvs, "hostname");
     }
 
+    {
+        // OTA source URL. Empty input clears the override → fall back to upstream default.
+        // Buffer needs to be large enough for full URL; reuse a sized stack buffer.
+        char otaParam[256];
+        readUrlParameterIntoBuffer(buf, "ota_url", otaParam, sizeof(otaParam));
+        if (strlen(otaParam) > 0)
+        {
+            ESP_LOGI(TAG, "Set ota_url to: %s", otaParam);
+            ESP_ERROR_CHECK(nvs_set_str(nvs, "ota_url", otaParam));
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Clearing custom ota_url (using upstream default)");
+            nvs_erase_key(nvs, "ota_url");
+        }
+    }
+
     readUrlParameterIntoBuffer(buf, "octet", param, contentLength);
     int octet = atoi(param);
     if (strlen(param) > 0 && octet >= 0 && octet <= 255)
